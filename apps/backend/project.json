@@ -21,7 +21,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "dotnet test",
-        "cwd": "apps/backend.Tests"
+        "cwd": "apps/backend-tests"
       }
     }
   }

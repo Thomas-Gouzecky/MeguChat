@@ -21,7 +21,6 @@ services:
     volumes:
       - postgres_primary_data:/var/lib/postgresql
       - ./primary/init-replication.sql:/docker-entrypoint-initdb.d/init-replication.sql
-      - ./primary/init-replication.sh:/docker-entrypoint-initdb.d/init-replication.sh
     networks:
       - meguchat-network
 

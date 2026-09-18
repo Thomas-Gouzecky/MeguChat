@@ -22,7 +22,7 @@ services:
       timeout: 5s
       retries: 15
     ports:
-      - '5432:5432'
+      - '5433:5432'
     volumes:
       - postgres_primary_data:/var/lib/postgresql
       - ./primary/init-replication.sql:/docker-entrypoint-initdb.d/init-replication.sql
@@ -44,7 +44,7 @@ services:
       POSTGRES_PRIMARY_HOST: postgres-primary
       POSTGRES_PRIMARY_PORT: 5432
     ports:
-      - '5433:5432'
+      - '5434:5432'
     volumes:
       - postgres_replica_data:/var/lib/postgresql/18/docker
       - ./replica-entrypoint.sh:/usr/local/bin/replica-entrypoint.sh:ro

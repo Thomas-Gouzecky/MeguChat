@@ -7,6 +7,8 @@ from app.DTOs import GroupChatCreationResponse
 router = APIRouter(prefix="/api/groupchats", tags=["groupchats"])
 
 
-@router.post("")
-def create_new_groupchat(request_body: GroupChats, session: SessionDep) -> GroupChatCreationResponse:
+@router.post("", response_model=GroupChatCreationResponse)
+def create_new_groupchat(
+    request_body: GroupChats, session: SessionDep
+) -> GroupChatCreationResponse:
     return groupchat_service.create_groupchat(request_body, session)

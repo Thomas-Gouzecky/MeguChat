@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlmodel import Field, SQLModel, Column
 from sqlalchemy import DateTime, ForeignKey, Integer, Text, text
@@ -28,6 +28,7 @@ class Messages(SQLModel, table=True):
         sa_column=Column(
             DateTime(timezone=True),
             server_default=text("CURRENT_TIMESTAMP"),
+            onupdate=lambda: datetime.now(timezone.utc),
             nullable=False,
         )
     )

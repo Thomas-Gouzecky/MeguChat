@@ -1,0 +1,28 @@
+{
+  "name": "backend",
+  "sourceRoot": "apps/backend",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet run --project Backend.csproj",
+        "cwd": "apps/backend"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet build Backend.csproj",
+        "cwd": "apps/backend"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet test",
+        "cwd": "apps/backend.Tests"
+      }
+    }
+  }
+}

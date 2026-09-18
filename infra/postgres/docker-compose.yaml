@@ -1,0 +1,58 @@
+services:
+  postgres-primary:
+    image: postgres:18
+    container_name: postgres-primary
+    environment:
+      POSTGRES_USER: meguchat
+      POSTGRES_PASSWORD: meguchat
+      POSTGRES_DB: meguchat
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - hot_standby=on
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_primary_data:/var/lib/postgresql
+      - ./primary/init-replication.sql:/docker-entrypoint-initdb.d/init-replication.sql
+      - ./primary/init-replication.sh:/docker-entrypoint-initdb.d/init-replication.sh
+    networks:
+      - meguchat-network
+
+  postgres-replica:
+    image: postgres:18
+    container_name: postgres-replica
+    command:
+      - postgres
+      - -c
+      - primary_conninfo=host=postgres-primary port=5432 user=replicator password=replication-password application_name=postgres-replica
+    environment:
+      POSTGRES_USER: meguchat
+      POSTGRES_PASSWORD: meguchat
+      POSTGRES_DB: meguchat
+      PGPASSWORD: replication-password
+      POSTGRES_PRIMARY_HOST: postgres-primary
+      POSTGRES_PRIMARY_PORT: 5432
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql
+    networks:
+      - meguchat-network
+    depends_on:
+      - postgres-primary
+
+volumes:
+  postgres_primary_data:
+    driver: local
+  postgres_replica_data:
+    driver: local
+
+networks:
+  meguchat-network:

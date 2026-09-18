@@ -1,2 +1,2 @@
-from GroupChats import GroupChats
-from Messages import Messages
+from .GroupChats import GroupChats
+from .Messages import Messages

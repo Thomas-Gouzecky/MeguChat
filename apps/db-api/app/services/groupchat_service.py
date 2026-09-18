@@ -2,15 +2,21 @@ from sqlmodel import Session
 
 from app.models import GroupChats
 from app.repositories.groupchat_repo import create_a_new_groupchat_entry
-from app.DTOs import GroupChatCreationResponse
+from app.DTOs import GroupChatCreationRequest, GroupChatCreationResponse
 
 
 def create_groupchat(
-    request_body: GroupChats,
+    request_body: GroupChatCreationRequest,
     session: Session,
 ) -> GroupChatCreationResponse:
+
+    groupchat_request = GroupChats(
+        name=request_body.name,
+        users=request_body.users,
+    )
+
     groupchat = create_a_new_groupchat_entry(
-        request_body,
+        groupchat_request,
         session,
     )
 

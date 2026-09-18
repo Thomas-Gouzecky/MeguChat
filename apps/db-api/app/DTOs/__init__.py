@@ -1,1 +1,2 @@
+from .GroupChatCreationRequest import GroupChatCreationRequest
 from .GroupChatCreationResponse import GroupChatCreationResponse

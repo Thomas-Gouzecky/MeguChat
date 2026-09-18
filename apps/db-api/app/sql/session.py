@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, create_engine, SQLModel
 
-from configs import PRIMARY_DB_STRING
+from app.configs import PRIMARY_DB_STRING
 
 engine = create_engine(PRIMARY_DB_STRING)
 

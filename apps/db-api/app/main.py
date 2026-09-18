@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from sql import SessionDep, create_db_and_tables
+
+from app.sql import SessionDep, create_db_and_tables
 
 app = FastAPI()
 

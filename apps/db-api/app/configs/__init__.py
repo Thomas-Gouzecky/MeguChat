@@ -1,1 +1,1 @@
-from settings import PRIMARY_DB_STRING, REPLICA_DB_STRING
+from .settings import PRIMARY_DB_STRING, REPLICA_DB_STRING

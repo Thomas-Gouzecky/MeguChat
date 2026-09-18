@@ -1,0 +1,21 @@
+{
+  "name": "db-api",
+  "sourceRoot": "apps/db-api",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv run fastapi dev",
+        "cwd": "apps/db-api"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv run pytest",
+        "cwd": "apps/db-api"
+      }
+    }
+  }
+}

@@ -15,3 +15,12 @@ def add_message_to_groupchat(
     session.refresh(new_message)
 
     return new_message
+
+
+def delete_message_from_groupchat(message_id: int, session: Session) -> None:
+    message = session.get(Messages, message_id)
+    if not message:
+        raise ValueError(f"Message with ID {message_id} not found")
+
+    session.delete(message)
+    session.commit()

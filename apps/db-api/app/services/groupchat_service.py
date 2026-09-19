@@ -17,19 +17,6 @@ from app.DTOs import (
 )
 
 
-def create_message_for_groupchat(
-    groupchat_id: int,
-    request_body: MessageCreationRequest,
-    session: Session,
-) -> Messages:
-    return create_message_in_repository(
-        groupchat_id,
-        request_body.user_id,
-        request_body.content,
-        session,
-    )
-
-
 def create_groupchat(
     request_body: GroupChatCreationRequest,
     session: Session,
@@ -94,24 +81,3 @@ def delete_groupchat(
     session: Session,
 ) -> None:
     delete_groupchat_in_repository(groupchat_id, session)
-
-
-def get_messages_for_groupchat(
-    groupchat_id: int,
-    session: Session,
-) -> list:
-    get_messages = get_messages_for_groupchat_in_repository(groupchat_id, session)
-    return get_messages
-
-
-def add_message_to_groupchat(
-    user_id: str,
-    groupchat_id: int,
-    content: str,
-    session: Session,
-) -> None:
-    from app.repositories.messages_repo import (
-        add_message_to_groupchat as add_message_to_groupchat_in_repository,
-    )
-
-    add_message_to_groupchat_in_repository(user_id, groupchat_id, content, session)

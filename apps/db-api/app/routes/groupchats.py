@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.services import groupchat_service, groupchatmember_service
+from app.services import groupchat_service, groupchatmember_service, messages_service
 from app.sql import SessionDep
 from app.DTOs import (
     GroupChatCreationRequest,
@@ -44,7 +44,7 @@ def delete_groupchat(groupchat_id: int, session: SessionDep) -> dict:
 
 @router.get("/{groupchat_id}/messages", response_model=list)
 def get_messages_for_groupchat(groupchat_id: int, session: SessionDep) -> list:
-    messages = groupchat_service.get_messages_for_groupchat(groupchat_id, session)
+    messages = messages_service.get_messages_for_groupchat(groupchat_id, session)
     return [
         {
             "id": message.id,
@@ -65,7 +65,7 @@ def create_message_for_groupchat(
     session: SessionDep,
 ) -> dict:
     try:
-        message = groupchat_service.create_message_for_groupchat(
+        message = messages_service.create_message_for_groupchat(
             groupchat_id, request_body, session
         )
     except ValueError as error:
@@ -81,25 +81,18 @@ def create_message_for_groupchat(
     }
 
 
-@router.post("/{groupchat_id}/messages", response_model=dict)
-def add_message_to_groupchat(
-    groupchat_id: int, request_body: dict, session: SessionDep
+@router.delete("/{groupchat_id}/messages/{message_id}", response_model=dict)
+def delete_message_from_groupchat(
+    groupchat_id: int, message_id: int, session: SessionDep
 ) -> dict:
-    content = request_body.get("content")
-    if not content:
-        raise HTTPException(status_code=422, detail="Missing 'content' in request body")
-    user_id = request_body.get("user_id")
-    if not user_id:
-        raise HTTPException(status_code=422, detail="Missing 'user_id' in request body")
-
     try:
-        groupchat_service.add_message_to_groupchat(
-            user_id, groupchat_id, content, session
-        )
+        messages_service.delete_message_from_groupchat(message_id, session)
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
-    return {"message": f"Message has been added to groupchat {groupchat_id}."}
+    return {
+        "message": f"Message with ID {message_id} has been deleted from groupchat {groupchat_id}."
+    }
 
 
 @router.post("/{groupchat_id}/members", response_model=dict)

@@ -38,6 +38,7 @@ def create_groupchat():
     _add_members_to_groupchat(chat_id, ["user1", "user2"])
     return _create_groupchat
 
+
 def test_get_messages_for_groupchat(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Messages")
     response = client.get(f"/api/groupchats/{groupchat_id}/messages")
@@ -48,6 +49,7 @@ def test_get_messages_for_groupchat(create_groupchat):
     assert isinstance(response_body, list)
     # Assuming the groupchat is new and has no messages yet
     assert len(response_body) == 0
+
 
 def test_add_messages_to_groupchat(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Adding Messages")
@@ -66,3 +68,28 @@ def test_add_messages_to_groupchat(create_groupchat):
     assert isinstance(messages, list)
     assert len(messages) == 1
     assert messages[0]["content"] == "Hello, this is a test message."
+
+
+def test_delete_message_from_groupchat(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Deleting Messages")
+    # Add a message to the groupchat
+    message_request_body = {"content": "Message to be deleted."}
+    response = client.post(
+        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+    )
+    assert response.status_code == 200
+    message_id = response.json()["id"]
+
+    # Delete the message
+    delete_response = client.delete(
+        f"/api/groupchats/{groupchat_id}/messages/{message_id}"
+    )
+    assert delete_response.status_code == 200
+
+    # Verify that the message has been deleted
+    get_response = client.get(f"/api/groupchats/{groupchat_id}/messages")
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    assert isinstance(messages, list)
+    assert all(message["id"] != message_id for message in messages)

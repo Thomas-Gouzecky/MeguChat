@@ -7,6 +7,10 @@ from sqlalchemy.dialects.postgresql import ARRAY
 class GroupChatMembers(SQLModel, table=True):
     __tablename__: str = "GroupChatMembers"
 
+    id: int | None = Field(
+        default=None,
+        sa_column=Column(Integer, primary_key=True),
+    )
     user_id: str = Field(sa_column=Column(Text, nullable=False))
     group_chat_id: int = Field(
         sa_column=Column(

@@ -12,7 +12,6 @@ def create_groupchat(
 
     groupchat_request = GroupChats(
         name=request_body.name,
-        users=request_body.users,
     )
 
     groupchat = create_a_new_groupchat_entry(

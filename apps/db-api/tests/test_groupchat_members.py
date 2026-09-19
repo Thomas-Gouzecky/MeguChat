@@ -19,6 +19,28 @@ def test_get_groupchat_for_user():
         assert "created_at" in groupchat
 
 
+def test_add_multiple_members_to_groupchat():
+    # Create a groupchat for user1
+    user1_request_body = {"name": "User 1 Group Chat"}
+    create_response = client.post("/api/groupchats", json=user1_request_body)
+    assert create_response.status_code == 200
+    groupchat_id = create_response.json()["groupchat_id"]
+
+    # Add multiple members to the groupchat
+    add_members_request_body = {"users": ["user2", "user3"]}
+    add_members_response = client.post(
+        f"/api/groupchats/{groupchat_id}/members", json=add_members_request_body
+    )
+    assert add_members_response.status_code == 200
+
+    # Verify that user2 and user3 can now see the groupchat
+    for user_id in ["user2", "user3"]:
+        user_response = client.get(f"/api/groupchats/user/{user_id}")
+        assert user_response.status_code == 200
+        user_groupchats = user_response.json()
+        assert any(gc["groupchat_id"] == groupchat_id for gc in user_groupchats)
+
+
 def test_get_groupchat_for_user_no_groupchats():
     user_id = "nonexistent_user"
     response = client.get(f"/api/groupchats/user/{user_id}")
@@ -52,7 +74,7 @@ def test_add_member_to_groupchat():
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Add user2 to the groupchat
-    add_member_request_body = {"user_id": "user2"}
+    add_member_request_body = {"users": "user2"}
     add_member_response = client.post(
         f"/api/groupchats/{groupchat_id}/members", json=add_member_request_body
     )
@@ -70,7 +92,7 @@ def test_cannot_add_same_member_to_groupchat_twice():
         "/api/groupchats", json={"name": "Duplicate Member Test"}
     )
     groupchat_id = create_response.json()["groupchat_id"]
-    member_request = {"user_id": "user2"}
+    member_request = {"users": "user2"}
 
     first_response = client.post(
         f"/api/groupchats/{groupchat_id}/members", json=member_request
@@ -92,7 +114,7 @@ def test_remove_member_from_groupchat():
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Add user2 to the groupchat
-    add_member_request_body = {"user_id": "user2"}
+    add_member_request_body = {"users": "user2"}
     add_member_response = client.post(
         f"/api/groupchats/{groupchat_id}/members", json=add_member_request_body
     )
@@ -100,7 +122,7 @@ def test_remove_member_from_groupchat():
 
     # Remove user2 from the groupchat
     remove_member_response = client.delete(
-        f"/api/groupchats/{groupchat_id}/members/{add_member_request_body['user_id']}"
+        f"/api/groupchats/{groupchat_id}/members/{add_member_request_body['users']}"
     )
     assert remove_member_response.status_code == 200
 

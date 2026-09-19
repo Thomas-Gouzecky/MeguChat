@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.services import groupchat_service
+from app.services import groupchat_service, groupchatmember_service
 from app.sql import SessionDep
 from app.DTOs import (
     GroupChatCreationRequest,
@@ -40,6 +40,25 @@ def delete_groupchat(groupchat_id: int, session: SessionDep) -> dict:
 
     return {"message": f"Groupchat with ID {groupchat_id} has been deleted."}
 
+
 @router.get("/{groupchat_id}/messages", response_model=list)
 def get_messages_for_groupchat(groupchat_id: int, session: SessionDep) -> list:
     return groupchat_service.get_messages_for_groupchat(groupchat_id, session)
+
+
+@router.post("/{groupchat_id}/members", response_model=dict)
+def add_member_to_groupchat(
+    groupchat_id: int, request_body: dict, session: SessionDep
+) -> dict:
+    user_id = request_body.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=422, detail="Missing 'user_id' in request body")
+
+    try:
+        groupchatmember_service.add_member_to_groupchat(groupchat_id, user_id, session)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    return {
+        "message": f"User with ID {user_id} has been added to groupchat {groupchat_id}."
+    }

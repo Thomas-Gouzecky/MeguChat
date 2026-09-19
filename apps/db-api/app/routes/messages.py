@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from app.auth import get_current_user
 from app.services import messages_service
 from app.sql import SessionDep
 from app.DTOs import (
@@ -59,10 +60,17 @@ def create_message_for_groupchat(
 
 @router.delete("/{message_id}", response_model=dict)
 def delete_message_from_groupchat(
-    groupchat_id: int, message_id: int, session: SessionDep
+    groupchat_id: int,
+    message_id: int,
+    session: SessionDep,
+    current_user: str = Depends(get_current_user),
 ) -> dict:
     try:
-        messages_service.delete_message_from_groupchat(message_id, session)
+        messages_service.delete_message_from_groupchat(
+            groupchat_id, message_id, current_user, session
+        )
+    except PermissionError as error:
+        raise HTTPException(status_code=403, detail=str(error)) from error
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 

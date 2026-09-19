@@ -28,10 +28,16 @@ def add_message_to_groupchat(
     return new_message
 
 
-def delete_message_from_groupchat(message_id: int, session: Session) -> None:
+def delete_message_from_groupchat(
+    groupchat_id: int, message_id: int, user_id: str, session: Session
+) -> None:
     message = session.get(Messages, message_id)
     if not message:
         raise ValueError(f"Message with ID {message_id} not found")
+    if message.group_chat_id != groupchat_id:
+        raise ValueError(f"Message with ID {message_id} is not in this groupchat")
+    if message.user_id != user_id:
+        raise PermissionError("Only the message author can delete this message")
 
     session.delete(message)
     session.commit()

@@ -84,7 +84,8 @@ def test_delete_message_from_groupchat(create_groupchat):
 
     # Delete the message
     delete_response = client.delete(
-        f"/api/groupchats/{groupchat_id}/messages/{message_id}"
+        f"/api/groupchats/{groupchat_id}/messages/{message_id}",
+        headers={"X-User-ID": "user1"},
     )
     assert delete_response.status_code == 200
 
@@ -95,6 +96,25 @@ def test_delete_message_from_groupchat(create_groupchat):
 
     assert isinstance(messages, list)
     assert all(message["id"] != message_id for message in messages)
+
+
+def test_other_users_cannot_delete_messages(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Unauthorized Deletion")
+    # Add a message to the groupchat by user1
+    message_request_body = {"content": "Message by user1.", "user_id": "user1"}
+    response = client.post(
+        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+    )
+    assert response.status_code == 200
+    message_id = response.json()["id"]
+
+    # Attempt to delete the message by user2 (not the owner)
+    delete_response = client.delete(
+        f"/api/groupchats/{groupchat_id}/messages/{message_id}",
+        headers={"X-User-ID": "user2"},
+    )
+    # Assuming the API does not allow deletion by non-owners, we expect a 403 Forbidden or similar status code.
+    assert delete_response.status_code == 422 or delete_response.status_code == 403
 
 
 def test_update_message_in_groupchat(create_groupchat):

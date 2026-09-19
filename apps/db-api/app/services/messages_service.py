@@ -38,14 +38,18 @@ def create_message_for_groupchat(
 
 
 def delete_message_from_groupchat(
+    groupchat_id: int,
     message_id: int,
+    user_id: str,
     session: Session,
 ) -> None:
     from app.repositories.messages_repo import (
         delete_message_from_groupchat as delete_message_from_groupchat_in_repository,
     )
 
-    delete_message_from_groupchat_in_repository(message_id, session)
+    delete_message_from_groupchat_in_repository(
+        groupchat_id, message_id, user_id, session
+    )
 
 
 def update_message_in_groupchat(

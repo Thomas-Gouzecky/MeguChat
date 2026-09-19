@@ -62,3 +62,19 @@ def add_member_to_groupchat(
     return {
         "message": f"User with ID {user_id} has been added to groupchat {groupchat_id}."
     }
+
+
+@router.delete("/{groupchat_id}/members/{user_id}", response_model=dict)
+def remove_member_from_groupchat(
+    groupchat_id: int, user_id: str, session: SessionDep
+) -> dict:
+    try:
+        groupchatmember_service.remove_member_from_groupchat(
+            groupchat_id, user_id, session
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    return {
+        "message": f"User with ID {user_id} has been removed from groupchat {groupchat_id}."
+    }

@@ -10,3 +10,26 @@ def add_member_to_groupchat(groupchat_id: int, user_id: str, session: Session) -
     new_member = GroupChatMembers(group_chat_id=groupchat_id, user_id=user_id)
     session.add(new_member)
     session.commit()
+
+
+def remove_member_from_groupchat(
+    groupchat_id: int, user_id: str, session: Session
+) -> None:
+    groupchat = session.get(GroupChats, groupchat_id)
+    if not groupchat:
+        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+
+    member_to_remove = session.exec(
+        select(GroupChatMembers).where(
+            GroupChatMembers.group_chat_id == groupchat_id,
+            GroupChatMembers.user_id == user_id,
+        )
+    ).first()
+
+    if not member_to_remove:
+        raise ValueError(
+            f"User with ID {user_id} is not a member of groupchat {groupchat_id}"
+        )
+
+    session.delete(member_to_remove)
+    session.commit()

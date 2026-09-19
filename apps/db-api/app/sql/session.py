@@ -3,7 +3,7 @@ from fastapi import Depends
 from sqlmodel import Session, create_engine, SQLModel
 
 from app.configs import PRIMARY_DB_STRING
-from app.models import GroupChats, Messages
+from app.models import GroupChats, GroupChatMembers, Messages
 
 engine = create_engine(PRIMARY_DB_STRING)
 

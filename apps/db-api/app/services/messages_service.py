@@ -40,3 +40,20 @@ def delete_message_from_groupchat(
     )
 
     delete_message_from_groupchat_in_repository(message_id, session)
+
+
+def update_message_in_groupchat(
+    message_id: int,
+    new_content: MessageCreationRequest,
+    session: Session,
+) -> Messages:
+    from app.repositories.messages_repo import (
+        update_message_in_groupchat as update_message_in_groupchat_in_repository,
+    )
+
+    if not new_content.content:
+        raise ValueError("New content cannot be empty")
+
+    return update_message_in_groupchat_in_repository(
+        message_id, new_content.content, session
+    )

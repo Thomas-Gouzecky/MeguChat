@@ -42,59 +42,6 @@ def delete_groupchat(groupchat_id: int, session: SessionDep) -> dict:
     return {"message": f"Groupchat with ID {groupchat_id} has been deleted."}
 
 
-@router.get("/{groupchat_id}/messages", response_model=list)
-def get_messages_for_groupchat(groupchat_id: int, session: SessionDep) -> list:
-    messages = messages_service.get_messages_for_groupchat(groupchat_id, session)
-    return [
-        {
-            "id": message.id,
-            "user_id": message.user_id,
-            "group_chat_id": message.group_chat_id,
-            "content": message.message,
-            "created_at": message.created_at,
-            "modified_at": message.modified_at,
-        }
-        for message in messages
-    ]
-
-
-@router.post("/{groupchat_id}/messages", response_model=dict)
-def create_message_for_groupchat(
-    groupchat_id: int,
-    request_body: MessageCreationRequest,
-    session: SessionDep,
-) -> dict:
-    try:
-        message = messages_service.create_message_for_groupchat(
-            groupchat_id, request_body, session
-        )
-    except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
-
-    return {
-        "id": message.id,
-        "user_id": message.user_id,
-        "group_chat_id": message.group_chat_id,
-        "content": message.message,
-        "created_at": message.created_at,
-        "modified_at": message.modified_at,
-    }
-
-
-@router.delete("/{groupchat_id}/messages/{message_id}", response_model=dict)
-def delete_message_from_groupchat(
-    groupchat_id: int, message_id: int, session: SessionDep
-) -> dict:
-    try:
-        messages_service.delete_message_from_groupchat(message_id, session)
-    except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
-
-    return {
-        "message": f"Message with ID {message_id} has been deleted from groupchat {groupchat_id}."
-    }
-
-
 @router.post("/{groupchat_id}/members", response_model=dict)
 def add_member_to_groupchat(
     groupchat_id: int, request_body: dict, session: SessionDep

@@ -93,3 +93,30 @@ def test_delete_message_from_groupchat(create_groupchat):
 
     assert isinstance(messages, list)
     assert all(message["id"] != message_id for message in messages)
+
+def test_update_message_in_groupchat(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Updating Messages")
+    # Add a message to the groupchat
+    message_request_body = {"content": "Message to be updated."}
+    response = client.post(
+        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+    )
+    assert response.status_code == 200
+    message_id = response.json()["id"]
+
+    # Update the message
+    update_request_body = {"content": "Updated message content."}
+    update_response = client.put(
+        f"/api/groupchats/{groupchat_id}/messages/{message_id}", json=update_request_body
+    )
+    assert update_response.status_code == 200
+
+    # Verify that the message has been updated
+    get_response = client.get(f"/api/groupchats/{groupchat_id}/messages")
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    assert isinstance(messages, list)
+    updated_message = next((msg for msg in messages if msg["id"] == message_id), None)
+    assert updated_message is not None
+    assert updated_message["content"] == "Updated message content."

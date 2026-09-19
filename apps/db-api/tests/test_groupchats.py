@@ -30,3 +30,10 @@ def test_create_new_groupchat_missing_fields():
     response = client.post("/api/groupchats", json=request_body)
 
     assert response.status_code == 422
+
+
+def test_create_new_groupchat_empty_users():
+    request_body = {"users": [], "name": "Empty Users Field"}
+    response = client.post("/api/groupchats", json=request_body)
+
+    assert response.status_code == 422

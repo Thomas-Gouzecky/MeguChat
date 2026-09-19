@@ -16,7 +16,14 @@ router = APIRouter(prefix="/api/groupchats/{groupchat_id}/messages", tags=["mess
 
 @router.get("", response_model=list)
 def get_messages_for_groupchat(groupchat_id: int, session: SessionDep) -> list:
-    messages = messages_service.get_messages_for_groupchat(groupchat_id, session)
+    try:
+        messages = messages_service.get_messages_for_groupchat(groupchat_id, session)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(status_code=500, detail="Internal Server Error") from error
     return [
         {
             "id": message.id,

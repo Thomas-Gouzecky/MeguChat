@@ -73,6 +73,9 @@ def delete_groupchat(groupchat_id: int, session: Session) -> None:
 def get_messages_for_groupchat(groupchat_id: int, session: Session) -> list:
     group_chats_table = SQLModel.metadata.tables[GroupChats.__tablename__]
     messages_table = SQLModel.metadata.tables[Messages.__tablename__]
+
+    if not session.get(GroupChats, groupchat_id):
+        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
     statement = (
         select(Messages)
         .join(

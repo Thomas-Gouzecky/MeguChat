@@ -111,10 +111,7 @@ def test_get_messages_for_nonexistent_groupchat():
     get_messages_response = client.get(
         f"/api/groupchats/{nonexistent_groupchat_id}/messages"
     )
-    assert get_messages_response.status_code == 200
-    messages = get_messages_response.json()
-    assert isinstance(messages, list)
-    assert len(messages) == 0
+    assert get_messages_response.status_code == 422
 
 
 def test_ensure_messages_are_groupchat_specific():

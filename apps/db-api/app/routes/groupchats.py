@@ -11,3 +11,10 @@ def create_new_groupchat(
     request_body: GroupChatCreationRequest, session: SessionDep
 ) -> GroupChatCreationResponse:
     return groupchat_service.create_groupchat(request_body, session)
+
+
+@router.get("/user/{user_id}", response_model=list[GroupChatCreationResponse])
+def get_groupchats_for_user(
+    user_id: str, session: SessionDep
+) -> list[GroupChatCreationResponse]:
+    return groupchat_service.find_groupchats_for_user(user_id, session)

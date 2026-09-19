@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.services import groupchat_service, groupchatmember_service, messages_service
+from app.services import groupchat_service, groupchatmember_service
 from app.sql import SessionDep
 from app.DTOs import (
     GroupChatCreationRequest,

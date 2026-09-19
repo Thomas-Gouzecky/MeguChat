@@ -1,19 +1,16 @@
 from sqlmodel import Session
 
-from app.models import GroupChats, Messages
+from app.models import GroupChats
 from app.repositories.groupchat_repo import (
-    create_message as create_message_in_repository,
     create_a_new_groupchat_entry,
     find_groupchats_for_user as find_groupchats_for_user_in_repository,
     update_groupchat as update_groupchat_in_repository,
     delete_groupchat as delete_groupchat_in_repository,
-    get_messages_for_groupchat as get_messages_for_groupchat_in_repository,
 )
 from app.DTOs import (
     GroupChatCreationRequest,
     GroupChatCreationResponse,
     GroupChatUpdateResponse,
-    MessageCreationRequest,
 )
 
 

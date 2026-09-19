@@ -1,6 +1,6 @@
 from sqlmodel import Session
 
-from app.models import GroupChats, Messages
+from app.models import Messages
 from app.repositories.groupchat_repo import (
     create_message as create_message_in_repository,
     get_messages_for_groupchat as get_messages_for_groupchat_in_repository,

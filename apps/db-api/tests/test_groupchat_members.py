@@ -65,6 +65,25 @@ def test_add_member_to_groupchat():
     assert any(gc["groupchat_id"] == groupchat_id for gc in user2_groupchats)
 
 
+def test_cannot_add_same_member_to_groupchat_twice():
+    create_response = client.post(
+        "/api/groupchats", json={"name": "Duplicate Member Test"}
+    )
+    groupchat_id = create_response.json()["groupchat_id"]
+    member_request = {"user_id": "user2"}
+
+    first_response = client.post(
+        f"/api/groupchats/{groupchat_id}/members", json=member_request
+    )
+    duplicate_response = client.post(
+        f"/api/groupchats/{groupchat_id}/members", json=member_request
+    )
+
+    assert first_response.status_code == 200
+    assert duplicate_response.status_code == 422
+    assert "already a member" in duplicate_response.json()["detail"]
+
+
 def test_remove_member_from_groupchat():
     # Create a groupchat for user1
     user1_request_body = {"name": "User 1 Group Chat"}

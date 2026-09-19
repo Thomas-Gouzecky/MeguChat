@@ -1,11 +1,17 @@
 from datetime import datetime
 from sqlmodel import Field, ForeignKey, SQLModel, Column
-from sqlalchemy import DateTime, Text, Integer, text
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import DateTime, Text, Integer, UniqueConstraint, text
 
 
 class GroupChatMembers(SQLModel, table=True):
     __tablename__: str = "GroupChatMembers"
+    __table_args__ = (
+        UniqueConstraint(
+            "group_chat_id",
+            "user_id",
+            name="uq_group_chat_members_group_chat_user",
+        ),
+    )
 
     id: int | None = Field(
         default=None,

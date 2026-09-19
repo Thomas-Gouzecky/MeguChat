@@ -43,20 +43,22 @@ def delete_groupchat(groupchat_id: int, session: SessionDep) -> dict:
 
 
 @router.post("/{groupchat_id}/members", response_model=dict)
-def add_member_to_groupchat(
+def add_members_to_groupchat(
     groupchat_id: int, request_body: AddMembersRequest, session: SessionDep
 ) -> dict:
-    user_id = request_body.user_id
-    if not user_id:
-        raise HTTPException(status_code=422, detail="Missing 'user_id' in request body")
+    users = request_body.users
+    if not users:
+        raise HTTPException(status_code=422, detail="Missing 'users' in request body")
+    if isinstance(users, str):
+        users = [users]
 
     try:
-        groupchatmember_service.add_member_to_groupchat(groupchat_id, user_id, session)
+        groupchatmember_service.add_members_to_groupchat(groupchat_id, users, session)
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
     return {
-        "message": f"User with ID {user_id} has been added to groupchat {groupchat_id}."
+        "message": f"Users with IDs {', '.join(users)} have been added to groupchat {groupchat_id}."
     }
 
 

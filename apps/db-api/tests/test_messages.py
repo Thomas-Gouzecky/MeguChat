@@ -26,12 +26,11 @@ def create_groupchat():
         assert response.status_code == 200
         groupchat_id = response.json()["groupchat_id"]
 
-        for user_id in ["user1", "user2"]:
-            member_response = client.post(
-                f"/api/groupchats/{groupchat_id}/members",
-                json={"user_id": user_id},
-            )
-            assert member_response.status_code == 200
+        member_response = client.post(
+            f"/api/groupchats/{groupchat_id}/members",
+            json={"users": ["user1", "user2"]},
+        )
+        assert member_response.status_code == 200
 
         return groupchat_id
 

@@ -2,6 +2,23 @@ from sqlmodel import Session, SQLModel, select
 from app.models import GroupChats, GroupChatMembers, Messages
 
 
+def create_message(
+    groupchat_id: int, user_id: str, content: str, session: Session
+) -> Messages:
+    if not session.get(GroupChats, groupchat_id):
+        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+
+    message = Messages(
+        user_id=user_id,
+        group_chat_id=groupchat_id,
+        message=content,
+    )
+    session.add(message)
+    session.commit()
+    session.refresh(message)
+    return message
+
+
 def create_a_new_groupchat_entry(
     request_body: GroupChats, session: Session
 ) -> GroupChats:

@@ -1,7 +1,8 @@
 from sqlmodel import Session
 
-from app.models import GroupChats
+from app.models import GroupChats, Messages
 from app.repositories.groupchat_repo import (
+    create_message as create_message_in_repository,
     create_a_new_groupchat_entry,
     find_groupchats_for_user as find_groupchats_for_user_in_repository,
     update_groupchat as update_groupchat_in_repository,
@@ -12,7 +13,21 @@ from app.DTOs import (
     GroupChatCreationRequest,
     GroupChatCreationResponse,
     GroupChatUpdateResponse,
+    MessageCreationRequest,
 )
+
+
+def create_message_for_groupchat(
+    groupchat_id: int,
+    request_body: MessageCreationRequest,
+    session: Session,
+) -> Messages:
+    return create_message_in_repository(
+        groupchat_id,
+        request_body.user_id,
+        request_body.content,
+        session,
+    )
 
 
 def create_groupchat(
@@ -87,3 +102,16 @@ def get_messages_for_groupchat(
 ) -> list:
     get_messages = get_messages_for_groupchat_in_repository(groupchat_id, session)
     return get_messages
+
+
+def add_message_to_groupchat(
+    user_id: str,
+    groupchat_id: int,
+    content: str,
+    session: Session,
+) -> None:
+    from app.repositories.messages_repo import (
+        add_message_to_groupchat as add_message_to_groupchat_in_repository,
+    )
+
+    add_message_to_groupchat_in_repository(user_id, groupchat_id, content, session)

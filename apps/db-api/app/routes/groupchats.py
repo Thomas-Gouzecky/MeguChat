@@ -29,3 +29,8 @@ def update_groupchat(
     groupchat_id: int, request_body: GroupChatCreationRequest, session: SessionDep
 ) -> GroupChatUpdateResponse:
     return groupchat_service.update_groupchat(groupchat_id, request_body, session)
+
+@router.delete("/{groupchat_id}", response_model=dict)
+def delete_groupchat(groupchat_id: int, session: SessionDep) -> dict:
+    groupchat_service.delete_groupchat(groupchat_id, session)
+    return {"message": f"Groupchat with ID {groupchat_id} has been deleted."}

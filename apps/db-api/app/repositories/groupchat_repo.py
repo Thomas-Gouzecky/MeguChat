@@ -42,3 +42,12 @@ def update_groupchat(
     session.refresh(groupchat)
 
     return groupchat
+
+
+def delete_groupchat(groupchat_id: int, session: Session) -> None:
+    groupchat = session.get(GroupChats, groupchat_id)
+    if not groupchat:
+        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+
+    session.delete(groupchat)
+    session.commit()

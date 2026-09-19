@@ -5,7 +5,7 @@ from app.DTOs import (
     GroupChatCreationRequest,
     GroupChatCreationResponse,
     GroupChatUpdateResponse,
-    MessageCreationRequest,
+    AddMembersRequest,
 )
 
 router = APIRouter(prefix="/api/groupchats", tags=["groupchats"])
@@ -44,9 +44,9 @@ def delete_groupchat(groupchat_id: int, session: SessionDep) -> dict:
 
 @router.post("/{groupchat_id}/members", response_model=dict)
 def add_member_to_groupchat(
-    groupchat_id: int, request_body: dict, session: SessionDep
+    groupchat_id: int, request_body: AddMembersRequest, session: SessionDep
 ) -> dict:
-    user_id = request_body.get("user_id")
+    user_id = request_body.user_id
     if not user_id:
         raise HTTPException(status_code=422, detail="Missing 'user_id' in request body")
 

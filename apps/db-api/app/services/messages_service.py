@@ -20,6 +20,7 @@ def get_messages_for_groupchat(
 def create_message_for_groupchat(
     groupchat_id: int,
     request_body: MessageCreationRequest,
+    user_id: str,
     session: Session,
 ) -> Messages:
     from app.repositories.messages_repo import (
@@ -31,7 +32,7 @@ def create_message_for_groupchat(
 
     return add_message_to_groupchat_in_repository(
         groupchat_id,
-        request_body.user_id,
+        user_id,
         request_body.content,
         session,
     )
@@ -56,6 +57,7 @@ def update_message_in_groupchat(
     groupchat_id: int,
     message_id: int,
     new_content: MessageCreationRequest,
+    user_id: str,
     session: Session,
 ) -> Messages:
     from app.repositories.messages_repo import (
@@ -64,9 +66,6 @@ def update_message_in_groupchat(
 
     if not new_content.content:
         raise ValueError("New content cannot be empty")
-    if not new_content.user_id:
-        raise ValueError("User ID cannot be empty")
-
     return update_message_in_groupchat_in_repository(
-        groupchat_id, message_id, new_content.content, new_content.user_id, session
+        groupchat_id, message_id, new_content.content, user_id, session
     )

@@ -53,12 +53,11 @@ def test_get_messages_for_groupchat(create_groupchat):
 def test_add_messages_to_groupchat(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Adding Messages")
     # Add a message to the groupchat
-    message_request_body = {
-        "content": "Hello, this is a test message.",
-        "user_id": "user1",
-    }
+    message_request_body = {"content": "Hello, this is a test message."}
     response = client.post(
-        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+        f"/api/groupchats/{groupchat_id}/messages",
+        json=message_request_body,
+        headers={"X-User-ID": "user1"},
     )
     assert response.status_code == 200
 
@@ -75,9 +74,11 @@ def test_add_messages_to_groupchat(create_groupchat):
 def test_delete_message_from_groupchat(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Deleting Messages")
     # Add a message to the groupchat
-    message_request_body = {"content": "Message to be deleted.", "user_id": "user1"}
+    message_request_body = {"content": "Message to be deleted."}
     response = client.post(
-        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+        f"/api/groupchats/{groupchat_id}/messages",
+        json=message_request_body,
+        headers={"X-User-ID": "user1"},
     )
     assert response.status_code == 200
     message_id = response.json()["id"]
@@ -101,9 +102,11 @@ def test_delete_message_from_groupchat(create_groupchat):
 def test_other_users_cannot_delete_messages(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Unauthorized Deletion")
     # Add a message to the groupchat by user1
-    message_request_body = {"content": "Message by user1.", "user_id": "user1"}
+    message_request_body = {"content": "Message by user1."}
     response = client.post(
-        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+        f"/api/groupchats/{groupchat_id}/messages",
+        json=message_request_body,
+        headers={"X-User-ID": "user1"},
     )
     assert response.status_code == 200
     message_id = response.json()["id"]
@@ -120,18 +123,21 @@ def test_other_users_cannot_delete_messages(create_groupchat):
 def test_update_message_in_groupchat(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Updating Messages")
     # Add a message to the groupchat
-    message_request_body = {"content": "Message to be updated.", "user_id": "user1"}
+    message_request_body = {"content": "Message to be updated."}
     response = client.post(
-        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+        f"/api/groupchats/{groupchat_id}/messages",
+        json=message_request_body,
+        headers={"X-User-ID": "user1"},
     )
     assert response.status_code == 200
     message_id = response.json()["id"]
 
     # Update the message
-    update_request_body = {"content": "Updated message content.", "user_id": "user1"}
+    update_request_body = {"content": "Updated message content."}
     update_response = client.put(
         f"/api/groupchats/{groupchat_id}/messages/{message_id}",
         json=update_request_body,
+        headers={"X-User-ID": "user1"},
     )
     assert update_response.status_code == 200
 
@@ -149,21 +155,21 @@ def test_update_message_in_groupchat(create_groupchat):
 def test_other_users_cannot_update_messages(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Unauthorized Update")
     # Add a message to the groupchat by user1
-    message_request_body = {"content": "Message by user1.", "user_id": "user1"}
+    message_request_body = {"content": "Message by user1."}
     response = client.post(
-        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+        f"/api/groupchats/{groupchat_id}/messages",
+        json=message_request_body,
+        headers={"X-User-ID": "user1"},
     )
     assert response.status_code == 200
     message_id = response.json()["id"]
 
     # Attempt to update the message by user2 (not the owner)
-    update_request_body = {
-        "content": "Unauthorized update attempt.",
-        "user_id": "user2",
-    }
+    update_request_body = {"content": "Unauthorized update attempt."}
     update_response = client.put(
         f"/api/groupchats/{groupchat_id}/messages/{message_id}",
         json=update_request_body,
+        headers={"X-User-ID": "user2"},
     )
     # Assuming the API does not allow updates by non-owners, we expect a 403 Forbidden or similar status code.
     assert update_response.status_code == 422 or update_response.status_code == 403
@@ -172,12 +178,11 @@ def test_other_users_cannot_update_messages(create_groupchat):
 def test_users_not_in_groupchat_cannot_see_messages(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Access Control")
     # Add a message to the groupchat
-    message_request_body = {
-        "content": "Message for access control test.",
-        "user_id": "user2",
-    }
+    message_request_body = {"content": "Message for access control test."}
     response = client.post(
-        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+        f"/api/groupchats/{groupchat_id}/messages",
+        json=message_request_body,
+        headers={"X-User-ID": "user2"},
     )
     assert response.status_code == 200
 
@@ -195,12 +200,11 @@ def test_users_not_in_groupchat_cannot_see_messages(create_groupchat):
 def test_users_not_in_groupchat_cannot_add_messages(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Access Control on Adding Messages")
     # Attempt to add a message to the groupchat by a user not in the groupchat
-    message_request_body = {
-        "content": "Unauthorized message attempt.",
-        "user_id": "unauthorized_user",
-    }
+    message_request_body = {"content": "Unauthorized message attempt."}
     response = client.post(
-        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+        f"/api/groupchats/{groupchat_id}/messages",
+        json=message_request_body,
+        headers={"X-User-ID": "unauthorized_user"},
     )
     # Assuming the API does not allow adding messages by users not in the groupchat,
     # we expect a 403 Forbidden or similar status code. Adjust based on your implementation.

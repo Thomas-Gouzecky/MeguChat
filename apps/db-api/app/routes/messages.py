@@ -40,10 +40,11 @@ def create_message_for_groupchat(
     groupchat_id: int,
     request_body: MessageCreationRequest,
     session: SessionDep,
+    current_user: str = Depends(get_current_user),
 ) -> dict:
     try:
         message = messages_service.create_message_for_groupchat(
-            groupchat_id, request_body, session
+            groupchat_id, request_body, current_user, session
         )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
@@ -85,10 +86,11 @@ def update_message_in_groupchat(
     message_id: int,
     request_body: MessageCreationRequest,
     session: SessionDep,
+    current_user: str = Depends(get_current_user),
 ) -> dict:
     try:
         message = messages_service.update_message_in_groupchat(
-            groupchat_id, message_id, request_body, session
+            groupchat_id, message_id, request_body, current_user, session
         )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error

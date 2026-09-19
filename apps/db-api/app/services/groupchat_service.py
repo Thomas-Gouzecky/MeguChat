@@ -6,6 +6,7 @@ from app.repositories.groupchat_repo import (
     find_groupchats_for_user as find_groupchats_for_user_in_repository,
     update_groupchat as update_groupchat_in_repository,
     delete_groupchat as delete_groupchat_in_repository,
+    get_messages_for_groupchat as get_messages_for_groupchat_in_repository,
 )
 from app.DTOs import (
     GroupChatCreationRequest,
@@ -78,3 +79,11 @@ def delete_groupchat(
     session: Session,
 ) -> None:
     delete_groupchat_in_repository(groupchat_id, session)
+
+
+def get_messages_for_groupchat(
+    groupchat_id: int,
+    session: Session,
+) -> list:
+    get_messages = get_messages_for_groupchat_in_repository(groupchat_id, session)
+    return get_messages

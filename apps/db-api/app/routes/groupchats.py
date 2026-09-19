@@ -39,3 +39,7 @@ def delete_groupchat(groupchat_id: int, session: SessionDep) -> dict:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
     return {"message": f"Groupchat with ID {groupchat_id} has been deleted."}
+
+@router.get("/{groupchat_id}/messages", response_model=list)
+def get_messages_for_groupchat(groupchat_id: int, session: SessionDep) -> list:
+    return groupchat_service.get_messages_for_groupchat(groupchat_id, session)

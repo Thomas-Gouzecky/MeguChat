@@ -1,7 +1,11 @@
 from fastapi import APIRouter
 from app.services import groupchat_service
 from app.sql import SessionDep
-from app.DTOs import GroupChatCreationRequest, GroupChatCreationResponse
+from app.DTOs import (
+    GroupChatCreationRequest,
+    GroupChatCreationResponse,
+    GroupChatUpdateResponse,
+)
 
 router = APIRouter(prefix="/api/groupchats", tags=["groupchats"])
 
@@ -18,3 +22,10 @@ def get_groupchats_for_user(
     user_id: str, session: SessionDep
 ) -> list[GroupChatCreationResponse]:
     return groupchat_service.find_groupchats_for_user(user_id, session)
+
+
+@router.put("/{groupchat_id}", response_model=GroupChatUpdateResponse)
+def update_groupchat(
+    groupchat_id: int, request_body: GroupChatCreationRequest, session: SessionDep
+) -> GroupChatUpdateResponse:
+    return groupchat_service.update_groupchat(groupchat_id, request_body, session)

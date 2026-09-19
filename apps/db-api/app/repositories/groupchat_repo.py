@@ -27,3 +27,18 @@ def find_groupchats_for_user(user_id: str, session: Session) -> list[GroupChats]
     groupchats = list(session.exec(statement).all())
 
     return groupchats
+
+
+def update_groupchat(
+    groupchat_id: int, request_body: GroupChats, session: Session
+) -> GroupChats:
+    groupchat = session.get(GroupChats, groupchat_id)
+    if not groupchat:
+        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+
+    groupchat.name = request_body.name
+    session.add(groupchat)
+    session.commit()
+    session.refresh(groupchat)
+
+    return groupchat

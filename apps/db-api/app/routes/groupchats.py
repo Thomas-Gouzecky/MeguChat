@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from app.services import groupchat_service
 from app.sql import SessionDep
 from app.DTOs import (
@@ -30,7 +30,12 @@ def update_groupchat(
 ) -> GroupChatUpdateResponse:
     return groupchat_service.update_groupchat(groupchat_id, request_body, session)
 
+
 @router.delete("/{groupchat_id}", response_model=dict)
 def delete_groupchat(groupchat_id: int, session: SessionDep) -> dict:
-    groupchat_service.delete_groupchat(groupchat_id, session)
+    try:
+        groupchat_service.delete_groupchat(groupchat_id, session)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
     return {"message": f"Groupchat with ID {groupchat_id} has been deleted."}

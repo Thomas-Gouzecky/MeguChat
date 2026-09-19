@@ -82,3 +82,10 @@ def test_delete_groupchat():
     assert get_response.status_code == 200
     groupchats = get_response.json()
     assert all(gc["groupchat_id"] != groupchat_id for gc in groupchats)
+
+def test_delete_nonexistent_groupchat():
+    # Attempt to delete a groupchat that doesn't exist
+    nonexistent_groupchat_id = 9999
+    delete_response = client.delete(f"/api/groupchats/{nonexistent_groupchat_id}")
+    assert delete_response.status_code == 422
+    

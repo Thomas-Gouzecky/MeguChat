@@ -44,9 +44,14 @@ def delete_message_from_groupchat(
 
 
 def update_message_in_groupchat(
-    message_id: int, new_content: str, user_id: str, session: Session
+    groupchat_id: int, message_id: int, new_content: str, user_id: str, session: Session
 ) -> Messages:
-    message = session.get(Messages, message_id)
+    message = session.exec(
+        select(Messages).where(
+            Messages.id == message_id,
+            Messages.group_chat_id == groupchat_id,
+        )
+    ).first()
     if not message:
         raise ValueError(f"Message with ID {message_id} not found")
 

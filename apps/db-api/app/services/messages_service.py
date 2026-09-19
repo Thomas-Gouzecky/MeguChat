@@ -53,6 +53,7 @@ def delete_message_from_groupchat(
 
 
 def update_message_in_groupchat(
+    groupchat_id: int,
     message_id: int,
     new_content: MessageCreationRequest,
     session: Session,
@@ -67,5 +68,5 @@ def update_message_in_groupchat(
         raise ValueError("User ID cannot be empty")
 
     return update_message_in_groupchat_in_repository(
-        message_id, new_content.content, new_content.user_id, session
+        groupchat_id, message_id, new_content.content, new_content.user_id, session
     )

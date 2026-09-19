@@ -3,11 +3,22 @@ from app.models import GroupChats, GroupChatMembers, Messages
 
 
 def add_message_to_groupchat(
-    user_id: str, groupchat_id: int, content: str, session: Session
+    groupchat_id: int, user_id: str, content: str, session: Session
 ) -> Messages:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+
+    user_is_member = session.exec(
+        select(GroupChatMembers).where(
+            GroupChatMembers.user_id == user_id,
+            GroupChatMembers.group_chat_id == groupchat_id,
+        )
+    ).first()
+    if not user_is_member:
+        raise ValueError(
+            f"User with ID {user_id} is not a member of groupchat with ID {groupchat_id}"
+        )
 
     new_message = Messages(user_id=user_id, group_chat_id=groupchat_id, message=content)
     session.add(new_message)

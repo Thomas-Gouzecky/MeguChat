@@ -2,7 +2,6 @@ from sqlmodel import Session
 
 from app.models import Messages
 from app.repositories.groupchat_repo import (
-    create_message as create_message_in_repository,
     get_messages_for_groupchat as get_messages_for_groupchat_in_repository,
 )
 from app.DTOs import (
@@ -23,7 +22,14 @@ def create_message_for_groupchat(
     request_body: MessageCreationRequest,
     session: Session,
 ) -> Messages:
-    return create_message_in_repository(
+    from app.repositories.messages_repo import (
+        add_message_to_groupchat as add_message_to_groupchat_in_repository,
+    )
+
+    if not request_body.content:
+        raise ValueError("Message content cannot be empty")
+
+    return add_message_to_groupchat_in_repository(
         groupchat_id,
         request_body.user_id,
         request_body.content,

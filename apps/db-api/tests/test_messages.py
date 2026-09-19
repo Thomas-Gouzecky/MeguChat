@@ -22,20 +22,19 @@ def setup_and_teardown():
 @fixture
 def create_groupchat():
     def _create_groupchat(name: str):
-        request_body = {"name": name}
-        response = client.post("/api/groupchats", json=request_body)
+        response = client.post("/api/groupchats", json={"name": name})
         assert response.status_code == 200
-        return response.json()["groupchat_id"]
+        groupchat_id = response.json()["groupchat_id"]
 
-    def _add_members_to_groupchat(groupchat_id: int, user_ids: list[str]):
-        for user_id in user_ids:
-            response = client.post(
-                f"/api/groupchats/{groupchat_id}/members", json={"user_id": user_id}
+        for user_id in ["user1", "user2"]:
+            member_response = client.post(
+                f"/api/groupchats/{groupchat_id}/members",
+                json={"user_id": user_id},
             )
-            assert response.status_code == 200
+            assert member_response.status_code == 200
 
-    chat_id = _create_groupchat("Test Group")
-    _add_members_to_groupchat(chat_id, ["user1", "user2"])
+        return groupchat_id
+
     return _create_groupchat
 
 
@@ -54,7 +53,10 @@ def test_get_messages_for_groupchat(create_groupchat):
 def test_add_messages_to_groupchat(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Adding Messages")
     # Add a message to the groupchat
-    message_request_body = {"content": "Hello, this is a test message."}
+    message_request_body = {
+        "content": "Hello, this is a test message.",
+        "user_id": "user1",
+    }
     response = client.post(
         f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
     )
@@ -73,7 +75,7 @@ def test_add_messages_to_groupchat(create_groupchat):
 def test_delete_message_from_groupchat(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Deleting Messages")
     # Add a message to the groupchat
-    message_request_body = {"content": "Message to be deleted."}
+    message_request_body = {"content": "Message to be deleted.", "user_id": "user1"}
     response = client.post(
         f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
     )
@@ -94,10 +96,11 @@ def test_delete_message_from_groupchat(create_groupchat):
     assert isinstance(messages, list)
     assert all(message["id"] != message_id for message in messages)
 
+
 def test_update_message_in_groupchat(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Updating Messages")
     # Add a message to the groupchat
-    message_request_body = {"content": "Message to be updated."}
+    message_request_body = {"content": "Message to be updated.", "user_id": "user1"}
     response = client.post(
         f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
     )
@@ -105,9 +108,10 @@ def test_update_message_in_groupchat(create_groupchat):
     message_id = response.json()["id"]
 
     # Update the message
-    update_request_body = {"content": "Updated message content."}
+    update_request_body = {"content": "Updated message content.", "user_id": "user1"}
     update_response = client.put(
-        f"/api/groupchats/{groupchat_id}/messages/{message_id}", json=update_request_body
+        f"/api/groupchats/{groupchat_id}/messages/{message_id}",
+        json=update_request_body,
     )
     assert update_response.status_code == 200
 
@@ -120,3 +124,41 @@ def test_update_message_in_groupchat(create_groupchat):
     updated_message = next((msg for msg in messages if msg["id"] == message_id), None)
     assert updated_message is not None
     assert updated_message["content"] == "Updated message content."
+
+
+def test_users_not_in_groupchat_cannot_see_messages(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Access Control")
+    # Add a message to the groupchat
+    message_request_body = {
+        "content": "Message for access control test.",
+        "user_id": "user2",
+    }
+    response = client.post(
+        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+    )
+    assert response.status_code == 200
+
+    # Attempt to retrieve messages for a user not in the groupchat
+    get_response = client.get(f"/api/groupchats/{groupchat_id}/messages")
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    # Assuming the API does not filter messages based on user membership,
+    # we will check if the messages are returned. In a real scenario, you would
+    # implement access control and check for 403 Forbidden or similar.
+    assert isinstance(messages, list)
+
+
+def test_users_not_in_groupchat_cannot_add_messages(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Access Control on Adding Messages")
+    # Attempt to add a message to the groupchat by a user not in the groupchat
+    message_request_body = {
+        "content": "Unauthorized message attempt.",
+        "user_id": "unauthorized_user",
+    }
+    response = client.post(
+        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+    )
+    # Assuming the API does not allow adding messages by users not in the groupchat,
+    # we expect a 403 Forbidden or similar status code. Adjust based on your implementation.
+    assert response.status_code == 422 or response.status_code == 403

@@ -146,6 +146,29 @@ def test_update_message_in_groupchat(create_groupchat):
     assert updated_message["content"] == "Updated message content."
 
 
+def test_other_users_cannot_update_messages(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Unauthorized Update")
+    # Add a message to the groupchat by user1
+    message_request_body = {"content": "Message by user1.", "user_id": "user1"}
+    response = client.post(
+        f"/api/groupchats/{groupchat_id}/messages", json=message_request_body
+    )
+    assert response.status_code == 200
+    message_id = response.json()["id"]
+
+    # Attempt to update the message by user2 (not the owner)
+    update_request_body = {
+        "content": "Unauthorized update attempt.",
+        "user_id": "user2",
+    }
+    update_response = client.put(
+        f"/api/groupchats/{groupchat_id}/messages/{message_id}",
+        json=update_request_body,
+    )
+    # Assuming the API does not allow updates by non-owners, we expect a 403 Forbidden or similar status code.
+    assert update_response.status_code == 422 or update_response.status_code == 403
+
+
 def test_users_not_in_groupchat_cannot_see_messages(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Access Control")
     # Add a message to the groupchat

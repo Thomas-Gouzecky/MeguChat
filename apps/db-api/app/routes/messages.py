@@ -92,6 +92,8 @@ def update_message_in_groupchat(
         )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
+    except PermissionError as error:
+        raise HTTPException(status_code=403, detail=str(error)) from error
 
     return {
         "id": message.id,

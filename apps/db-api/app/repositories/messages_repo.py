@@ -44,11 +44,17 @@ def delete_message_from_groupchat(
 
 
 def update_message_in_groupchat(
-    message_id: int, new_content: str, session: Session
+    message_id: int, new_content: str, user_id: str, session: Session
 ) -> Messages:
     message = session.get(Messages, message_id)
     if not message:
         raise ValueError(f"Message with ID {message_id} not found")
+
+    if not new_content:
+        raise ValueError("Message content cannot be empty")
+
+    if message.user_id != user_id:
+        raise PermissionError("Only the message author can update this message")
 
     message.message = new_content
     session.add(message)

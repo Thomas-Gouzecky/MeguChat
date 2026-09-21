@@ -115,4 +115,43 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
         Assert.NotNull(result);
         Assert.False(result.IsSuccess);
     }
+
+    [Fact]
+    public async Task Logout_ReturnsSuccess()
+    {
+        // Arrange
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "TestPassword1!"
+        };
+
+        // Log in first to establish a session
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        Assert.True(loginResponse.IsSuccessStatusCode);
+
+        // Act
+        var logoutResponse = await _client.PostAsync("/api/auth/logout", null);
+        var responseBody = await logoutResponse.Content.ReadAsStringAsync();
+
+        // Assert
+        Assert.True(logoutResponse.IsSuccessStatusCode, responseBody);
+        var result = await logoutResponse.Content.ReadFromJsonAsync<AuthResult>();
+        Assert.NotNull(result);
+        Assert.True(result.IsSuccess);
+    }
+
+    [Fact]
+    public async Task Logout_WithoutLogin_ReturnsSuccess()
+    {
+        // Act
+        var logoutResponse = await _client.PostAsync("/api/auth/logout", null);
+        var responseBody = await logoutResponse.Content.ReadAsStringAsync();
+
+        // Assert
+        Assert.True(logoutResponse.IsSuccessStatusCode, responseBody);
+        var result = await logoutResponse.Content.ReadFromJsonAsync<AuthResult>();
+        Assert.NotNull(result);
+        Assert.True(result.IsSuccess);
+    }
 }

@@ -31,4 +31,25 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
     }
+
+    [Fact]
+    public async Task Login_WithInvalidCredentials_ReturnsUnauthorized()
+    {
+        // Arrange
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "WrongPassword"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        var responseBody = await response.Content.ReadAsStringAsync();
+
+        // Assert
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<AuthResult>();
+        Assert.NotNull(result);
+        Assert.False(result.IsSuccess);
+    }
 }

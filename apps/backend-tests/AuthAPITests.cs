@@ -33,6 +33,24 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
     }
 
     [Fact]
+    public async Task Login_WithValidCredentials_ReturnsSetCookieHeader()
+    {
+        // Arrange
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "TestPassword1!"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+
+        // Assert
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.Contains("Set-Cookie", response.Headers.ToString());
+    }
+
+    [Fact]
     public async Task Login_WithInvalidCredentials_ReturnsUnauthorized()
     {
         // Arrange
@@ -139,6 +157,28 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
         var result = await logoutResponse.Content.ReadFromJsonAsync<AuthResult>();
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
+    }
+
+    [Fact]
+    public async Task Logout_WithLogin_RemovesCookieInHeader()
+    {
+        // Arrange
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "TestPassword1!"
+        };
+
+        // Log in first to establish a session
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        Assert.True(loginResponse.IsSuccessStatusCode);
+
+        // Act
+        var logoutResponse = await _client.PostAsync("/api/auth/logout", null);
+
+        // Assert
+        Assert.True(logoutResponse.IsSuccessStatusCode);
+        Assert.Contains("Set-Cookie", logoutResponse.Headers.ToString());
     }
 
     [Fact]

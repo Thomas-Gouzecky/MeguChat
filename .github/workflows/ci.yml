@@ -13,6 +13,17 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
+    env:
+      PRIMARY_DATABASE_USER: meguchat
+      PRIMARY_DATABASE_PASSWORD: meguchat
+      PRIMARY_DATABASE_HOST: localhost
+      PRIMARY_DATABASE_PORT: 5433
+      PRIMARY_DATABASE_NAME: meguchat
+      REPLICA_DATABASE_USER: meguchat
+      REPLICA_DATABASE_PASSWORD: meguchat
+      REPLICA_DATABASE_HOST: localhost
+      REPLICA_DATABASE_PORT: 5434
+      REPLICA_DATABASE_NAME: meguchat
     steps:
       - uses: actions/checkout@v5
         with:
@@ -57,17 +68,6 @@ jobs:
           echo "Postgres is ready!"
 
       - name: Apply db-api database schema
-        env:
-          PRIMARY_DATABASE_USER: meguchat
-          PRIMARY_DATABASE_PASSWORD: meguchat
-          PRIMARY_DATABASE_HOST: localhost
-          PRIMARY_DATABASE_PORT: 5433
-          PRIMARY_DATABASE_NAME: meguchat
-          REPLICA_DATABASE_USER: meguchat
-          REPLICA_DATABASE_PASSWORD: meguchat
-          REPLICA_DATABASE_HOST: localhost
-          REPLICA_DATABASE_PORT: 5434
-          REPLICA_DATABASE_NAME: meguchat
         run: npx nx run db-api:migrate
 
       # Prepend any command with "nx record --" to record its logs to Nx Cloud

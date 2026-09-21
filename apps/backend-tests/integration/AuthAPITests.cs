@@ -182,17 +182,13 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
     }
 
     [Fact]
-    public async Task Logout_WithoutLogin_ReturnsSuccess()
+    public async Task Logout_WithoutLogin_IsRejected()
     {
         // Act
         var logoutResponse = await _client.PostAsync("/api/auth/logout", null);
-        var responseBody = await logoutResponse.Content.ReadAsStringAsync();
 
         // Assert
-        Assert.True(logoutResponse.IsSuccessStatusCode, responseBody);
-        var result = await logoutResponse.Content.ReadFromJsonAsync<AuthResult>();
-        Assert.NotNull(result);
-        Assert.True(result.IsSuccess);
+        Assert.False(logoutResponse.IsSuccessStatusCode);
     }
 
     [Fact]

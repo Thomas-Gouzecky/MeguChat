@@ -8,8 +8,12 @@ from app.models import GroupChats, GroupChatMembers, Messages
 engine = create_engine(PRIMARY_DB_STRING)
 
 
-def create_db_and_tables():
+def migrate_database():
     SQLModel.metadata.create_all(engine)
+
+
+def create_db_and_tables():
+    migrate_database()
 
 
 def get_session():

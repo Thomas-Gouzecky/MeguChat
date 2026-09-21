@@ -13,6 +13,17 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
+    env:
+      PRIMARY_DATABASE_USER: meguchat
+      PRIMARY_DATABASE_PASSWORD: meguchat
+      PRIMARY_DATABASE_HOST: localhost
+      PRIMARY_DATABASE_PORT: 5433
+      PRIMARY_DATABASE_NAME: meguchat
+      REPLICA_DATABASE_USER: meguchat
+      REPLICA_DATABASE_PASSWORD: meguchat
+      REPLICA_DATABASE_HOST: localhost
+      REPLICA_DATABASE_PORT: 5434
+      REPLICA_DATABASE_NAME: meguchat
     steps:
       - uses: actions/checkout@v5
         with:
@@ -35,11 +46,38 @@ jobs:
         with:
           version: 'latest'
 
-      - run: npm ci
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Start Docker Compose
+        working-directory: infra/postgres
+        run: docker compose -f docker-compose.yaml up -d
+
+      - name: Wait for Postgres to be ready
+        working-directory: infra/postgres
+        run: |
+          echo "Waiting for Postgres to be ready..."
+          until docker exec postgres-primary pg_isready -U meguchat -d meguchat; do
+            sleep 1
+          done
+          echo "Postgres is ready!"
+
+      - name: Apply db-api database schema
+        run: npx nx run db-api:migrate
 
       # Prepend any command with "nx record --" to record its logs to Nx Cloud
       - run: npx nx record -- npx nx format:check --base="remotes/origin/main"
-      - run: npx nx run-many -t lint test build typecheck e2e
+      - run: npx nx run-many -t lint test build typecheck e2e --parallel=1
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/docs/features/ci-features/self-healing-ci
       - run: npx nx fix-ci
         if: always()
+
+      - name: Stop Docker Compose
+        working-directory: infra/postgres
+        if: always()
+        run: docker compose -f docker-compose.yaml down -v

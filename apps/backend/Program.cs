@@ -16,6 +16,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddControllers();
 
+builder.Services.AddProblemDetails();
+
+// builder.Services.AddSingleton<IAuthService, AuthService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -32,3 +36,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { } // Make the Program class public for integration testing

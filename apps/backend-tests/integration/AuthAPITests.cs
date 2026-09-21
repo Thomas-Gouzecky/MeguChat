@@ -194,4 +194,68 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
     }
+
+    [Fact]
+    public async Task GetCurrentUser_WithAuthenticatedUser_ReturnsUsername()
+    {
+        // Arrange
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "TestPassword1!"
+        };
+
+        // Log in first to establish a session
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        Assert.True(loginResponse.IsSuccessStatusCode);
+
+        // Act
+        var meResponse = await _client.GetAsync("/api/auth/me");
+        var responseBody = await meResponse.Content.ReadAsStringAsync();
+
+        // Assert
+        Assert.True(meResponse.IsSuccessStatusCode, responseBody);
+        var result = await meResponse.Content.ReadFromJsonAsync<CurrentUserResponse>();
+        Assert.NotNull(result);
+        Assert.Equal("testuser", result.Username);
+    }
+
+    [Fact]
+    public async Task GetCurrentUser_WithoutAuthenticatedUser_ReturnsNotFound()
+    {
+        // Act
+        var meResponse = await _client.GetAsync("/api/auth/me");
+        var responseBody = await meResponse.Content.ReadAsStringAsync();
+
+        // Assert
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, meResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetCurrentUser_AfterLogout_ReturnsNotFound()
+    {
+        // Arrange
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "TestPassword1!"
+        };
+
+        // Log in first to establish a session
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        Assert.True(loginResponse.IsSuccessStatusCode);
+
+        // Log out to clear the session
+        var logoutResponse = await _client.PostAsync("/api/auth/logout", null);
+        Assert.True(logoutResponse.IsSuccessStatusCode);
+
+        // Act
+        var meResponse = await _client.GetAsync("/api/auth/me");
+        var responseBody = await meResponse.Content.ReadAsStringAsync();
+
+        // Assert
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, meResponse.StatusCode);
+    }
+
+    private sealed record CurrentUserResponse(string Username);
 }

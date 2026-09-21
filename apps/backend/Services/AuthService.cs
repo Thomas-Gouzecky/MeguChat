@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 
 public sealed class AuthService : IAuthService
@@ -46,5 +47,10 @@ public sealed class AuthService : IAuthService
     {
         await _signInManager.SignOutAsync();
         return AuthResult.Success();
+    }
+
+    public async Task<ApplicationUser?> GetCurrentUserAsync()
+    {
+        return await _userManager.GetUserAsync(_signInManager.Context.User);
     }
 }

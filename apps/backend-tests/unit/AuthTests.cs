@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,10 +13,19 @@ public class AuthTests
     private readonly Mock<UserManager<ApplicationUser>> _userManager = CreateUserManagerMock();
     private readonly Mock<SignInManager<ApplicationUser>> _signInManager;
     private readonly IAuthService _authService;
+    private readonly ClaimsPrincipal _currentPrincipal;
 
     public AuthTests()
     {
-        _signInManager = CreateSignInManagerMock(_userManager.Object);
+        _currentPrincipal = new ClaimsPrincipal(
+            new ClaimsIdentity(
+                new[] { new Claim(ClaimTypes.NameIdentifier, "user-id") },
+                "TestAuthentication"));
+        var httpContextAccessor = new HttpContextAccessor
+        {
+            HttpContext = new DefaultHttpContext { User = _currentPrincipal }
+        };
+        _signInManager = CreateSignInManagerMock(_userManager.Object, httpContextAccessor);
         _authService = new AuthService(_signInManager.Object, _userManager.Object);
     }
 
@@ -187,6 +197,42 @@ public class AuthTests
         _signInManager.Verify(manager => manager.SignOutAsync(), Times.Exactly(2));
     }
 
+    [Fact]
+    public async Task GetCurrentUserAsync_ReturnsUser_WhenAuthenticated()
+    {
+        // Arrange
+        var username = "testuser";
+        _userManager
+            .Setup(manager => manager.GetUserAsync(_currentPrincipal))
+            .ReturnsAsync(new ApplicationUser { UserName = username });
+
+        // Act
+        var result = await _authService.GetCurrentUserAsync();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(username, result?.UserName);
+    }
+
+    [Fact]
+    public async Task GetCurrentUserAsync_ReturnsNull_WhenNotAuthenticated()
+    {
+        // Arrange
+        var unauthenticatedPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
+        var httpContextAccessor = new HttpContextAccessor
+        {
+            HttpContext = new DefaultHttpContext { User = unauthenticatedPrincipal }
+        };
+        var signInManagerMock = CreateSignInManagerMock(_userManager.Object, httpContextAccessor);
+        var authService = new AuthService(signInManagerMock.Object, _userManager.Object);
+
+        // Act
+        var result = await authService.GetCurrentUserAsync();
+
+        // Assert
+        Assert.Null(result);
+    }
+
     private static Mock<UserManager<ApplicationUser>> CreateUserManagerMock()
     {
         return new Mock<UserManager<ApplicationUser>>(
@@ -202,11 +248,12 @@ public class AuthTests
     }
 
     private static Mock<SignInManager<ApplicationUser>> CreateSignInManagerMock(
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        IHttpContextAccessor httpContextAccessor)
     {
         return new Mock<SignInManager<ApplicationUser>>(
             userManager,
-            Mock.Of<IHttpContextAccessor>(),
+            httpContextAccessor,
             Mock.Of<IUserClaimsPrincipalFactory<ApplicationUser>>(),
             Options.Create(new IdentityOptions()),
             Mock.Of<ILogger<SignInManager<ApplicationUser>>>(),

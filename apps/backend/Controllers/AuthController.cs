@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
@@ -44,5 +45,19 @@ public class AuthController : ControllerBase
             return Ok(result);
         }
         return BadRequest(result);
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetCurrentUser()
+    {
+        var user = await _authService.GetCurrentUserAsync();
+
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new { Username = user.UserName });
     }
 }

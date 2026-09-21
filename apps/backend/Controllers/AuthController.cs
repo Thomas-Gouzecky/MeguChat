@@ -36,6 +36,7 @@ public class AuthController : ControllerBase
         return BadRequest(result);
     }
 
+    [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {

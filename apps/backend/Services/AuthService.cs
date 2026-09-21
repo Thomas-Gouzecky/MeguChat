@@ -31,4 +31,14 @@ public sealed class AuthService : IAuthService
             ? AuthResult.Success()
             : AuthResult.Failure("Invalid credentials");
     }
+
+    public async Task<AuthResult> RegisterAsync(string username, string password)
+    {
+        var user = new IdentityUser { UserName = username };
+        var result = await _userManager.CreateAsync(user, password);
+
+        return result.Succeeded
+            ? AuthResult.Success()
+            : AuthResult.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
 }

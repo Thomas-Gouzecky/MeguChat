@@ -82,6 +82,87 @@ public class AuthTests
         Assert.Equal("Invalid credentials", result.ErrorMessage);
     }
 
+    [Fact]
+    public async Task Register_WithNewUser_IsSuccessful()
+    {
+        // Arrange
+        var username = "newuser";
+        var password = "newpassword";
+        _userManager
+            .Setup(manager => manager.CreateAsync(It.IsAny<IdentityUser>(), password))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var result = await _authService.RegisterAsync(username, password);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        _userManager.Verify(
+            manager => manager.CreateAsync(It.Is<IdentityUser>(u => u.UserName == username), password),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Register_WithExistingUser_Fails()
+    {
+        // Arrange
+        var username = "existinguser";
+        var password = "password";
+        var identityError = new IdentityError { Description = "User already exists" };
+        _userManager
+            .Setup(manager => manager.CreateAsync(It.IsAny<IdentityUser>(), password))
+            .ReturnsAsync(IdentityResult.Failed(identityError));
+
+        // Act
+        var result = await _authService.RegisterAsync(username, password);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal("User already exists", result.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task Register_WithMultipleErrors_FailsWithCombinedErrorMessage()
+    {
+        // Arrange
+        var username = "user";
+        var password = "password";
+        var identityErrors = new[]
+        {
+            new IdentityError { Description = "Error 1" },
+            new IdentityError { Description = "Error 2" }
+        };
+        _userManager
+            .Setup(manager => manager.CreateAsync(It.IsAny<IdentityUser>(), password))
+            .ReturnsAsync(IdentityResult.Failed(identityErrors));
+
+        // Act
+        var result = await _authService.RegisterAsync(username, password);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal("Error 1, Error 2", result.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task Register_WithInvalidPassword_Fails()
+    {
+        // Arrange
+        var username = "user";
+        var password = "short";
+        var identityError = new IdentityError { Description = "Password must be at least 6 characters" };
+        _userManager
+            .Setup(manager => manager.CreateAsync(It.IsAny<IdentityUser>(), password))
+            .ReturnsAsync(IdentityResult.Failed(identityError));
+
+        // Act
+        var result = await _authService.RegisterAsync(username, password);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal("Password must be at least 6 characters", result.ErrorMessage);
+    }
+
     private static Mock<UserManager<IdentityUser>> CreateUserManagerMock()
     {
         return new Mock<UserManager<IdentityUser>>(

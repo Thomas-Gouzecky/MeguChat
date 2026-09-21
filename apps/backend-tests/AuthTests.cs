@@ -163,6 +163,30 @@ public class AuthTests
         Assert.Equal("Password must be at least 6 characters", result.ErrorMessage);
     }
 
+    [Fact]
+    public async Task Logout_IsSuccessful()
+    {
+        // Act
+        var result = await _authService.LogoutAsync();
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        _signInManager.Verify(manager => manager.SignOutAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task Logout_WhenCalledMultipleTimes_IsSuccessful()
+    {
+        // Act
+        var result1 = await _authService.LogoutAsync();
+        var result2 = await _authService.LogoutAsync();
+
+        // Assert
+        Assert.True(result1.IsSuccess);
+        Assert.True(result2.IsSuccess);
+        _signInManager.Verify(manager => manager.SignOutAsync(), Times.Exactly(2));
+    }
+
     private static Mock<UserManager<IdentityUser>> CreateUserManagerMock()
     {
         return new Mock<UserManager<IdentityUser>>(

@@ -41,4 +41,10 @@ public sealed class AuthService : IAuthService
             ? AuthResult.Success()
             : AuthResult.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
+
+    public async Task<AuthResult> LogoutAsync()
+    {
+        await _signInManager.SignOutAsync();
+        return AuthResult.Success();
+    }
 }

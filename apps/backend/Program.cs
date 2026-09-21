@@ -9,10 +9,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddSignInManager();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddControllers();
+
+builder.Services.AddProblemDetails();
+
+// builder.Services.AddSingleton<IAuthService, AuthService>();
 
 var app = builder.Build();
 
@@ -24,6 +30,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { } // Make the Program class public for integration testing

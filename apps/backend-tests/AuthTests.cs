@@ -9,8 +9,8 @@ namespace backend.Tests;
 
 public class AuthTests
 {
-    private readonly Mock<UserManager<IdentityUser>> _userManager = CreateUserManagerMock();
-    private readonly Mock<SignInManager<IdentityUser>> _signInManager;
+    private readonly Mock<UserManager<ApplicationUser>> _userManager = CreateUserManagerMock();
+    private readonly Mock<SignInManager<ApplicationUser>> _signInManager;
     private readonly IAuthService _authService;
 
     public AuthTests()
@@ -27,7 +27,7 @@ public class AuthTests
         var password = "testpassword";
         _userManager
             .Setup(manager => manager.FindByNameAsync(username))
-            .ReturnsAsync(new IdentityUser { UserName = username });
+            .ReturnsAsync(new ApplicationUser { UserName = username });
         _signInManager
             .Setup(manager => manager.PasswordSignInAsync(username, password, false, false))
             .ReturnsAsync(SignInResult.Success);
@@ -48,7 +48,7 @@ public class AuthTests
         var password = "testpassword";
         _userManager
             .Setup(manager => manager.FindByNameAsync(username))
-            .ReturnsAsync((IdentityUser?)null);
+            .ReturnsAsync((ApplicationUser?)null);
 
         // Act
         var result = await _authService.LoginAsync(username, password);
@@ -69,7 +69,7 @@ public class AuthTests
         var password = "invalidpassword";
         _userManager
             .Setup(manager => manager.FindByNameAsync(username))
-            .ReturnsAsync(new IdentityUser { UserName = username });
+            .ReturnsAsync(new ApplicationUser { UserName = username });
         _signInManager
             .Setup(manager => manager.PasswordSignInAsync(username, password, false, false))
             .ReturnsAsync(SignInResult.Failed);
@@ -89,7 +89,7 @@ public class AuthTests
         var username = "newuser";
         var password = "newpassword";
         _userManager
-            .Setup(manager => manager.CreateAsync(It.IsAny<IdentityUser>(), password))
+            .Setup(manager => manager.CreateAsync(It.IsAny<ApplicationUser>(), password))
             .ReturnsAsync(IdentityResult.Success);
 
         // Act
@@ -98,7 +98,7 @@ public class AuthTests
         // Assert
         Assert.True(result.IsSuccess);
         _userManager.Verify(
-            manager => manager.CreateAsync(It.Is<IdentityUser>(u => u.UserName == username), password),
+            manager => manager.CreateAsync(It.Is<ApplicationUser>(u => u.UserName == username), password),
             Times.Once);
     }
 
@@ -110,7 +110,7 @@ public class AuthTests
         var password = "password";
         var identityError = new IdentityError { Description = "User already exists" };
         _userManager
-            .Setup(manager => manager.CreateAsync(It.IsAny<IdentityUser>(), password))
+            .Setup(manager => manager.CreateAsync(It.IsAny<ApplicationUser>(), password))
             .ReturnsAsync(IdentityResult.Failed(identityError));
 
         // Act
@@ -133,7 +133,7 @@ public class AuthTests
             new IdentityError { Description = "Error 2" }
         };
         _userManager
-            .Setup(manager => manager.CreateAsync(It.IsAny<IdentityUser>(), password))
+            .Setup(manager => manager.CreateAsync(It.IsAny<ApplicationUser>(), password))
             .ReturnsAsync(IdentityResult.Failed(identityErrors));
 
         // Act
@@ -152,7 +152,7 @@ public class AuthTests
         var password = "short";
         var identityError = new IdentityError { Description = "Password must be at least 6 characters" };
         _userManager
-            .Setup(manager => manager.CreateAsync(It.IsAny<IdentityUser>(), password))
+            .Setup(manager => manager.CreateAsync(It.IsAny<ApplicationUser>(), password))
             .ReturnsAsync(IdentityResult.Failed(identityError));
 
         // Act
@@ -187,10 +187,10 @@ public class AuthTests
         _signInManager.Verify(manager => manager.SignOutAsync(), Times.Exactly(2));
     }
 
-    private static Mock<UserManager<IdentityUser>> CreateUserManagerMock()
+    private static Mock<UserManager<ApplicationUser>> CreateUserManagerMock()
     {
-        return new Mock<UserManager<IdentityUser>>(
-            Mock.Of<IUserStore<IdentityUser>>(),
+        return new Mock<UserManager<ApplicationUser>>(
+            Mock.Of<IUserStore<ApplicationUser>>(),
             null!,
             null!,
             null!,
@@ -201,16 +201,16 @@ public class AuthTests
             null!);
     }
 
-    private static Mock<SignInManager<IdentityUser>> CreateSignInManagerMock(
-        UserManager<IdentityUser> userManager)
+    private static Mock<SignInManager<ApplicationUser>> CreateSignInManagerMock(
+        UserManager<ApplicationUser> userManager)
     {
-        return new Mock<SignInManager<IdentityUser>>(
+        return new Mock<SignInManager<ApplicationUser>>(
             userManager,
             Mock.Of<IHttpContextAccessor>(),
-            Mock.Of<IUserClaimsPrincipalFactory<IdentityUser>>(),
+            Mock.Of<IUserClaimsPrincipalFactory<ApplicationUser>>(),
             Options.Create(new IdentityOptions()),
-            Mock.Of<ILogger<SignInManager<IdentityUser>>>(),
+            Mock.Of<ILogger<SignInManager<ApplicationUser>>>(),
             Mock.Of<IAuthenticationSchemeProvider>(),
-            Mock.Of<IUserConfirmation<IdentityUser>>());
+            Mock.Of<IUserConfirmation<ApplicationUser>>());
     }
 }

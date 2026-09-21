@@ -2,12 +2,12 @@ using Microsoft.AspNetCore.Identity;
 
 public sealed class AuthService : IAuthService
 {
-    private readonly SignInManager<IdentityUser> _signInManager;
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public AuthService(
-        SignInManager<IdentityUser> signInManager,
-        UserManager<IdentityUser> userManager)
+        SignInManager<ApplicationUser> signInManager,
+        UserManager<ApplicationUser> userManager)
     {
         _signInManager = signInManager;
         _userManager = userManager;
@@ -34,7 +34,7 @@ public sealed class AuthService : IAuthService
 
     public async Task<AuthResult> RegisterAsync(string username, string password)
     {
-        var user = new IdentityUser { UserName = username };
+        var user = new ApplicationUser { UserName = username };
         var result = await _userManager.CreateAsync(user, password);
 
         return result.Succeeded

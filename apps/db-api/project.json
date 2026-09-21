@@ -10,6 +10,13 @@
         "cwd": "apps/db-api"
       }
     },
+    "migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv run python -c \"from app.sql.session import migrate_database; migrate_database()\"",
+        "cwd": "apps/db-api"
+      }
+    },
     "test": {
       "executor": "nx:run-commands",
       "options": {

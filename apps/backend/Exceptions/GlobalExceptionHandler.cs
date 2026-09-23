@@ -34,6 +34,14 @@ public class GlobalExceptionHandler : IExceptionHandler
                     Status = StatusCodes.Status404NotFound
                 },
 
+            ArgumentException =>
+                new ProblemDetails
+                {
+                    Title = "Invalid argument",
+                    Detail = exception.Message,
+                    Status = StatusCodes.Status400BadRequest
+                },
+
             _ =>
                 new ProblemDetails
                 {

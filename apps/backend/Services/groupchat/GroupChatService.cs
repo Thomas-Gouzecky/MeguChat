@@ -28,6 +28,16 @@ public class GroupChatService : IGroupChatService
 
     public async Task<GroupChatResponseDto> CreateGroupChatAsync(CreateGroupChatRequestDto request)
     {
+        if (request.UserIds == null || !request.UserIds.Any())
+        {
+            throw new ArgumentException("At least one user ID must be provided to create a group chat.");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            throw new ArgumentException("Group chat name cannot be empty.");
+        }
+
         var user = await _authService.GetCurrentUserAsync();
         if (user is null)
         {

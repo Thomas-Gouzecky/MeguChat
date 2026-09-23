@@ -30,6 +30,21 @@ services:
     networks:
       - meguchat-network
 
+  backend-migrations:
+    build:
+      context: ../../apps/backend
+      dockerfile: Dockerfile
+    container_name: backend-migrations
+    command: ['--migrate']
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Host=postgres-primary;Port=5432;Database=meguchat;Username=meguchat;Password=meguchat
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+    networks:
+      - meguchat-network
+
   postgres-replica:
     image: postgres:18
     container_name: postgres-replica

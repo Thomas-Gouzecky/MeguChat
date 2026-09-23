@@ -61,4 +61,28 @@ public class GroupChatsAPITests : IClassFixture<TestWebApplicationFactory>
         Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Fact]
+    public async Task PostNewGroupChat_ReturnsCreated()
+    {
+        // Login
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "TestPassword1!"
+        };
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        Assert.True(loginResponse.IsSuccessStatusCode, await loginResponse.Content.ReadAsStringAsync());
+
+        // Act
+        var newGroupChatRequest = new CreateGroupChatRequestDto
+        {
+            Name = "New Group Chat",
+            UserIds = new List<string> { "user1", "user2" }
+        };
+        var response = await _client.PostAsJsonAsync("/api/groupchats", newGroupChatRequest);
+
+        // Assert
+        Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
+    }
+
 }

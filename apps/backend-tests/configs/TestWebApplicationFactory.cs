@@ -57,6 +57,26 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 .Setup(client => client.GetGroupChatsForUserAsync(
                     noGroupChatsUser.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Enumerable.Empty<GroupChatResponseDto>());
+
+            _groupChatClient
+                .Setup(client => client.CreateGroupChatAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<CreateGroupChatRequestDto>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((string _, CreateGroupChatRequestDto request, CancellationToken _) =>
+                    new GroupChatResponseDto
+                    {
+                        Id = 1,
+                        Name = request.Name,
+                        CreatedAt = DateTime.UtcNow
+                    });
+
+            _groupChatClient
+                .Setup(client => client.AddMembersToGroupChatAsync(
+                    It.IsAny<int>(),
+                    It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
         });
     }
 

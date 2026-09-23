@@ -25,4 +25,26 @@ public class GroupChatService : IGroupChatService
         }
         return groupChats;
     }
+
+    public async Task<GroupChatResponseDto> CreateGroupChatAsync(CreateGroupChatRequestDto request)
+    {
+        var user = await _authService.GetCurrentUserAsync();
+        if (user is null)
+        {
+            throw new UnauthenticatedAccessException("User is not authenticated.");
+        }
+
+        var groupChat = await _groupChatClient.CreateGroupChatAsync(user.Id, request, CancellationToken.None);
+
+        if (groupChat is null)
+        {
+            throw new InvalidOperationException("Failed to create group chat.");
+        }
+
+        // Add members to the group chat (including the creator)
+        await _groupChatClient.AddMembersToGroupChatAsync(groupChat.Id, new[] { user.Id }, CancellationToken.None);
+        await _groupChatClient.AddMembersToGroupChatAsync(groupChat.Id, request.UserIds, CancellationToken.None);
+
+        return groupChat;
+    }
 }

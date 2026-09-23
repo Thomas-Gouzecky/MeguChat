@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Backend.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("/api/groupchats")]
 public class GroupChatsController : ControllerBase
 {
@@ -14,12 +15,18 @@ public class GroupChatsController : ControllerBase
         _groupChatService = groupChatService;
     }
 
-    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetCurrentUserGroupChats()
     {
 
         var groupChats = await _groupChatService.GetCurrentUserGroupChatsAsync();
         return Ok(groupChats);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateGroupChat([FromBody] CreateGroupChatRequestDto request)
+    {
+        var groupChat = await _groupChatService.CreateGroupChatAsync(request);
+        return CreatedAtAction(nameof(GetCurrentUserGroupChats), new { id = groupChat.Id }, groupChat);
     }
 }

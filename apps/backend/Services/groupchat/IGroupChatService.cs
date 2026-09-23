@@ -1,1 +1,4 @@
-public interface IGroupChatService { }
+public interface IGroupChatService
+{
+    Task<IEnumerable<GroupChatResponseDto>> GetCurrentUserGroupChatsAsync();
+}

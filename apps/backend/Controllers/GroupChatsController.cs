@@ -8,11 +8,38 @@ namespace Backend.Controllers;
 public class GroupChatsController : ControllerBase
 {
     private readonly IGroupChatService _groupChatService;
-    private readonly HttpClient _dbApiClient;
 
-    public GroupChatsController(IGroupChatService groupChatService, IHttpClientFactory httpClientFactory)
+    public GroupChatsController(IGroupChatService groupChatService)
     {
         _groupChatService = groupChatService;
-        _dbApiClient = httpClientFactory.CreateClient("dbApi");
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetCurrentUserGroupChats()
+    {
+        try
+        {
+            var groupChats = await _groupChatService.GetCurrentUserGroupChatsAsync();
+            return Ok(groupChats);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Unauthorized(new ProblemDetails
+            {
+                Title = "User not authenticated",
+                Detail = ex.Message,
+                Status = 401
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Error retrieving group chats",
+                Detail = ex.Message,
+                Status = 400
+            });
+        }
     }
 }

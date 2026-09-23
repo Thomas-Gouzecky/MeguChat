@@ -14,7 +14,7 @@ public class GroupChatService : IGroupChatService
         var user = await _authService.GetCurrentUserAsync();
         if (user is null)
         {
-            throw new InvalidOperationException("User is not authenticated.");
+            throw new UnauthenticatedAccessException("User is not authenticated.");
         }
 
         var groupChats = await _groupChatClient.GetGroupChatsForUserAsync(user.Id, CancellationToken.None);

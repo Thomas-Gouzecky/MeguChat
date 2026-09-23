@@ -18,37 +18,8 @@ public class GroupChatsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetCurrentUserGroupChats()
     {
-        try
-        {
-            var groupChats = await _groupChatService.GetCurrentUserGroupChatsAsync();
-            return Ok(groupChats);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Unauthorized(new ProblemDetails
-            {
-                Title = "User not authenticated",
-                Detail = ex.Message,
-                Status = 401
-            });
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(new ProblemDetails
-            {
-                Title = "Group chats not found",
-                Detail = ex.Message,
-                Status = 404
-            });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new ProblemDetails
-            {
-                Title = "Error retrieving group chats",
-                Detail = ex.Message,
-                Status = 400
-            });
-        }
+
+        var groupChats = await _groupChatService.GetCurrentUserGroupChatsAsync();
+        return Ok(groupChats);
     }
 }

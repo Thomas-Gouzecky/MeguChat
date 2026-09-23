@@ -11,11 +11,7 @@ public class GroupChatService : IGroupChatService
 
     public async Task<IEnumerable<GroupChatResponseDto>> GetCurrentUserGroupChatsAsync()
     {
-        var user = await _authService.GetCurrentUserAsync();
-        if (user is null)
-        {
-            throw new UnauthenticatedAccessException("User is not authenticated.");
-        }
+        var user = await ValidateUser();
 
         var groupChats = await _groupChatClient.GetGroupChatsForUserAsync(user.Id, CancellationToken.None);
 
@@ -30,11 +26,7 @@ public class GroupChatService : IGroupChatService
     {
         ValidateObject.Validate(request);
 
-        var user = await _authService.GetCurrentUserAsync();
-        if (user is null)
-        {
-            throw new UnauthenticatedAccessException("User is not authenticated.");
-        }
+        var user = await ValidateUser();
 
         var groupChat = await _groupChatClient.CreateGroupChatAsync(user.Id, request, CancellationToken.None);
 
@@ -54,20 +46,9 @@ public class GroupChatService : IGroupChatService
     {
         ValidateObject.Validate(request);
 
-        var user = await _authService.GetCurrentUserAsync();
-        if (user is null)
-        {
-            throw new UnauthenticatedAccessException("User is not authenticated.");
-        }
+        var user = await ValidateUser();
 
-        // Ensure the user is a member of the group chat before allowing updates
-        var groupChats = await _groupChatClient.GetGroupChatsForUserAsync(user.Id, CancellationToken.None);
-        var groupChat = groupChats.FirstOrDefault(gc => gc.Id == groupChatId);
-
-        if (groupChat is null)
-        {
-            throw new NotFoundException($"Group chat with ID {groupChatId} was not found or the user is not a member of it.");
-        }
+        var groupChat = await EnsureUserIsMember(user.Id, groupChatId);
 
         // Update the group chat
         groupChat.Name = request.Name;
@@ -76,5 +57,40 @@ public class GroupChatService : IGroupChatService
         await _groupChatClient.UpdateGroupChatAsync(groupChat.Id, groupChat, CancellationToken.None);
 
         return groupChat;
+    }
+
+    public async Task<bool> DeleteGroupChatAsync(int groupChatId)
+    {
+        var user = await ValidateUser();
+
+        var groupChat = await EnsureUserIsMember(user.Id, groupChatId);
+
+        var response = await _groupChatClient.DeleteGroupChatAsync(groupChatId, CancellationToken.None);
+        return response;
+    }
+
+    private async Task<GroupChatResponseDto> EnsureUserIsMember(string userId, int groupChatId)
+    {
+        // Ensure the user is a member of the group chat before allowing updates
+        var groupChats = await _groupChatClient.GetGroupChatsForUserAsync(userId, CancellationToken.None);
+        var groupChat = groupChats.FirstOrDefault(gc => gc.Id == groupChatId);
+
+        if (groupChat is null)
+        {
+            throw new NotFoundException($"Group chat with ID {groupChatId} was not found or the user is not a member of it.");
+        }
+
+        return groupChat;
+    }
+
+    private async Task<ApplicationUser> ValidateUser()
+    {
+        var user = await _authService.GetCurrentUserAsync();
+        if (user is null)
+        {
+            throw new UnauthenticatedAccessException("User is not authenticated.");
+        }
+
+        return user;
     }
 }

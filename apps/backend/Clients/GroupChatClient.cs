@@ -55,4 +55,16 @@ public class GroupChatClient : IGroupChatClient
         var updatedGroupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
         return updatedGroupChat ?? throw new InvalidOperationException("Failed to update group chat.");
     }
+
+    public async Task<bool> DeleteGroupChatAsync(int groupChatId, CancellationToken cancellationToken)
+    {
+        var response = await _dbApiClient.DeleteAsync($"/api/groupchats/{groupChatId}", cancellationToken);
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            throw new NotFoundException($"Group chat with ID {groupChatId} not found.");
+        }
+        response.EnsureSuccessStatusCode();
+
+        return response.IsSuccessStatusCode;
+    }
 }

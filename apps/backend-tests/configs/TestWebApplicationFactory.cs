@@ -123,6 +123,21 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     }
                 })
                 .Returns(Task.CompletedTask);
+
+            _groupChatClient
+                .Setup(client => client.DeleteGroupChatAsync(
+                    It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, CancellationToken _) =>
+                {
+                    var wasDeleted = false;
+
+                    foreach (var groupChats in _groupChatsByUser.Values)
+                    {
+                        wasDeleted |= groupChats.RemoveAll(groupChat => groupChat.Id == groupChatId) > 0;
+                    }
+
+                    return wasDeleted;
+                });
         });
     }
 

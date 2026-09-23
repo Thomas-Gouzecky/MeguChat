@@ -41,6 +41,13 @@ public class GlobalExceptionHandler : IExceptionHandler
                     Detail = exception.Message,
                     Status = StatusCodes.Status400BadRequest
                 },
+            UnauthorizedAccessException =>
+                new ProblemDetails
+                {
+                    Title = "Unauthorized access",
+                    Detail = exception.Message,
+                    Status = StatusCodes.Status403Forbidden
+                },
 
             _ =>
                 new ProblemDetails

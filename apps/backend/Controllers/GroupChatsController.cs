@@ -29,4 +29,18 @@ public class GroupChatsController : ControllerBase
         var groupChat = await _groupChatService.CreateGroupChatAsync(request);
         return CreatedAtAction(nameof(GetCurrentUserGroupChats), new { id = groupChat.Id }, groupChat);
     }
+
+    [HttpGet("{groupChatId}")]
+    public async Task<IActionResult> GetGroupChatById(int groupChatId)
+    {
+        var groupChats = await _groupChatService.GetCurrentUserGroupChatsAsync();
+        var groupChat = groupChats.FirstOrDefault(gc => gc.Id == groupChatId);
+
+        if (groupChat is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(groupChat);
+    }
 }

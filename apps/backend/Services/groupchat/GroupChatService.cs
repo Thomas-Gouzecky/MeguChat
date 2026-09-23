@@ -57,4 +57,23 @@ public class GroupChatService : IGroupChatService
 
         return groupChat;
     }
+
+    public async Task<GroupChatResponseDto?> GetCurrentUserGroupChatByIdAsync(int groupChatId)
+    {
+        var user = await _authService.GetCurrentUserAsync();
+        if (user is null)
+        {
+            throw new UnauthenticatedAccessException("User is not authenticated.");
+        }
+
+        var groupChats = await _groupChatClient.GetGroupChatsForUserAsync(user.Id, CancellationToken.None);
+        var groupChat = groupChats.FirstOrDefault(gc => gc.Id == groupChatId);
+
+        if (groupChat is null)
+        {
+            throw new NotFoundException($"Group chat with ID {groupChatId} not found for the current user.");
+        }
+
+        return groupChat;
+    }
 }

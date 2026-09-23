@@ -11,6 +11,25 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 {
     private readonly string _databaseName = $"AuthTests-{Guid.NewGuid()}";
     private readonly Mock<IGroupChatClient> _groupChatClient = new();
+    private readonly Dictionary<string, List<GroupChatResponseDto>> _groupChatsByUser = new();
+
+    public string TestUserId { get; private set; } = string.Empty;
+    public string NoGroupChatsUserId { get; private set; } = string.Empty;
+
+    public void ResetGroupChatState()
+    {
+        foreach (var groupChats in _groupChatsByUser.Values)
+        {
+            groupChats.Clear();
+        }
+
+        _groupChatsByUser[TestUserId].Add(new GroupChatResponseDto
+        {
+            Id = 1,
+            Name = "Test Group Chat",
+            CreatedAt = DateTime.UtcNow
+        });
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -39,24 +58,25 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
             var testUser = SeedUser(userManager, "testuser");
             var noGroupChatsUser = SeedUser(userManager, "nouser");
+            TestUserId = testUser.Id;
+            NoGroupChatsUserId = noGroupChatsUser.Id;
+
+            var existingGroupChat = new GroupChatResponseDto
+            {
+                Id = 1,
+                Name = "Test Group Chat",
+                CreatedAt = DateTime.UtcNow
+            };
+            _groupChatsByUser[testUser.Id] = new List<GroupChatResponseDto> { existingGroupChat };
+            _groupChatsByUser[noGroupChatsUser.Id] = new List<GroupChatResponseDto>();
 
             _groupChatClient
                 .Setup(client => client.GetGroupChatsForUserAsync(
                     It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new[]
-                {
-                    new GroupChatResponseDto
-                    {
-                        Id = 1,
-                        Name = "Test Group Chat",
-                        CreatedAt = DateTime.UtcNow
-                    }
-                }.AsEnumerable());
-
-            _groupChatClient
-                .Setup(client => client.GetGroupChatsForUserAsync(
-                    noGroupChatsUser.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Enumerable.Empty<GroupChatResponseDto>());
+                .ReturnsAsync((string userId, CancellationToken _) =>
+                    _groupChatsByUser.TryGetValue(userId, out var groupChats)
+                        ? groupChats.AsEnumerable()
+                        : Enumerable.Empty<GroupChatResponseDto>());
 
             _groupChatClient
                 .Setup(client => client.CreateGroupChatAsync(
@@ -76,6 +96,29 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     It.IsAny<int>(),
                     It.IsAny<IEnumerable<string>>(),
                     It.IsAny<CancellationToken>()))
+                .Callback<int, IEnumerable<string>, CancellationToken>((groupChatId, userIds, _) =>
+                {
+                    var groupChat = new GroupChatResponseDto
+                    {
+                        Id = groupChatId,
+                        Name = "Another Group Chat",
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    foreach (var userId in userIds)
+                    {
+                        if (!_groupChatsByUser.TryGetValue(userId, out var groupChats))
+                        {
+                            groupChats = new List<GroupChatResponseDto>();
+                            _groupChatsByUser[userId] = groupChats;
+                        }
+
+                        if (groupChats.All(existing => existing.Id != groupChatId))
+                        {
+                            groupChats.Add(groupChat);
+                        }
+                    }
+                })
                 .Returns(Task.CompletedTask);
         });
     }

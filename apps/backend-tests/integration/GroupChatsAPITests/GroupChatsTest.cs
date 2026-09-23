@@ -35,11 +35,8 @@ public class GroupChatsAPITests : IClassFixture<TestWebApplicationFactory>
     [Fact]
     public async Task GetCurrentUserGroupChats_ReturnsUnauthorized_WhenNotAuthenticated()
     {
-        // Arrange
-        var unauthenticatedClient = new HttpClient(); // Create a new HttpClient without authentication
-
         // Act
-        var response = await unauthenticatedClient.GetAsync("https://localhost:5001/api/groupchats");
+        var response = await _client.GetAsync("/api/groupchats");
 
         // Assert
         Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);

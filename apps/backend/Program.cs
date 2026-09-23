@@ -13,10 +13,21 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IGroupChatService, GroupChatService>();
 
 builder.Services.AddControllers();
 
 builder.Services.AddProblemDetails();
+
+builder.Services.AddHttpClient();
+
+var databaseApi = builder.Configuration["ApiSettings:DatabaseApi"]
+    ?? throw new InvalidOperationException("Database API URL is missing");
+
+builder.Services.AddHttpClient("dbApi", options =>
+{
+    options.BaseAddress = new Uri(databaseApi);
+});
 
 // builder.Services.AddSingleton<IAuthService, AuthService>();
 

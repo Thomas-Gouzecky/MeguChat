@@ -42,4 +42,23 @@ public class GroupChatsAPITests : IClassFixture<TestWebApplicationFactory>
         Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Fact]
+    public async Task GetCurrentUserGroupChats_ReturnsNotFound_WhenNoGroupChats()
+    {
+        // Login with a user that has no group chats
+        var loginRequest = new
+        {
+            username = "nouser",
+            password = "TestPassword1!"
+        };
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        Assert.True(loginResponse.IsSuccessStatusCode, await loginResponse.Content.ReadAsStringAsync());
+
+        // Act
+        var response = await _client.GetAsync("/api/groupchats");
+
+        // Assert
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
+    }
+
 }

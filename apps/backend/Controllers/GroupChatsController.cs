@@ -32,6 +32,15 @@ public class GroupChatsController : ControllerBase
                 Status = 401
             });
         }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Group chats not found",
+                Detail = ex.Message,
+                Status = 404
+            });
+        }
         catch (Exception ex)
         {
             return BadRequest(new ProblemDetails

@@ -19,6 +19,10 @@ public class GroupChatService : IGroupChatService
 
         var groupChats = await _groupChatClient.GetGroupChatsForUserAsync(user.Id, CancellationToken.None);
 
+        if (groupChats is null || !groupChats.Any())
+        {
+            throw new NotFoundException("No group chats found for the current user.");
+        }
         return groupChats;
     }
 }

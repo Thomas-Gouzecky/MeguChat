@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-public class GroupChatResponseDto
+public class GroupChatResponseDto : IGroupChatRequest
 {
     [JsonPropertyName("groupchat_id")]
     public int Id { get; set; }

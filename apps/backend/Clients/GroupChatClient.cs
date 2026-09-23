@@ -42,4 +42,17 @@ public class GroupChatClient : IGroupChatClient
             throw new InvalidOperationException($"Failed to add members to group chat {groupChatId}. Status code: {response.StatusCode}");
         }
     }
+
+    public async Task<GroupChatResponseDto> UpdateGroupChatAsync(int groupChatId, GroupChatResponseDto groupChat, CancellationToken cancellationToken)
+    {
+        var response = await _dbApiClient.PutAsJsonAsync($"/api/groupchats/{groupChatId}", groupChat, cancellationToken);
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            throw new NotFoundException($"Group chat with ID {groupChatId} not found.");
+        }
+        response.EnsureSuccessStatusCode();
+
+        var updatedGroupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
+        return updatedGroupChat ?? throw new InvalidOperationException("Failed to update group chat.");
+    }
 }

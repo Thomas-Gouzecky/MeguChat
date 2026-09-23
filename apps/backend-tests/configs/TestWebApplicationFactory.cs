@@ -12,12 +12,15 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     private readonly string _databaseName = $"AuthTests-{Guid.NewGuid()}";
     private readonly Mock<IGroupChatClient> _groupChatClient = new();
     private readonly Dictionary<string, List<GroupChatResponseDto>> _groupChatsByUser = new();
+    private int _nextGroupChatId = 2;
 
     public string TestUserId { get; private set; } = string.Empty;
     public string NoGroupChatsUserId { get; private set; } = string.Empty;
 
     public void ResetGroupChatState()
     {
+        _nextGroupChatId = 2;
+
         foreach (var groupChats in _groupChatsByUser.Values)
         {
             groupChats.Clear();
@@ -86,7 +89,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 .ReturnsAsync((string _, CreateGroupChatRequestDto request, CancellationToken _) =>
                     new GroupChatResponseDto
                     {
-                        Id = 1,
+                        Id = _nextGroupChatId++,
                         Name = request.Name,
                         CreatedAt = DateTime.UtcNow
                     });

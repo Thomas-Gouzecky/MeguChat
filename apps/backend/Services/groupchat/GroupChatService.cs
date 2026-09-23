@@ -28,15 +28,7 @@ public class GroupChatService : IGroupChatService
 
     public async Task<GroupChatResponseDto> CreateGroupChatAsync(CreateGroupChatRequestDto request)
     {
-        if (request.UserIds == null || !request.UserIds.Any())
-        {
-            throw new ArgumentException("At least one user ID must be provided to create a group chat.");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            throw new ArgumentException("Group chat name cannot be empty.");
-        }
+        ValidateObject.Validate(request);
 
         var user = await _authService.GetCurrentUserAsync();
         if (user is null)
@@ -58,21 +50,30 @@ public class GroupChatService : IGroupChatService
         return groupChat;
     }
 
-    public async Task<GroupChatResponseDto?> GetCurrentUserGroupChatByIdAsync(int groupChatId)
+    public async Task<GroupChatResponseDto> UpdateGroupChatAsync(int groupChatId, UpdateGroupChatRequestDto request)
     {
+        ValidateObject.Validate(request);
+
         var user = await _authService.GetCurrentUserAsync();
         if (user is null)
         {
             throw new UnauthenticatedAccessException("User is not authenticated.");
         }
 
+        // Ensure the user is a member of the group chat before allowing updates
         var groupChats = await _groupChatClient.GetGroupChatsForUserAsync(user.Id, CancellationToken.None);
         var groupChat = groupChats.FirstOrDefault(gc => gc.Id == groupChatId);
 
         if (groupChat is null)
         {
-            throw new NotFoundException($"Group chat with ID {groupChatId} not found for the current user.");
+            throw new NotFoundException($"Group chat with ID {groupChatId} was not found or the user is not a member of it.");
         }
+
+        // Update the group chat
+        groupChat.Name = request.Name;
+
+        // Save the updated group chat
+        await _groupChatClient.UpdateGroupChatAsync(groupChat.Id, groupChat, CancellationToken.None);
 
         return groupChat;
     }

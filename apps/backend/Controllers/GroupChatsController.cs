@@ -43,4 +43,16 @@ public class GroupChatsController : ControllerBase
 
         return Ok(groupChat);
     }
+
+    [HttpPut("{groupChatId}")]
+    public async Task<IActionResult> UpdateGroupChat(int groupChatId, [FromBody] UpdateGroupChatRequestDto request)
+    {
+        var groupChat = await _groupChatService.UpdateGroupChatAsync(groupChatId, request);
+        if (groupChat is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(groupChat);
+    }
 }

@@ -32,21 +32,29 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             dbContext.Database.EnsureCreated();
 
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var seedResult = userManager.CreateAsync(
-                new ApplicationUser
-                {
-                    UserName = "testuser",
-                    Email = "testuser@example.com",
-                    EmailConfirmed = true
-                },
-                "TestPassword1!")
-            .GetAwaiter()
-            .GetResult();
 
-            if (!seedResult.Succeeded)
+            var existingUser = userManager.FindByNameAsync("testuser")
+                .GetAwaiter()
+                .GetResult();
+
+            if (existingUser is null)
             {
-                throw new InvalidOperationException(
-                    string.Join(", ", seedResult.Errors.Select(error => error.Description)));
+                var seedResult = userManager.CreateAsync(
+                    new ApplicationUser
+                    {
+                        UserName = "testuser",
+                        Email = "testuser@example.com",
+                        EmailConfirmed = true
+                    },
+                    "TestPassword1!")
+                    .GetAwaiter()
+                    .GetResult();
+
+                if (!seedResult.Succeeded)
+                {
+                    throw new InvalidOperationException(
+                        string.Join(", ", seedResult.Errors.Select(error => error.Description)));
+                }
             }
         });
     }

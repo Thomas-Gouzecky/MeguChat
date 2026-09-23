@@ -12,6 +12,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    };
+});
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGroupChatService, GroupChatService>();
 builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
@@ -29,6 +42,8 @@ builder.Services.AddHttpClient("dbApi", options =>
 {
     options.BaseAddress = new Uri(databaseApi);
 });
+
+builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
 
 // builder.Services.AddSingleton<IAuthService, AuthService>();
 

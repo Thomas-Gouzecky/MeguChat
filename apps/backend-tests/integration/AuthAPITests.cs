@@ -217,18 +217,18 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
     }
 
     [Fact]
-    public async Task GetCurrentUser_WithoutAuthenticatedUser_ReturnsNotFound()
+    public async Task GetCurrentUser_WithoutAuthenticatedUser_ReturnsUnauthorized()
     {
         // Act
         var meResponse = await _client.GetAsync("/api/auth/me");
         var responseBody = await meResponse.Content.ReadAsStringAsync();
 
         // Assert
-        Assert.Equal(System.Net.HttpStatusCode.NotFound, meResponse.StatusCode);
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, meResponse.StatusCode);
     }
 
     [Fact]
-    public async Task GetCurrentUser_AfterLogout_ReturnsNotFound()
+    public async Task GetCurrentUser_AfterLogout_ReturnsUnauthorized()
     {
         // Arrange
         var loginRequest = new
@@ -250,7 +250,7 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
         var responseBody = await meResponse.Content.ReadAsStringAsync();
 
         // Assert
-        Assert.Equal(System.Net.HttpStatusCode.NotFound, meResponse.StatusCode);
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, meResponse.StatusCode);
     }
 
     private sealed record CurrentUserResponse(string Username);

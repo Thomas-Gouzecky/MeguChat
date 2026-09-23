@@ -6,7 +6,7 @@ services:
       context: ../../apps/db-api
       dockerfile: Dockerfile
     env_file:
-      - ../../apps/db-api/.env.dev
+      - ../../apps/db-api/.env.local.docker
     ports:
       - '8000:8000'
     networks:

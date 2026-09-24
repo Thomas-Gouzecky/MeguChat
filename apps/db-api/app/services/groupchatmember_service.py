@@ -6,7 +6,7 @@ def add_members_to_groupchat(
     groupchat_id: int,
     users: str | list[str],
     session: Session,
-) -> None:
+) -> list[str]:
     from app.repositories.groupchatmembers_repo import (
         add_member_to_groupchat as add_member_to_groupchat_in_repository,
     )
@@ -14,8 +14,15 @@ def add_members_to_groupchat(
     if isinstance(users, str):
         users = [users]
 
+    added_users = []
     for user_id in users:
-        add_member_to_groupchat_in_repository(groupchat_id, user_id, session)
+        was_added = add_member_to_groupchat_in_repository(
+            groupchat_id, user_id, session
+        )
+        if was_added:
+            added_users.append(user_id)
+
+    return added_users
 
 
 def remove_member_from_groupchat(

@@ -1,20 +1,33 @@
 from sqlmodel import Session
 
 from app.models import Messages
-from app.repositories.groupchat_repo import (
-    get_messages_for_groupchat as get_messages_for_groupchat_in_repository,
-)
 from app.DTOs import (
     MessageCreationRequest,
+    MessageDto,
 )
 
 
 def get_messages_for_groupchat(
     groupchat_id: int,
     session: Session,
-) -> list:
+) -> list[MessageDto]:
+    from app.repositories.messages_repo import (
+        get_messages_for_groupchat as get_messages_for_groupchat_in_repository,
+    )
+
     get_messages = get_messages_for_groupchat_in_repository(groupchat_id, session)
-    return get_messages
+
+    return [
+        MessageDto(
+            id=message.id,
+            user_id=message.user_id,
+            group_chat_id=message.group_chat_id,
+            message=message.message,
+            created_at=message.created_at,
+            modified_at=message.modified_at,
+        )
+        for message in get_messages
+    ]
 
 
 def create_message_for_groupchat(

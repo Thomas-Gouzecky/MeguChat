@@ -84,12 +84,14 @@ def add_members_to_groupchat(
         users = [users]
 
     try:
-        groupchatmember_service.add_members_to_groupchat(groupchat_id, users, session)
+        added_users = groupchatmember_service.add_members_to_groupchat(
+            groupchat_id, users, session
+        )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
     return {
-        "message": f"Users with IDs {', '.join(users)} have been added to groupchat {groupchat_id}."
+        "message": f"Users with IDs {', '.join(added_users)} have been added to groupchat {groupchat_id}."
     }
 
 

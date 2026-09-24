@@ -87,7 +87,7 @@ def test_add_member_to_groupchat():
     assert any(gc["groupchat_id"] == groupchat_id for gc in user2_groupchats)
 
 
-def test_cannot_add_same_member_to_groupchat_twice():
+def test_adding_same_member_twice_is_ignored():
     create_response = client.post(
         "/api/groupchats", json={"name": "Duplicate Member Test"}
     )
@@ -102,8 +102,29 @@ def test_cannot_add_same_member_to_groupchat_twice():
     )
 
     assert first_response.status_code == 200
-    assert duplicate_response.status_code == 422
-    assert "already a member" in duplicate_response.json()["detail"]
+    assert duplicate_response.status_code == 200
+
+
+def test_duplicate_member_does_not_prevent_other_members_from_being_added():
+    create_response = client.post(
+        "/api/groupchats", json={"name": "Partial Member Add Test"}
+    )
+    groupchat_id = create_response.json()["groupchat_id"]
+
+    client.post(
+        f"/api/groupchats/{groupchat_id}/members",
+        json={"users": "user2"},
+    )
+    response = client.post(
+        f"/api/groupchats/{groupchat_id}/members",
+        json={"users": ["user2", "user3"]},
+    )
+
+    assert response.status_code == 200
+    members_response = client.get(f"/api/groupchats/{groupchat_id}/members")
+    member_ids = [member["user_id"] for member in members_response.json()]
+    assert member_ids.count("user2") == 1
+    assert member_ids.count("user3") == 1
 
 
 def test_remove_member_from_groupchat():

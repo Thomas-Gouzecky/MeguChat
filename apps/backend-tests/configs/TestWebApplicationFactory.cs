@@ -200,6 +200,22 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     var addedMembers = new List<MemberResponseDto>();
                     foreach (var userId in userIds)
                     {
+                        if (!_groupChatsByUser.TryGetValue(userId, out var groupChats))
+                        {
+                            groupChats = new List<GroupChatResponseDto>();
+                            _groupChatsByUser[userId] = groupChats;
+                        }
+
+                        if (groupChats.All(groupChat => groupChat.Id != groupChatId))
+                        {
+                            groupChats.Add(new GroupChatResponseDto
+                            {
+                                Id = groupChatId,
+                                Name = "Test Group Chat",
+                                CreatedAt = DateTime.UtcNow
+                            });
+                        }
+
                         if (members.Any(member => member.UserId == userId))
                         {
                             continue; // Skip if the user is already a member

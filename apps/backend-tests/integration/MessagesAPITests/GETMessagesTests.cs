@@ -38,4 +38,50 @@ public class GETMessagesTests : IClassFixture<TestWebApplicationFactory>
         // Includes the messages in the group chat
         Assert.Equal(2, messages.Count);
     }
+
+    [Fact]
+    public async Task GetMessages_ReturnsMessages_WhenNonSenderViewsMessages()
+    {
+        // Login
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "TestPassword1!"
+        };
+        await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+
+        // Check the Messages of the existing group chat
+        var groupChatId = 1; // set in TestWebApplicationFactory.cs
+
+        // Add a new user to the group chat
+        var addUserRequest = new AddMemberRequestDto
+        {
+            UserId = new List<string> { _factory.NoGroupChatsUserId }
+        };
+        var response = await _client.PostAsJsonAsync($"/api/groupchats/{groupChatId}/members", addUserRequest);
+        response.EnsureSuccessStatusCode();
+
+        // Login as the new user
+        response = await _client.PostAsJsonAsync("/api/auth/logout", new { });
+        response.EnsureSuccessStatusCode();
+
+        var newUserLoginRequest = new
+        {
+            username = "nouser",
+            password = "TestPassword1!"
+        };
+        response = await _client.PostAsJsonAsync("/api/auth/login", newUserLoginRequest);
+        response.EnsureSuccessStatusCode();
+
+        // Act
+        response = await _client.GetAsync($"/api/groupchats/{groupChatId}/messages");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var messages = await response.Content.ReadFromJsonAsync<List<MessageResponseDto>>();
+        Assert.NotNull(messages);
+
+        // Includes the messages in the group chat
+        Assert.Equal(2, messages.Count);
+    }
 }

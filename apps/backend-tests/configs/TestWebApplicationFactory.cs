@@ -264,6 +264,18 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     _messagesByGroupChat.TryGetValue(groupChatId, out var messages)
                         ? messages.AsEnumerable()
                         : Enumerable.Empty<MessageResponseDto>());
+
+            _messagesClient
+                .Setup(client => client.AddMessageToGroupChatAsync(
+                    It.IsAny<int>(),
+                    It.IsAny<MessageCreationRequestDto>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, MessageCreationRequestDto content, string userId, CancellationToken _) =>
+                {
+                    AddMessage(groupChatId, content.Message, userId);
+                    return Task.FromResult(true);
+                });
         });
     }
 

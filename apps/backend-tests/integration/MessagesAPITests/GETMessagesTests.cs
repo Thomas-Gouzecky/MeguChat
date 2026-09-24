@@ -84,4 +84,51 @@ public class GETMessagesTests : IClassFixture<TestWebApplicationFactory>
         // Includes the messages in the group chat
         Assert.Equal(2, messages.Count);
     }
+
+    [Fact]
+    public async Task GetMessages_ReturnsNotFound_WhenGroupChatDoesNotExist()
+    {
+        // Login
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "TestPassword1!"
+        };
+        await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+
+        // Act
+        var response = await _client.GetAsync($"/api/groupchats/9999/messages");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetMessages_ReturnsUnauthorized_WhenUserNotLoggedIn()
+    {
+        // Act
+        var response = await _client.GetAsync($"/api/groupchats/1/messages");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetMessages_ReturnsNotFound_WhenUserIsNotMemberOfGroupChat()
+    {
+        // Login
+        var loginRequest = new
+        {
+            username = "nouser",
+            password = "TestPassword1!"
+        };
+        await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+
+        var groupChatId = 1; // set in TestWebApplicationFactory.cs
+        // Act
+        var response = await _client.GetAsync($"/api/groupchats/{groupChatId}/messages");
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
 }

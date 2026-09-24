@@ -44,6 +44,8 @@ builder.Services.AddHttpClient("dbApi", options =>
 });
 
 builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
+builder.Services.AddScoped<IMembersService, MembersService>();
+builder.Services.AddScoped<IMembersClient, MembersClient>();
 
 // builder.Services.AddSingleton<IAuthService, AuthService>();
 

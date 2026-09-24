@@ -187,6 +187,11 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     var addedMembers = new List<MemberResponseDto>();
                     foreach (var userId in userIds)
                     {
+                        if (members.Any(member => member.UserId == userId))
+                        {
+                            continue; // Skip if the user is already a member
+                        }
+
                         if (members.All(member => member.UserId != userId))
                         {
                             var addedMember = new MemberResponseDto

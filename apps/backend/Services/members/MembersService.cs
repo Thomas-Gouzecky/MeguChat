@@ -24,6 +24,11 @@ public class MembersService : IMembersService
         var user = await _userValidation.ValidateUser();
         await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
 
+        if (request.UserId == null || !request.UserId.Any())
+        {
+            throw new ArgumentException("UserId list cannot be null or empty.", nameof(request.UserId));
+        }
+
         var addedMembers = await _membersClient.AddMembersToGroupChatAsync(groupChatId, request.UserId);
         return addedMembers;
     }

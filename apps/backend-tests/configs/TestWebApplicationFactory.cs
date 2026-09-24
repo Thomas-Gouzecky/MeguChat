@@ -42,6 +42,9 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             Name = "Test Group Chat",
             CreatedAt = DateTime.UtcNow
         });
+
+        AddMessage(1, "Hello from testuser!", TestUserId);
+        AddMessage(1, "Hello Again!", TestUserId);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -86,6 +89,9 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             };
             _groupChatsByUser[testUser.Id] = new List<GroupChatResponseDto> { existingGroupChat };
             _groupChatsByUser[noGroupChatsUser.Id] = new List<GroupChatResponseDto>();
+
+            AddMessage(existingGroupChat.Id, "Hello from testuser!", testUser.Id);
+            AddMessage(existingGroupChat.Id, "Hello Again!", testUser.Id);
 
             _groupChatClient
                 .Setup(client => client.GetGroupChatsForUserAsync(
@@ -275,5 +281,26 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         }
 
         return user;
+    }
+
+    private void AddMessage(int groupChatId, string content, string userId)
+    {
+        if (!_messagesByGroupChat.TryGetValue(groupChatId, out var messages))
+        {
+            messages = new List<MessageResponseDto>();
+            _messagesByGroupChat[groupChatId] = messages;
+        }
+
+        var message = new MessageResponseDto
+        {
+            Id = messages.Count + 1,
+            Message = content,
+            UserId = userId,
+            GroupChatId = groupChatId,
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow
+        };
+
+        messages.Add(message);
     }
 }

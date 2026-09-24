@@ -7,9 +7,9 @@ public class MembersClient : IMembersClient
         _dbApiClient = httpClientFactory.CreateClient("dbApi");
     }
 
-    public async Task<List<MemberResponseDto>> GetMembersOfGroupChatAsync(int groupChatId)
+    public async Task<IEnumerable<MemberResponseDto>> GetMembersOfGroupChatAsync(int groupChatId, CancellationToken cancellationToken = default)
     {
-        var response = await _dbApiClient.GetAsync($"/api/groupchats/{groupChatId}/members");
+        var response = await _dbApiClient.GetAsync($"/api/groupchats/{groupChatId}/members", cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var members = await response.Content.ReadFromJsonAsync<List<MemberResponseDto>>();

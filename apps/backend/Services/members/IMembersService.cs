@@ -1,4 +1,4 @@
 public interface IMembersService
 {
-    Task<List<MemberResponseDto>> GetMembersOfGroupChatAsync(int groupChatId);
+    Task<IEnumerable<MemberResponseDto>> GetMembersOfGroupChatAsync(int groupChatId);
 }

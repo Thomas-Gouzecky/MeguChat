@@ -43,6 +43,8 @@ public class GETMembersTests : IClassFixture<TestWebApplicationFactory>
         response.EnsureSuccessStatusCode();
         var members = await response.Content.ReadFromJsonAsync<List<MemberResponseDto>>();
         Assert.NotNull(members);
-        Assert.Equal(2, members.Count);
+
+        // Includes the creator of the group chat and the two users added
+        Assert.Equal(3, members.Count);
     }
 }

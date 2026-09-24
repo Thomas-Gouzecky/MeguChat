@@ -17,9 +17,14 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     public string TestUserId { get; private set; } = string.Empty;
     public string NoGroupChatsUserId { get; private set; } = string.Empty;
 
+    // Members Mock
+    private readonly Mock<IMembersClient> _membersClient = new();
+    private readonly Dictionary<int, List<MemberResponseDto>> _membersByGroupChat = new();
     public void ResetGroupChatState()
     {
         _nextGroupChatId = 2;
+
+        _membersByGroupChat.Clear();
 
         foreach (var groupChats in _groupChatsByUser.Values)
         {
@@ -42,7 +47,9 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
             services.RemoveAll<IDbContextOptionsConfiguration<ApplicationDbContext>>();
             services.RemoveAll<IGroupChatClient>();
+            services.RemoveAll<IMembersClient>();
             services.AddScoped(_ => _groupChatClient.Object);
+            services.AddScoped(_ => _membersClient.Object);
             services.Configure<IdentityOptions>(options =>
                 options.SignIn.RequireConfirmedAccount = false);
 
@@ -120,6 +127,23 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                         {
                             groupChats.Add(groupChat);
                         }
+
+                        if (!_membersByGroupChat.TryGetValue(groupChatId, out var members))
+                        {
+                            members = new List<MemberResponseDto>();
+                            _membersByGroupChat[groupChatId] = members;
+                        }
+
+                        if (members.All(member => member.UserId != userId))
+                        {
+                            members.Add(new MemberResponseDto
+                            {
+                                GroupChatId = groupChatId,
+                                UserId = userId,
+                                JoinedAt = DateTime.UtcNow,
+                                LastActiveAt = DateTime.UtcNow
+                            });
+                        }
                     }
                 })
                 .Returns(Task.CompletedTask);
@@ -138,6 +162,14 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
                     return wasDeleted;
                 });
+
+            _membersClient
+                .Setup(client => client.GetMembersOfGroupChatAsync(
+                    It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, CancellationToken _) =>
+                    _membersByGroupChat.TryGetValue(groupChatId, out var members)
+                        ? members.AsEnumerable()
+                        : Enumerable.Empty<MemberResponseDto>());
         });
     }
 

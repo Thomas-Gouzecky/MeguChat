@@ -1,4 +1,5 @@
 from sqlmodel import Session
+from app.models import GroupChatMembers
 
 
 def add_members_to_groupchat(
@@ -27,3 +28,14 @@ def remove_member_from_groupchat(
     )
 
     remove_member_from_groupchat_in_repository(groupchat_id, user_id, session)
+
+
+def get_members_of_groupchat(
+    groupchat_id: int,
+    session: Session,
+) -> list[GroupChatMembers]:
+    from app.repositories.groupchatmembers_repo import (
+        get_members_of_groupchat as get_members_of_groupchat_in_repository,
+    )
+
+    return get_members_of_groupchat_in_repository(groupchat_id, session)

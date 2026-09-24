@@ -4,3 +4,4 @@ from .GroupChatUpdateResponse import GroupChatUpdateResponse
 from .MessageCreationRequest import MessageCreationRequest
 from .MessageDeletionRequest import MessageDeletionRequest
 from .AddMembersRequest import AddMembersRequest
+from .GroupChatMembersResponse import GroupChatMembersResponse

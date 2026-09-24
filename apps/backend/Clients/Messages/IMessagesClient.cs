@@ -1,4 +1,4 @@
 public interface IMessagesClient
 {
-    Task<List<MessageResponseDto>> GetMessagesOfGroupChatAsync(int groupChatId);
+    Task<IEnumerable<MessageResponseDto>> GetMessagesOfGroupChatAsync(int groupChatId, CancellationToken cancellationToken = default);
 }

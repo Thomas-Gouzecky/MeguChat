@@ -29,6 +29,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         _nextGroupChatId = 2;
 
         _membersByGroupChat.Clear();
+        _messagesByGroupChat.Clear();
 
         foreach (var groupChats in _groupChatsByUser.Values)
         {
@@ -52,8 +53,10 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             services.RemoveAll<IDbContextOptionsConfiguration<ApplicationDbContext>>();
             services.RemoveAll<IGroupChatClient>();
             services.RemoveAll<IMembersClient>();
+            services.RemoveAll<IMessagesClient>();
             services.AddScoped(_ => _groupChatClient.Object);
             services.AddScoped(_ => _membersClient.Object);
+            services.AddScoped(_ => _messagesClient.Object);
             services.Configure<IdentityOptions>(options =>
                 options.SignIn.RequireConfirmedAccount = false);
 
@@ -231,6 +234,14 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     }
                     return false;
                 });
+
+            _messagesClient
+                .Setup(client => client.GetMessagesOfGroupChatAsync(
+                    It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, CancellationToken _) =>
+                    _messagesByGroupChat.TryGetValue(groupChatId, out var messages)
+                        ? messages.AsEnumerable()
+                        : Enumerable.Empty<MessageResponseDto>());
         });
     }
 

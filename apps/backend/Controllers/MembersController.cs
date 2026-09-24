@@ -14,4 +14,11 @@ public class MembersController : ControllerBase
     {
         _membersService = membersService;
     }
+
+    [HttpGet]
+    public async Task<ActionResult<List<MemberResponseDto>>> GetMembersOfGroupChat(int groupChatId)
+    {
+        var members = await _membersService.GetMembersOfGroupChatAsync(groupChatId);
+        return Ok(members);
+    }
 }

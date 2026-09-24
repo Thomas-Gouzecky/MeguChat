@@ -17,4 +17,13 @@ public class MessagesService : IMessagesService
         var messages = await _messagesClient.GetMessagesOfGroupChatAsync(groupChatId, cancellationToken);
         return messages;
     }
+
+    public async Task<MessageResponseDto> SendMessageToGroupChatAsync(int groupChatId, MessageCreationRequestDto request, CancellationToken cancellationToken = default)
+    {
+        var user = await _userValidation.ValidateUser();
+        await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
+
+        var message = await _messagesClient.SendMessageToGroupChatAsync(groupChatId, request, user.Id, cancellationToken);
+        return message;
+    }
 }

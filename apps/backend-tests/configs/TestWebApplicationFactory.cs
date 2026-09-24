@@ -266,15 +266,14 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                         : Enumerable.Empty<MessageResponseDto>());
 
             _messagesClient
-                .Setup(client => client.AddMessageToGroupChatAsync(
+                .Setup(client => client.SendMessageToGroupChatAsync(
                     It.IsAny<int>(),
                     It.IsAny<MessageCreationRequestDto>(),
                     It.IsAny<string>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync((int groupChatId, MessageCreationRequestDto content, string userId, CancellationToken _) =>
+                .ReturnsAsync((int groupChatId, MessageCreationRequestDto request, string userId, CancellationToken _) =>
                 {
-                    AddMessage(groupChatId, content.Message, userId);
-                    return Task.FromResult(true);
+                    return AddMessage(groupChatId, request.Message, userId);
                 });
         });
     }
@@ -311,7 +310,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         return user;
     }
 
-    private void AddMessage(int groupChatId, string content, string userId)
+    private MessageResponseDto AddMessage(int groupChatId, string content, string userId)
     {
         if (!_messagesByGroupChat.TryGetValue(groupChatId, out var messages))
         {
@@ -330,5 +329,6 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         };
 
         messages.Add(message);
+        return message;
     }
 }

@@ -21,4 +21,11 @@ public class MessagesController : ControllerBase
         var messages = await _messagesService.GetMessagesOfGroupChatAsync(groupChatId, cancellationToken);
         return Ok(messages);
     }
+
+    [HttpPost]
+    public async Task<ActionResult<MessageResponseDto>> SendMessageToGroupChat(int groupChatId, MessageCreationRequestDto request, CancellationToken cancellationToken = default)
+    {
+        var message = await _messagesService.SendMessageToGroupChatAsync(groupChatId, request, cancellationToken);
+        return Ok(message);
+    }
 }

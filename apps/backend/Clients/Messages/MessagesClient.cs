@@ -13,7 +13,7 @@ public class MessagesClient : DatabaseClient, IMessagesClient
         response.EnsureSuccessStatusCode();
 
         var messages = await response.Content.ReadFromJsonAsync<List<MessageResponseDto>>();
-        return messages ?? new List<MessageResponseDto>();
+        return messages ?? throw new InvalidOperationException("Failed to retrieve messages.");
     }
 
     public async Task<MessageResponseDto> SendMessageToGroupChatAsync(int groupChatId, MessageCreationRequestDto request, string userId, CancellationToken cancellationToken = default)
@@ -34,7 +34,7 @@ public class MessagesClient : DatabaseClient, IMessagesClient
         response.EnsureSuccessStatusCode();
 
         var message = await response.Content.ReadFromJsonAsync<MessageResponseDto>();
-        return message ?? new MessageResponseDto();
+        return message ?? throw new InvalidOperationException("Failed to send message.");
     }
 
     public async Task<bool> DeleteMessageFromGroupChatAsync(int groupChatId, int messageId, string userId, CancellationToken cancellationToken = default)
@@ -53,5 +53,26 @@ public class MessagesClient : DatabaseClient, IMessagesClient
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<bool>();
+    }
+
+    public async Task<MessageResponseDto> UpdateMessageInGroupChatAsync(int groupChatId, int messageId, MessageUpdateRequestDto request, string userId, CancellationToken cancellationToken = default)
+    {
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/groupchats/{groupChatId}/messages/{messageId}"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", userId);
+
+        httpRequest.Content = JsonContent.Create(request);
+
+        var response = await _dbApiClient.SendAsync(
+            httpRequest,
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+
+        var message = await response.Content.ReadFromJsonAsync<MessageResponseDto>();
+        return message ?? throw new InvalidOperationException("Failed to update message.");
     }
 }

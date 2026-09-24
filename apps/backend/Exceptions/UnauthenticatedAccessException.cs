@@ -1,4 +1,4 @@
-class UnauthenticatedAccessException : Exception
+public class UnauthenticatedAccessException : Exception
 {
     public UnauthenticatedAccessException(string message)
         : base(message)

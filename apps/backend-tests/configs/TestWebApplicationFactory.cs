@@ -296,6 +296,40 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     }
                     return false;
                 });
+
+            _messagesClient
+                .Setup(client => client.UpdateMessageInGroupChatAsync(
+                    It.IsAny<int>(),
+                    It.IsAny<int>(),
+                    It.IsAny<MessageUpdateRequestDto>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, int messageId, MessageUpdateRequestDto request, string userId, CancellationToken _) =>
+                {
+                    if (!_messagesByGroupChat.TryGetValue(groupChatId, out var messages))
+                    {
+                        throw new NotFoundException("Group chat not found.");
+                    }
+
+                    var message = messages.FirstOrDefault(m => m.Id == messageId);
+
+                    if (message == null)
+                    {
+                        throw new NotFoundException("Message not found.");
+                    }
+
+                    if (message.UserId != userId)
+                    {
+                        throw new UnauthorizedAccessException(
+                            "You are not authorized to update this message."
+                        );
+                    }
+
+                    message.Message = request.Message;
+                    message.ModifiedAt = DateTime.UtcNow;
+
+                    return message;
+                });
         });
     }
 

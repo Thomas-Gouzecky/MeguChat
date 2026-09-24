@@ -1,10 +1,7 @@
-public class MembersClient : IMembersClient
+public class MembersClient : DatabaseClient, IMembersClient
 {
-    private readonly HttpClient _dbApiClient;
-
-    public MembersClient(IHttpClientFactory httpClientFactory)
+    public MembersClient(IHttpClientFactory httpClientFactory) : base(httpClientFactory)
     {
-        _dbApiClient = httpClientFactory.CreateClient("dbApi");
     }
 
     public async Task<IEnumerable<MemberResponseDto>> GetMembersOfGroupChatAsync(int groupChatId, CancellationToken cancellationToken = default)

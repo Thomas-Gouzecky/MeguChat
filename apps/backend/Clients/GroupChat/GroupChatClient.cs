@@ -1,10 +1,7 @@
-public class GroupChatClient : IGroupChatClient
+public class GroupChatClient : DatabaseClient, IGroupChatClient
 {
-    private readonly HttpClient _dbApiClient;
-
-    public GroupChatClient(IHttpClientFactory httpClientFactory)
+    public GroupChatClient(IHttpClientFactory httpClientFactory) : base(httpClientFactory)
     {
-        _dbApiClient = httpClientFactory.CreateClient("dbApi");
     }
 
     public async Task<IEnumerable<GroupChatResponseDto>> GetGroupChatsForUserAsync(string userId, CancellationToken cancellationToken)

@@ -20,6 +20,10 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     // Members Mock
     private readonly Mock<IMembersClient> _membersClient = new();
     private readonly Dictionary<int, List<MemberResponseDto>> _membersByGroupChat = new();
+
+    // Messages Mock
+    private readonly Mock<IMessagesClient> _messagesClient = new();
+    private readonly Dictionary<int, List<MessageResponseDto>> _messagesByGroupChat = new();
     public void ResetGroupChatState()
     {
         _nextGroupChatId = 2;

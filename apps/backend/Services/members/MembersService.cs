@@ -32,4 +32,13 @@ public class MembersService : IMembersService
         var addedMembers = await _membersClient.AddMembersToGroupChatAsync(groupChatId, request.UserId);
         return addedMembers;
     }
+
+    public async Task<bool> RemoveMemberFromGroupChatAsync(int groupChatId, string userId)
+    {
+        var user = await _userValidation.ValidateUser();
+        await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
+
+        var result = await _membersClient.RemoveMemberFromGroupChatAsync(groupChatId, userId);
+        return result;
+    }
 }

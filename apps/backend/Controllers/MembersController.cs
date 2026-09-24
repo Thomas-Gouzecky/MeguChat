@@ -28,4 +28,17 @@ public class MembersController : ControllerBase
         var result = await _membersService.AddMembersToGroupChatAsync(groupChatId, request);
         return Ok(result);
     }
+
+    [HttpDelete("{userId}")]
+    public async Task<ActionResult> RemoveMemberFromGroupChat(int groupChatId, string userId)
+    {
+        var result = await _membersService.RemoveMemberFromGroupChatAsync(groupChatId, userId);
+
+        if (!result)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
 }

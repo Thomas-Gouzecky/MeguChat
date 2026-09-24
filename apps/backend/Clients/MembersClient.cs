@@ -27,4 +27,15 @@ public class MembersClient : IMembersClient
         var addedMembers = await response.Content.ReadFromJsonAsync<List<MemberResponseDto>>();
         return addedMembers ?? new List<MemberResponseDto>();
     }
+
+    public async Task<bool> RemoveMemberFromGroupChatAsync(int groupChatId, string userId, CancellationToken cancellationToken = default)
+    {
+        var response = await _dbApiClient.DeleteAsync($"/api/groupchats/{groupChatId}/members/{userId}", cancellationToken);
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return false; // Member not found
+        }
+        response.EnsureSuccessStatusCode();
+        return true;
+    }
 }

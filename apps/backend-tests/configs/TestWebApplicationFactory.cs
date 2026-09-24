@@ -208,6 +208,25 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
                     return addedMembers;
                 });
+
+            _membersClient
+                .Setup(client => client.RemoveMemberFromGroupChatAsync(
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, string userId, CancellationToken _) =>
+                {
+                    if (_membersByGroupChat.TryGetValue(groupChatId, out var members))
+                    {
+                        var member = members.FirstOrDefault(m => m.UserId == userId);
+                        if (member != null)
+                        {
+                            members.Remove(member);
+                            return true;
+                        }
+                    }
+                    return false;
+                });
         });
     }
 

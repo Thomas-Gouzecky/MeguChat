@@ -65,7 +65,7 @@ public class AuthTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Equal("Invalid credentials", result.ErrorMessage);
+        Assert.Equal("User not found", result.ErrorMessage);
         _signInManager.Verify(
             manager => manager.PasswordSignInAsync(username, password, false, false),
             Times.Never);
@@ -89,7 +89,7 @@ public class AuthTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Equal("Invalid credentials", result.ErrorMessage);
+        Assert.Equal("Invalid Credentials", result.ErrorMessage);
     }
 
     [Fact]

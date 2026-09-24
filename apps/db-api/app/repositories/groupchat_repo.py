@@ -52,21 +52,3 @@ def delete_groupchat(groupchat_id: int, session: Session) -> None:
     session.delete(groupchat)
     session.commit()
 
-
-def get_messages_for_groupchat(groupchat_id: int, session: Session) -> list:
-    group_chats_table = SQLModel.metadata.tables[GroupChats.__tablename__]
-    messages_table = SQLModel.metadata.tables[Messages.__tablename__]
-
-    if not session.get(GroupChats, groupchat_id):
-        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
-    statement = (
-        select(Messages)
-        .join(
-            GroupChats,
-            messages_table.c.group_chat_id == group_chats_table.c.id,
-        )
-        .where(group_chats_table.c.id == groupchat_id)
-    )
-    messages = list(session.exec(statement).all())
-
-    return messages

@@ -1,0 +1,7 @@
+include:
+  - postgres/docker-compose.yaml
+  - database-api/docker-compose.yaml
+
+networks:
+  meguchat-network:
+    driver: bridge

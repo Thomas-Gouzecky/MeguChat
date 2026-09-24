@@ -1,0 +1,21 @@
+{
+  "name": "infra",
+  "sourceRoot": "infra",
+  "projectType": "application",
+  "targets": {
+    "docker-run-db": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.db.yaml up -d",
+        "cwd": "infra"
+      }
+    },
+    "docker-stop-db": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.db.yaml down",
+        "cwd": "infra"
+      }
+    }
+  }
+}

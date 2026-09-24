@@ -6,6 +6,7 @@ from app.DTOs import (
     GroupChatCreationResponse,
     GroupChatUpdateResponse,
     AddMembersRequest,
+    GroupChatMembersResponse,
 )
 
 router = APIRouter(prefix="/api/groupchats", tags=["groupchats"])
@@ -16,13 +17,6 @@ def create_new_groupchat(
     request_body: GroupChatCreationRequest, session: SessionDep
 ) -> GroupChatCreationResponse:
     return groupchat_service.create_groupchat(request_body, session)
-
-
-@router.get("/user/{user_id}", response_model=list[GroupChatCreationResponse])
-def get_groupchats_for_user(
-    user_id: str, session: SessionDep
-) -> list[GroupChatCreationResponse]:
-    return groupchat_service.find_groupchats_for_user(user_id, session)
 
 
 @router.put("/{groupchat_id}", response_model=GroupChatUpdateResponse)
@@ -42,6 +36,43 @@ def delete_groupchat(groupchat_id: int, session: SessionDep) -> dict:
     return {"message": f"Groupchat with ID {groupchat_id} has been deleted."}
 
 
+# Get groupchats for a specific user
+
+
+@router.get("/user/{user_id}", response_model=list[GroupChatCreationResponse])
+def get_groupchats_for_user(
+    user_id: str, session: SessionDep
+) -> list[GroupChatCreationResponse]:
+    return groupchat_service.find_groupchats_for_user(user_id, session)
+
+
+# Members management endpoints
+
+
+@router.get("/{groupchat_id}/members", response_model=list[GroupChatMembersResponse])
+def get_members_user_id_of_groupchat(
+    groupchat_id: int, session: SessionDep
+) -> list[GroupChatMembersResponse]:
+    try:
+        members = groupchatmember_service.get_members_of_groupchat(
+            groupchat_id, session
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    return [
+        GroupChatMembersResponse(
+            id=member.id,
+            user_id=member.user_id,
+            group_chat_id=member.group_chat_id,
+            joined_at=member.joined_at,
+            last_active_at=member.last_active_at,
+            last_read_message_id=member.last_read_message_id,
+        )
+        for member in members
+    ]
+
+
 @router.post("/{groupchat_id}/members", response_model=dict)
 def add_members_to_groupchat(
     groupchat_id: int, request_body: AddMembersRequest, session: SessionDep
@@ -53,12 +84,14 @@ def add_members_to_groupchat(
         users = [users]
 
     try:
-        groupchatmember_service.add_members_to_groupchat(groupchat_id, users, session)
+        added_users = groupchatmember_service.add_members_to_groupchat(
+            groupchat_id, users, session
+        )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
     return {
-        "message": f"Users with IDs {', '.join(users)} have been added to groupchat {groupchat_id}."
+        "message": f"Users with IDs {', '.join(added_users)} have been added to groupchat {groupchat_id}."
     }
 
 

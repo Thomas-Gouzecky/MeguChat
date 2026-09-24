@@ -10,6 +10,13 @@
         "cwd": "apps/backend"
       }
     },
+    "watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet watch --project backend.csproj",
+        "cwd": "apps/backend"
+      }
+    },
     "build": {
       "executor": "nx:run-commands",
       "options": {

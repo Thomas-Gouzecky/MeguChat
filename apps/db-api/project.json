@@ -23,6 +23,13 @@
         "command": "uv run pytest",
         "cwd": "apps/db-api"
       }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t tomcheese/megu-chat-db-api .",
+        "cwd": "apps/db-api"
+      }
     }
   }
 }

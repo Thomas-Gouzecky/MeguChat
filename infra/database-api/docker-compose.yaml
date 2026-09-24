@@ -1,0 +1,18 @@
+services:
+  megu-chat-db-api:
+    image: tomcheese/megu-chat-db-api:latest
+    container_name: megu-chat-db-api
+    build:
+      context: ../../apps/db-api
+      dockerfile: Dockerfile
+    env_file:
+      - ../../apps/db-api/.env.local.docker
+    ports:
+      - '8000:8000'
+    networks:
+      - meguchat-network
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+      backend-migrations:
+        condition: service_completed_successfully

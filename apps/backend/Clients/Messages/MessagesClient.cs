@@ -50,6 +50,8 @@ public class MessagesClient : DatabaseClient, IMessagesClient
             httpRequest,
             cancellationToken
         );
+        response.EnsureSuccessStatusCode();
+
         return await response.Content.ReadFromJsonAsync<bool>();
     }
 }

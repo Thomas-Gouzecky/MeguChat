@@ -287,6 +287,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     if (_messagesByGroupChat.TryGetValue(groupChatId, out var messages))
                     {
                         var message = messages.FirstOrDefault(m => m.Id == messageId && m.UserId == userId);
+
                         if (message != null)
                         {
                             messages.Remove(message);

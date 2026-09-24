@@ -32,7 +32,6 @@ public class MessagesService : IMessagesService
         var user = await _userValidation.ValidateUser();
         await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
 
-        await _messagesClient.DeleteMessageFromGroupChatAsync(groupChatId, messageId, user.Id, cancellationToken);
-        return true;
+        return await _messagesClient.DeleteMessageFromGroupChatAsync(groupChatId, messageId, user.Id, cancellationToken);
     }
 }

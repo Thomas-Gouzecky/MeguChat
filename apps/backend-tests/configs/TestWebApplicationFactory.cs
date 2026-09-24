@@ -275,6 +275,26 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 {
                     return AddMessage(groupChatId, request.Message, userId);
                 });
+
+            _messagesClient
+                .Setup(client => client.DeleteMessageFromGroupChatAsync(
+                    It.IsAny<int>(),
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, int messageId, string userId, CancellationToken _) =>
+                {
+                    if (_messagesByGroupChat.TryGetValue(groupChatId, out var messages))
+                    {
+                        var message = messages.FirstOrDefault(m => m.Id == messageId && m.UserId == userId);
+                        if (message != null)
+                        {
+                            messages.Remove(message);
+                            return true;
+                        }
+                    }
+                    return false;
+                });
         });
     }
 

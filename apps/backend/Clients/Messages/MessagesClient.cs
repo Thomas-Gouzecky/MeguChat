@@ -36,4 +36,20 @@ public class MessagesClient : DatabaseClient, IMessagesClient
         var message = await response.Content.ReadFromJsonAsync<MessageResponseDto>();
         return message ?? new MessageResponseDto();
     }
+
+    public async Task<bool> DeleteMessageFromGroupChatAsync(int groupChatId, int messageId, string userId, CancellationToken cancellationToken = default)
+    {
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Delete,
+            $"/api/groupchats/{groupChatId}/messages/{messageId}"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", userId);
+
+        var response = await _dbApiClient.SendAsync(
+            httpRequest,
+            cancellationToken
+        );
+        return await response.Content.ReadFromJsonAsync<bool>();
+    }
 }

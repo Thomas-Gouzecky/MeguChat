@@ -26,4 +26,13 @@ public class MessagesService : IMessagesService
         var message = await _messagesClient.SendMessageToGroupChatAsync(groupChatId, request, user.Id, cancellationToken);
         return message;
     }
+
+    public async Task<bool> DeleteMessageByIdAsync(int groupChatId, int messageId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userValidation.ValidateUser();
+        await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
+
+        await _messagesClient.DeleteMessageFromGroupChatAsync(groupChatId, messageId, user.Id, cancellationToken);
+        return true;
+    }
 }

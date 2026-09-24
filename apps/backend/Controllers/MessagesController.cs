@@ -28,4 +28,17 @@ public class MessagesController : ControllerBase
         var message = await _messagesService.SendMessageToGroupChatAsync(groupChatId, request, cancellationToken);
         return Ok(message);
     }
+
+    [HttpDelete("{messageId}")]
+    public async Task<ActionResult> DeleteMessage(int groupChatId, int messageId, CancellationToken cancellationToken = default)
+    {
+        var isDeleted = await _messagesService.DeleteMessageByIdAsync(groupChatId, messageId, cancellationToken);
+
+        if (!isDeleted)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
 }

@@ -13,8 +13,18 @@ public class MembersService : IMembersService
     {
         var user = await _userValidation.ValidateUser();
         await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
-        
+
         var members = await _membersClient.GetMembersOfGroupChatAsync(groupChatId);
         return members;
+    }
+
+    public async Task<IEnumerable<MemberResponseDto>> AddMembersToGroupChatAsync(int groupChatId, AddMemberRequestDto request)
+    {
+
+        var user = await _userValidation.ValidateUser();
+        await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
+
+        var addedMembers = await _membersClient.AddMembersToGroupChatAsync(groupChatId, request.UserId);
+        return addedMembers;
     }
 }

@@ -170,6 +170,39 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     _membersByGroupChat.TryGetValue(groupChatId, out var members)
                         ? members.AsEnumerable()
                         : Enumerable.Empty<MemberResponseDto>());
+
+            _membersClient
+                .Setup(client => client.AddMembersToGroupChatAsync(
+                    It.IsAny<int>(),
+                    It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, IEnumerable<string> userIds, CancellationToken _) =>
+                {
+                    if (!_membersByGroupChat.TryGetValue(groupChatId, out var members))
+                    {
+                        members = new List<MemberResponseDto>();
+                        _membersByGroupChat[groupChatId] = members;
+                    }
+
+                    var addedMembers = new List<MemberResponseDto>();
+                    foreach (var userId in userIds)
+                    {
+                        if (members.All(member => member.UserId != userId))
+                        {
+                            var addedMember = new MemberResponseDto
+                            {
+                                GroupChatId = groupChatId,
+                                UserId = userId,
+                                JoinedAt = DateTime.UtcNow,
+                                LastActiveAt = DateTime.UtcNow
+                            };
+                            members.Add(addedMember);
+                            addedMembers.Add(addedMember);
+                        }
+                    }
+
+                    return addedMembers;
+                });
         });
     }
 

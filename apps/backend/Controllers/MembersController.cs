@@ -16,9 +16,16 @@ public class MembersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<MemberResponseDto>>> GetMembersOfGroupChat(int groupChatId)
+    public async Task<ActionResult<IEnumerable<MemberResponseDto>>> GetMembersOfGroupChat(int groupChatId)
     {
         var members = await _membersService.GetMembersOfGroupChatAsync(groupChatId);
         return Ok(members);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<IEnumerable<MemberResponseDto>>> AddMemberToGroupChat(int groupChatId, [FromBody] AddMemberRequestDto request)
+    {
+        var result = await _membersService.AddMembersToGroupChatAsync(groupChatId, request);
+        return Ok(result);
     }
 }

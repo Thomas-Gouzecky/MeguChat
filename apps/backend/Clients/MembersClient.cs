@@ -15,4 +15,16 @@ public class MembersClient : IMembersClient
         var members = await response.Content.ReadFromJsonAsync<List<MemberResponseDto>>();
         return members ?? new List<MemberResponseDto>();
     }
+
+    public async Task<IEnumerable<MemberResponseDto>> AddMembersToGroupChatAsync(int groupChatId, IEnumerable<string> userIds, CancellationToken cancellationToken = default)
+    {
+        var response = await _dbApiClient.PostAsJsonAsync(
+            $"/api/groupchats/{groupChatId}/members",
+            new { users = userIds },
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var addedMembers = await response.Content.ReadFromJsonAsync<List<MemberResponseDto>>();
+        return addedMembers ?? new List<MemberResponseDto>();
+    }
 }

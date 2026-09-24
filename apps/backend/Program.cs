@@ -4,10 +4,6 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -52,7 +48,8 @@ builder.Services.AddScoped<IUserValidation, UserValidation>();
 builder.Services.AddScoped<IMessagesClient, MessagesClient>();
 builder.Services.AddScoped<IMessagesService, MessagesService>();
 
-// builder.Services.AddSingleton<IAuthService, AuthService>();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -74,7 +71,6 @@ if (args.Contains("--migrate", StringComparer.OrdinalIgnoreCase))
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }

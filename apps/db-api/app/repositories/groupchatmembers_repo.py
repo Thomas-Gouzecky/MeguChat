@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.models import GroupChats, GroupChatMembers, Messages
 
 
-def add_member_to_groupchat(groupchat_id: int, user_id: str, session: Session) -> None:
+def add_member_to_groupchat(groupchat_id: int, user_id: str, session: Session) -> bool:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
@@ -15,9 +15,7 @@ def add_member_to_groupchat(groupchat_id: int, user_id: str, session: Session) -
         )
     ).first()
     if existing_member:
-        raise ValueError(
-            f"User with ID {user_id} is already a member of groupchat {groupchat_id}"
-        )
+        return False  # User is already a member of the groupchat
 
     new_member = GroupChatMembers(group_chat_id=groupchat_id, user_id=user_id)
     session.add(new_member)
@@ -28,6 +26,8 @@ def add_member_to_groupchat(groupchat_id: int, user_id: str, session: Session) -
         raise ValueError(
             f"User with ID {user_id} is already a member of groupchat {groupchat_id}"
         ) from error
+
+    return True  # User successfully added to the groupchat
 
 
 def remove_member_from_groupchat(
@@ -53,8 +53,9 @@ def remove_member_from_groupchat(
     session.commit()
 
 
-
-def get_members_of_groupchat(groupchat_id: int, session: Session) -> list[GroupChatMembers]:
+def get_members_of_groupchat(
+    groupchat_id: int, session: Session
+) -> list[GroupChatMembers]:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")

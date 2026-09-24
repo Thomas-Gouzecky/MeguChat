@@ -43,4 +43,30 @@ public class PUTMessagesTests : IClassFixture<TestWebApplicationFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("Updated message content.", updatedMessage.Message);
     }
+
+    [Fact]
+    public async Task UpdateMessage_ReturnsNotFound_WhenUserIsNotInGroupChat()
+    {
+        // Login
+        var loginRequest = new
+        {
+            username = "nouser",
+            password = "TestPassword1!"
+        };
+        await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+
+        // Check the Messages of the existing group chat
+        var groupChatId = 1; // set in TestWebApplicationFactory.cs
+        var messageIdToUpdate = 1; // set in TestWebApplicationFactory.cs
+
+        // Act
+        var updateRequest = new MessageUpdateRequestDto
+        {
+            Message = "Updated message content."
+        };
+        var response = await _client.PutAsJsonAsync($"/api/groupchats/{groupChatId}/messages/{messageIdToUpdate}", updateRequest);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 }

@@ -34,4 +34,13 @@ public class MessagesService : IMessagesService
 
         return await _messagesClient.DeleteMessageFromGroupChatAsync(groupChatId, messageId, user.Id, cancellationToken);
     }
+
+    public async Task<MessageResponseDto> UpdateMessageByIdAsync(int groupChatId, int messageId, MessageUpdateRequestDto request, CancellationToken cancellationToken = default)
+    {
+        var user = await _userValidation.ValidateUser();
+        await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
+
+        var updatedMessage = await _messagesClient.UpdateMessageInGroupChatAsync(groupChatId, messageId, request, user.Id, cancellationToken);
+        return updatedMessage;
+    }
 }

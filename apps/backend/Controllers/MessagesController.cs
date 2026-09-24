@@ -41,4 +41,12 @@ public class MessagesController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPut("{messageId}")]
+    public async Task<ActionResult<MessageResponseDto>> UpdateMessage(int groupChatId, int messageId, MessageUpdateRequestDto request, CancellationToken cancellationToken = default)
+    {
+        var message = await _messagesService.UpdateMessageByIdAsync(groupChatId, messageId, request, cancellationToken);
+
+        return Ok(message);
+    }
 }

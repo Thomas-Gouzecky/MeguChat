@@ -4,18 +4,34 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
     {
     }
 
-    public async Task<IEnumerable<GroupChatResponseDto>> GetGroupChatsForUserAsync(string userId, CancellationToken cancellationToken)
+    public async Task<IEnumerable<GroupChatResponseDto>> GetGroupChatsForUserAsync(string currentUserId, CancellationToken cancellationToken)
     {
-        var response = await _dbApiClient.GetAsync($"/api/groupchats/user/{userId}");
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"/api/groupchats/user/{currentUserId}"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", currentUserId);
+
+        var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var groupChats = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatResponseDto>>();
         return groupChats ?? Enumerable.Empty<GroupChatResponseDto>();
     }
 
-    public async Task<GroupChatResponseDto> CreateGroupChatAsync(string userId, CreateGroupChatRequestDto request, CancellationToken cancellationToken)
+    public async Task<GroupChatResponseDto> CreateGroupChatAsync(string currentUserId, CreateGroupChatRequestDto request, CancellationToken cancellationToken)
     {
-        var response = await _dbApiClient.PostAsJsonAsync($"/api/groupchats", request, cancellationToken);
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"/api/groupchats"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", currentUserId);
+
+        httpRequest.Content = JsonContent.Create(request);
+
+        var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var groupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
@@ -26,23 +42,18 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         return groupChat;
     }
 
-    public async Task AddMembersToGroupChatAsync(int groupChatId, IEnumerable<string> userIds, CancellationToken cancellationToken)
+    public async Task<GroupChatResponseDto> UpdateGroupChatAsync(int groupChatId, string currentUserId, UpdateGroupChatRequestDto groupChat, CancellationToken cancellationToken)
     {
-        var response = await _dbApiClient.PostAsJsonAsync(
-            $"/api/groupchats/{groupChatId}/members",
-            new { users = userIds },
-            cancellationToken);
-        response.EnsureSuccessStatusCode();
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/groupchats/{groupChatId}"
+        );
 
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new InvalidOperationException($"Failed to add members to group chat {groupChatId}. Status code: {response.StatusCode}");
-        }
-    }
+        httpRequest.Headers.Add("X-User-ID", currentUserId);
 
-    public async Task<GroupChatResponseDto> UpdateGroupChatAsync(int groupChatId, GroupChatResponseDto groupChat, CancellationToken cancellationToken)
-    {
-        var response = await _dbApiClient.PutAsJsonAsync($"/api/groupchats/{groupChatId}", groupChat, cancellationToken);
+        httpRequest.Content = JsonContent.Create(groupChat);
+
+        var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             throw new NotFoundException($"Group chat with ID {groupChatId} not found.");
@@ -53,9 +64,17 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         return updatedGroupChat ?? throw new InvalidOperationException("Failed to update group chat.");
     }
 
-    public async Task<bool> DeleteGroupChatAsync(int groupChatId, CancellationToken cancellationToken)
+    public async Task<bool> DeleteGroupChatAsync(int groupChatId, string currentUserId, CancellationToken cancellationToken)
     {
-        var response = await _dbApiClient.DeleteAsync($"/api/groupchats/{groupChatId}", cancellationToken);
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Delete,
+            $"/api/groupchats/{groupChatId}"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", currentUserId);
+
+        var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
+
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             throw new NotFoundException($"Group chat with ID {groupChatId} not found.");

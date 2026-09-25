@@ -1,10 +1,10 @@
 services:
   megu-chat-db-api:
-    image: tomcheese/megu-chat-db-api:latest
     container_name: megu-chat-db-api
     build:
       context: ../../apps/db-api
       dockerfile: Dockerfile
+      no_cache: true
     env_file:
       - ../../apps/db-api/.env.local.docker
     ports:

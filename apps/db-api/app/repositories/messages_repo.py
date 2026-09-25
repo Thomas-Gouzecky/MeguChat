@@ -1,13 +1,20 @@
 from sqlmodel import Session, SQLModel, select
 from app.models import GroupChats, GroupChatMembers, Messages
+from app.utils.user_permissions import validate_user_is_member_of_groupchat
 
 
-def get_messages_for_groupchat(groupchat_id: int, session: Session) -> list[Messages]:
+def get_messages_for_groupchat(
+    groupchat_id: int, session: Session, current_user: str
+) -> list[Messages]:
     group_chats_table = SQLModel.metadata.tables[GroupChats.__tablename__]
     messages_table = SQLModel.metadata.tables[Messages.__tablename__]
 
+    if current_user is None:
+        raise ValueError("Current user is not authenticated")
+
     if not session.get(GroupChats, groupchat_id):
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+    validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
     statement = (
         select(Messages)
         .join(
@@ -28,18 +35,9 @@ def add_message_to_groupchat(
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
 
-    user_is_member = session.exec(
-        select(GroupChatMembers).where(
-            GroupChatMembers.user_id == user_id,
-            GroupChatMembers.group_chat_id == groupchat_id,
-        )
-    ).first()
-    if not user_is_member:
-        raise ValueError(
-            f"User with ID {user_id} is not a member of groupchat with ID {groupchat_id}"
-        )
+    validate_user_is_member_of_groupchat(user_id, groupchat_id, session)
 
-    new_message = Messages(user_id=user_id, group_chat_id=groupchat_id, message=content)
+    new_message = Messages(user_id=user_id, group_chat_id=groupchat_id, content=content)
     session.add(new_message)
     session.commit()
     session.refresh(new_message)
@@ -80,7 +78,7 @@ def update_message_in_groupchat(
     if message.user_id != user_id:
         raise PermissionError("Only the message author can update this message")
 
-    message.message = new_content
+    message.content = new_content
     session.add(message)
     session.commit()
     session.refresh(message)

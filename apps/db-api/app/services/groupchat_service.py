@@ -17,6 +17,7 @@ from app.DTOs import (
 def create_groupchat(
     request_body: GroupChatCreationRequest,
     session: Session,
+    current_user: str,
 ) -> GroupChatCreationResponse:
 
     groupchat_request = GroupChats(
@@ -25,13 +26,17 @@ def create_groupchat(
 
     groupchat = create_a_new_groupchat_entry(
         groupchat_request,
+        request_body.users,
         session,
+        current_user,
     )
 
     if groupchat.id is None or not isinstance(groupchat.id, int):
         raise ValueError("Groupchat ID is not an integer")
 
-    return GroupChatCreationResponse(groupchat_id=groupchat.id)
+    return GroupChatCreationResponse(
+        groupchat_id=groupchat.id, name=groupchat.name, created_at=groupchat.created_at
+    )
 
 
 def find_groupchats_for_user(
@@ -55,12 +60,14 @@ def update_groupchat(
     groupchat_id: int,
     request_body: GroupChatCreationRequest,
     session: Session,
+    current_user: str,
 ) -> GroupChatUpdateResponse:
     groupchat_request = GroupChats(name=request_body.name)
     groupchat = update_groupchat_in_repository(
         groupchat_id,
         groupchat_request,
         session,
+        current_user,
     )
 
     if groupchat.id is None:
@@ -76,5 +83,6 @@ def update_groupchat(
 def delete_groupchat(
     groupchat_id: int,
     session: Session,
+    current_user: str,
 ) -> None:
-    delete_groupchat_in_repository(groupchat_id, session)
+    delete_groupchat_in_repository(groupchat_id, session, current_user)

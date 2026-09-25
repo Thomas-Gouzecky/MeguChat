@@ -6,7 +6,7 @@
     "docker-run-db": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker compose -f docker-compose.db.yaml up -d",
+        "command": "docker compose -f docker-compose.db.yaml up --build -d",
         "cwd": "infra"
       }
     },

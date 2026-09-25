@@ -114,57 +114,11 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                         CreatedAt = DateTime.UtcNow
                     });
 
-            _groupChatClient
-                .Setup(client => client.AddMembersToGroupChatAsync(
-                    It.IsAny<int>(),
-                    It.IsAny<IEnumerable<string>>(),
-                    It.IsAny<CancellationToken>()))
-                .Callback<int, IEnumerable<string>, CancellationToken>((groupChatId, userIds, _) =>
-                {
-                    var groupChat = new GroupChatResponseDto
-                    {
-                        Id = groupChatId,
-                        Name = "Another Group Chat",
-                        CreatedAt = DateTime.UtcNow
-                    };
-
-                    foreach (var userId in userIds)
-                    {
-                        if (!_groupChatsByUser.TryGetValue(userId, out var groupChats))
-                        {
-                            groupChats = new List<GroupChatResponseDto>();
-                            _groupChatsByUser[userId] = groupChats;
-                        }
-
-                        if (groupChats.All(existing => existing.Id != groupChatId))
-                        {
-                            groupChats.Add(groupChat);
-                        }
-
-                        if (!_membersByGroupChat.TryGetValue(groupChatId, out var members))
-                        {
-                            members = new List<MemberResponseDto>();
-                            _membersByGroupChat[groupChatId] = members;
-                        }
-
-                        if (members.All(member => member.UserId != userId))
-                        {
-                            members.Add(new MemberResponseDto
-                            {
-                                GroupChatId = groupChatId,
-                                UserId = userId,
-                                JoinedAt = DateTime.UtcNow,
-                                LastActiveAt = DateTime.UtcNow
-                            });
-                        }
-                    }
-                })
-                .Returns(Task.CompletedTask);
 
             _groupChatClient
                 .Setup(client => client.DeleteGroupChatAsync(
-                    It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((int groupChatId, CancellationToken _) =>
+                    It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, string currentUserId, CancellationToken _) =>
                 {
                     var wasDeleted = false;
 
@@ -188,8 +142,9 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 .Setup(client => client.AddMembersToGroupChatAsync(
                     It.IsAny<int>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync((int groupChatId, IEnumerable<string> userIds, CancellationToken _) =>
+                .ReturnsAsync((int groupChatId, IEnumerable<string> userIds, string currentUserId, CancellationToken _) =>
                 {
                     if (!_membersByGroupChat.TryGetValue(groupChatId, out var members))
                     {
@@ -242,8 +197,9 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 .Setup(client => client.RemoveMemberFromGroupChatAsync(
                     It.IsAny<int>(),
                     It.IsAny<string>(),
+                    It.IsAny<string>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync((int groupChatId, string userId, CancellationToken _) =>
+                .ReturnsAsync((int groupChatId, string userId, string currentUserId, CancellationToken _) =>
                 {
                     if (_membersByGroupChat.TryGetValue(groupChatId, out var members))
                     {
@@ -259,8 +215,8 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
             _messagesClient
                 .Setup(client => client.GetMessagesOfGroupChatAsync(
-                    It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((int groupChatId, CancellationToken _) =>
+                    It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, string userId, CancellationToken _) =>
                     _messagesByGroupChat.TryGetValue(groupChatId, out var messages)
                         ? messages.AsEnumerable()
                         : Enumerable.Empty<MessageResponseDto>());

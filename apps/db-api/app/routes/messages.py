@@ -12,14 +12,20 @@ router = APIRouter(prefix="/api/groupchats/{groupchat_id}/messages", tags=["mess
 
 @router.get("", response_model=list[MessageDto])
 def get_messages_for_groupchat(
-    groupchat_id: int, session: SessionDep
+    groupchat_id: int,
+    session: SessionDep,
+    current_user: str = Depends(get_current_user),
 ) -> list[MessageDto]:
     try:
-        messages = messages_service.get_messages_for_groupchat(groupchat_id, session)
+        messages = messages_service.get_messages_for_groupchat(
+            groupchat_id, session, current_user
+        )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
     except LookupError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
+    except PermissionError as error:
+        raise HTTPException(status_code=403, detail=str(error)) from error
     except Exception as error:
         raise HTTPException(status_code=500, detail="Internal Server Error") from error
     return messages
@@ -36,6 +42,8 @@ def create_message_for_groupchat(
         message = messages_service.create_message_for_groupchat(
             groupchat_id, request_body, current_user, session
         )
+    except PermissionError as error:
+        raise HTTPException(status_code=403, detail=str(error)) from error
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
@@ -43,7 +51,7 @@ def create_message_for_groupchat(
         "id": message.id,
         "user_id": message.user_id,
         "group_chat_id": message.group_chat_id,
-        "content": message.message,
+        "content": message.content,
         "created_at": message.created_at,
         "modified_at": message.modified_at,
     }
@@ -91,7 +99,7 @@ def update_message_in_groupchat(
         "id": message.id,
         "user_id": message.user_id,
         "group_chat_id": message.group_chat_id,
-        "content": message.message,
+        "content": message.content,
         "created_at": message.created_at,
         "modified_at": message.modified_at,
     }

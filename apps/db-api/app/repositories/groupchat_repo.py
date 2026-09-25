@@ -1,16 +1,35 @@
+from httpx import request
 from sqlmodel import Session, SQLModel, select
 from app.models import GroupChats, GroupChatMembers, Messages
+from app.utils.user_permissions import validate_user_is_member_of_groupchat
+from app.utils.helper import add_users_to_groupchat
 
 
 def create_a_new_groupchat_entry(
-    request_body: GroupChats, session: Session
+    request_body: GroupChats,
+    users: list[str],
+    session: Session,
+    current_user: str,
 ) -> GroupChats:
 
-    session.add(request_body)
-    session.commit()
-    session.refresh(request_body)
+    groupchat = GroupChats(name=request_body.name)
+    session.add(groupchat)
+    session.flush()
 
-    return request_body
+    if groupchat.id is None or not isinstance(groupchat.id, int):
+        raise ValueError("Groupchat ID is not an integer")
+
+    added_users = add_users_to_groupchat(
+        groupchat_id=groupchat.id,
+        users=users,
+        session=session,
+        current_user=current_user,
+    )
+
+    session.commit()
+    session.refresh(groupchat)
+
+    return groupchat
 
 
 def find_groupchats_for_user(user_id: str, session: Session) -> list[GroupChats]:
@@ -30,11 +49,13 @@ def find_groupchats_for_user(user_id: str, session: Session) -> list[GroupChats]
 
 
 def update_groupchat(
-    groupchat_id: int, request_body: GroupChats, session: Session
+    groupchat_id: int, request_body: GroupChats, session: Session, current_user: str
 ) -> GroupChats:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+
+    validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 
     groupchat.name = request_body.name
     session.add(groupchat)
@@ -44,11 +65,12 @@ def update_groupchat(
     return groupchat
 
 
-def delete_groupchat(groupchat_id: int, session: Session) -> None:
+def delete_groupchat(groupchat_id: int, session: Session, current_user: str) -> None:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
 
+    validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
+
     session.delete(groupchat)
     session.commit()
-

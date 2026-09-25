@@ -39,6 +39,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=postgres-primary;Port=5432;Database=meguchat;Username=meguchat;Password=meguchat
+      ApiSettings__DatabaseApi: http://megu-chat-db-api:8000
     depends_on:
       postgres-primary:
         condition: service_healthy

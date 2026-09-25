@@ -10,19 +10,22 @@ from app.DTOs import (
 def get_messages_for_groupchat(
     groupchat_id: int,
     session: Session,
+    current_user: str,
 ) -> list[MessageDto]:
     from app.repositories.messages_repo import (
         get_messages_for_groupchat as get_messages_for_groupchat_in_repository,
     )
 
-    get_messages = get_messages_for_groupchat_in_repository(groupchat_id, session)
+    get_messages = get_messages_for_groupchat_in_repository(
+        groupchat_id, session, current_user
+    )
 
     return [
         MessageDto(
             id=message.id,
             user_id=message.user_id,
             group_chat_id=message.group_chat_id,
-            message=message.message,
+            content=message.content,
             created_at=message.created_at,
             modified_at=message.modified_at,
         )

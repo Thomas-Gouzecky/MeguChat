@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 
 public class MessageResponseDto
 {
+    [JsonPropertyName("id")]
     public int Id { get; set; }
     [JsonPropertyName("content")]
     public string Message { get; set; } = string.Empty;

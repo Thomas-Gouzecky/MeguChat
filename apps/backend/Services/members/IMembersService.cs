@@ -2,5 +2,5 @@ public interface IMembersService
 {
     Task<IEnumerable<MemberResponseDto>> GetMembersOfGroupChatAsync(int groupChatId);
     Task<IEnumerable<MemberResponseDto>> AddMembersToGroupChatAsync(int groupChatId, AddMemberRequestDto request);
-    Task<bool> RemoveMemberFromGroupChatAsync(int groupChatId, string userId);
+    Task<MemberResponseDto> RemoveMemberFromGroupChatAsync(int groupChatId, string userId);
 }

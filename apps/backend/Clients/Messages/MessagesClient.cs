@@ -7,10 +7,22 @@ public class MessagesClient : DatabaseClient, IMessagesClient
     {
     }
 
-    public async Task<IEnumerable<MessageResponseDto>> GetMessagesOfGroupChatAsync(int groupChatId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<MessageResponseDto>> GetMessagesOfGroupChatAsync(int groupChatId, string userId, CancellationToken cancellationToken = default)
     {
-        var response = await _dbApiClient.GetAsync($"/api/groupchats/{groupChatId}/messages", cancellationToken);
+
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"/api/groupchats/{groupChatId}/messages"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", userId);
+
+        var response = await _dbApiClient.SendAsync(
+            httpRequest,
+            cancellationToken
+        );
         response.EnsureSuccessStatusCode();
+
 
         var messages = await response.Content.ReadFromJsonAsync<List<MessageResponseDto>>();
         return messages ?? throw new InvalidOperationException("Failed to retrieve messages.");
@@ -52,7 +64,9 @@ public class MessagesClient : DatabaseClient, IMessagesClient
         );
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<bool>();
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        return response.IsSuccessStatusCode;
     }
 
     public async Task<MessageResponseDto> UpdateMessageInGroupChatAsync(int groupChatId, int messageId, MessageUpdateRequestDto request, string userId, CancellationToken cancellationToken = default)

@@ -21,7 +21,7 @@ class GroupChatMembers(SQLModel, table=True):
     group_chat_id: int = Field(
         sa_column=Column(
             Integer,
-            ForeignKey("GroupChats.id"),
+            ForeignKey("GroupChats.id", ondelete="CASCADE"),
             nullable=False,
         )
     )

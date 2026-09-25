@@ -61,11 +61,13 @@ def remove_member_from_groupchat(
 
 
 def get_members_of_groupchat(
-    groupchat_id: int, session: Session
+    groupchat_id: int, session: Session, current_user: str
 ) -> list[GroupChatMembers]:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+
+    validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 
     members = session.exec(
         select(GroupChatMembers).where(GroupChatMembers.group_chat_id == groupchat_id)

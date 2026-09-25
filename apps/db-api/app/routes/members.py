@@ -38,13 +38,13 @@ def get_members_user_id_of_groupchat(
     ]
 
 
-@router.post("", response_model=dict)
+@router.post("", response_model=list[GroupChatMembersResponse])
 def add_members_to_groupchat(
     groupchat_id: int,
     request_body: AddMembersRequest,
     session: SessionDep,
     current_user: str = Depends(get_current_user),
-) -> list[str]:
+) -> list[GroupChatMembersResponse]:
     users = request_body.users
     if not users:
         raise HTTPException(status_code=422, detail="Missing 'users' in request body")
@@ -60,25 +60,35 @@ def add_members_to_groupchat(
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
-    return added_users
+    return [
+        GroupChatMembersResponse(
+            id=added_users.id,
+            user_id=added_users.user_id,
+            group_chat_id=added_users.group_chat_id,
+            joined_at=added_users.joined_at,
+            last_active_at=added_users.last_active_at,
+            last_read_message_id=added_users.last_read_message_id,
+        )
+        for added_users in added_users
+    ]
 
 
-@router.delete("/{user_id}", response_model=dict)
+@router.delete("/{user_id}", response_model=GroupChatMembersResponse)
 def remove_member_from_groupchat(
     groupchat_id: int,
     user_id: str,
     session: SessionDep,
     current_user: str = Depends(get_current_user),
-) -> dict:
+) -> GroupChatMembersResponse:
     try:
-        groupchatmember_service.remove_member_from_groupchat(
-            groupchat_id, user_id, session, current_user
+        deleted_member: GroupChatMembersResponse = (
+            groupchatmember_service.remove_member_from_groupchat(
+                groupchat_id, user_id, session, current_user
+            )
         )
     except PermissionError as error:
         raise HTTPException(status_code=403, detail=str(error)) from error
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
-    return {
-        "message": f"User with ID {user_id} has been removed from groupchat {groupchat_id}."
-    }
+    return deleted_member

@@ -34,7 +34,7 @@ public class MembersController : ControllerBase
     {
         var result = await _membersService.RemoveMemberFromGroupChatAsync(groupChatId, userId);
 
-        if (!result.Equals(new MemberResponseDto())) // Check if the result is not the default value
+        if (result.Equals(new MemberResponseDto())) // Check if the result is not the default value
         {
             return NotFound();
         }

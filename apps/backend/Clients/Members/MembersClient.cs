@@ -20,7 +20,7 @@ public class MembersClient : DatabaseClient, IMembersClient
         return members ?? new List<MemberResponseDto>();
     }
 
-    public async Task<IEnumerable<MemberResponseDto>> AddMembersToGroupChatAsync(int groupChatId, IEnumerable<string> userIds, string currentUserId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<string>> AddMembersToGroupChatAsync(int groupChatId, IEnumerable<string> userIds, string currentUserId, CancellationToken cancellationToken = default)
     {
 
         using var httpRequest = new HttpRequestMessage(
@@ -38,8 +38,8 @@ public class MembersClient : DatabaseClient, IMembersClient
         );
         response.EnsureSuccessStatusCode();
 
-        var addedMembers = await response.Content.ReadFromJsonAsync<List<MemberResponseDto>>();
-        return addedMembers ?? new List<MemberResponseDto>();
+        var addedMembers = await response.Content.ReadFromJsonAsync<List<string>>();
+        return addedMembers ?? new List<string>();
     }
 
     public async Task<bool> RemoveMemberFromGroupChatAsync(int groupChatId, string userId, string currentUserId, CancellationToken cancellationToken = default)

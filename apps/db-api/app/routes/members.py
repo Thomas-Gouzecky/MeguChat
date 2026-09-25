@@ -44,7 +44,7 @@ def add_members_to_groupchat(
     request_body: AddMembersRequest,
     session: SessionDep,
     current_user: str = Depends(get_current_user),
-) -> dict:
+) -> list[str]:
     users = request_body.users
     if not users:
         raise HTTPException(status_code=422, detail="Missing 'users' in request body")
@@ -60,9 +60,7 @@ def add_members_to_groupchat(
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
-    return {
-        "message": f"Users with IDs {', '.join(added_users)} have been added to groupchat {groupchat_id}."
-    }
+    return added_users
 
 
 @router.delete("/{user_id}", response_model=dict)

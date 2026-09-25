@@ -17,7 +17,7 @@ public class MembersService : IMembersService
         return members;
     }
 
-    public async Task<IEnumerable<MemberResponseDto>> AddMembersToGroupChatAsync(int groupChatId, AddMemberRequestDto request)
+    public async Task<IEnumerable<string>> AddMembersToGroupChatAsync(int groupChatId, AddMemberRequestDto request)
     {
 
         var user = await _userValidation.ValidateUser();

@@ -15,7 +15,7 @@ def add_members_to_groupchat(
     if isinstance(users, str):
         users = [users]
 
-    added_users = []
+    added_users: list[str] = []
     for user_id in users:
         was_added = add_member_to_groupchat_in_repository(
             groupchat_id, user_id, session, curent_user

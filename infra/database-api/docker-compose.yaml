@@ -4,6 +4,7 @@ services:
     build:
       context: ../../apps/db-api
       dockerfile: Dockerfile
+      no_cache: true
     env_file:
       - ../../apps/db-api/.env.local.docker
     ports:

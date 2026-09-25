@@ -15,16 +15,23 @@ router = APIRouter(prefix="/api/groupchats", tags=["groupchats"])
 
 @router.post("", response_model=GroupChatCreationResponse)
 def create_new_groupchat(
-    request_body: GroupChatCreationRequest, session: SessionDep
+    request_body: GroupChatCreationRequest,
+    session: SessionDep,
+    current_user: str = Depends(get_current_user),
 ) -> GroupChatCreationResponse:
-    return groupchat_service.create_groupchat(request_body, session)
+    return groupchat_service.create_groupchat(request_body, session, current_user)
 
 
 @router.put("/{groupchat_id}", response_model=GroupChatUpdateResponse)
 def update_groupchat(
-    groupchat_id: int, request_body: GroupChatCreationRequest, session: SessionDep
+    groupchat_id: int,
+    request_body: GroupChatCreationRequest,
+    session: SessionDep,
+    current_user: str = Depends(get_current_user),
 ) -> GroupChatUpdateResponse:
-    return groupchat_service.update_groupchat(groupchat_id, request_body, session)
+    return groupchat_service.update_groupchat(
+        groupchat_id, request_body, session, current_user
+    )
 
 
 @router.delete("/{groupchat_id}", response_model=dict)

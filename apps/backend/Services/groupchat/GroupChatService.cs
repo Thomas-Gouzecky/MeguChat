@@ -35,10 +35,6 @@ public class GroupChatService : IGroupChatService
             throw new InvalidOperationException("Failed to create group chat.");
         }
 
-        // Add members to the group chat (including the creator)
-        await _groupChatClient.AddMembersToGroupChatAsync(groupChat.Id, new[] { user.Id }, CancellationToken.None);
-        await _groupChatClient.AddMembersToGroupChatAsync(groupChat.Id, request.UserIds, CancellationToken.None);
-
         return groupChat;
     }
 
@@ -48,24 +44,18 @@ public class GroupChatService : IGroupChatService
 
         var user = await _userValidation.ValidateUser();
 
-        var groupChat = await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
-
-        // Update the group chat
-        groupChat.Name = request.Name;
 
         // Save the updated group chat
-        await _groupChatClient.UpdateGroupChatAsync(groupChat.Id, groupChat, CancellationToken.None);
+        var response = await _groupChatClient.UpdateGroupChatAsync(groupChatId, user.Id, request, CancellationToken.None);
 
-        return groupChat;
+        return response;
     }
 
     public async Task<bool> DeleteGroupChatAsync(int groupChatId)
     {
         var user = await _userValidation.ValidateUser();
 
-        var groupChat = await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
-
-        var response = await _groupChatClient.DeleteGroupChatAsync(groupChatId, CancellationToken.None);
+        var response = await _groupChatClient.DeleteGroupChatAsync(groupChatId, user.Id, CancellationToken.None);
         return response;
     }
 

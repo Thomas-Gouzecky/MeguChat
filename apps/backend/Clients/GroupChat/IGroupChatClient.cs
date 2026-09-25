@@ -1,8 +1,7 @@
 public interface IGroupChatClient
 {
-    Task<IEnumerable<GroupChatResponseDto>> GetGroupChatsForUserAsync(string userId, CancellationToken cancellationToken);
-    Task<GroupChatResponseDto> CreateGroupChatAsync(string userId, CreateGroupChatRequestDto request, CancellationToken cancellationToken);
-    Task AddMembersToGroupChatAsync(int groupChatId, IEnumerable<string> userIds, CancellationToken cancellationToken);
-    Task<GroupChatResponseDto> UpdateGroupChatAsync(int groupChatId, GroupChatResponseDto groupChat, CancellationToken cancellationToken);
-    Task<bool> DeleteGroupChatAsync(int groupChatId, CancellationToken cancellationToken);
+    Task<IEnumerable<GroupChatResponseDto>> GetGroupChatsForUserAsync(string currentUserId, CancellationToken cancellationToken);
+    Task<GroupChatResponseDto> CreateGroupChatAsync(string currentUserId, CreateGroupChatRequestDto request, CancellationToken cancellationToken);
+    Task<GroupChatResponseDto> UpdateGroupChatAsync(int groupChatId, string currentUserId, UpdateGroupChatRequestDto groupChat, CancellationToken cancellationToken);
+    Task<bool> DeleteGroupChatAsync(int groupChatId, string currentUserId, CancellationToken cancellationToken);
 }

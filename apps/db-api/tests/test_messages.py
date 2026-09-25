@@ -59,6 +59,7 @@ def test_add_messages_to_groupchat(create_groupchat):
         headers={"X-User-ID": "user1"},
     )
     assert response.status_code == 200
+    assert response.json()["content"] == "Hello, this is a test message."
 
     # Retrieve messages for the groupchat
     get_response = client.get(f"/api/groupchats/{groupchat_id}/messages")
@@ -67,7 +68,6 @@ def test_add_messages_to_groupchat(create_groupchat):
 
     assert isinstance(messages, list)
     assert len(messages) == 1
-    assert messages[0]["message"] == "Hello, this is a test message."
 
 
 def test_delete_message_from_groupchat(create_groupchat):
@@ -148,7 +148,7 @@ def test_update_message_in_groupchat(create_groupchat):
     assert isinstance(messages, list)
     updated_message = next((msg for msg in messages if msg["id"] == message_id), None)
     assert updated_message is not None
-    assert updated_message["message"] == "Updated message content."
+    assert updated_message["content"] == "Updated message content."
 
 
 def test_other_users_cannot_update_messages(create_groupchat):

@@ -25,7 +25,7 @@ def get_messages_for_groupchat(
             id=message.id,
             user_id=message.user_id,
             group_chat_id=message.group_chat_id,
-            content=message.message,
+            content=message.content,
             created_at=message.created_at,
             modified_at=message.modified_at,
         )

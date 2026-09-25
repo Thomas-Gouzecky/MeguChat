@@ -64,12 +64,16 @@ def test_update_groupchat_missing_fields():
 def test_delete_groupchat():
     # Create a new groupchat first
     request_body = {"name": "Group Chat to Delete"}
-    create_response = client.post("/api/groupchats", json=request_body)
+    create_response = client.post(
+        "/api/groupchats", json=request_body, headers={"X-User-Id": "some_user"}
+    )
     assert create_response.status_code == 200
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Delete the groupchat
-    delete_response = client.delete(f"/api/groupchats/{groupchat_id}")
+    delete_response = client.delete(
+        f"/api/groupchats/{groupchat_id}", headers={"X-User-Id": "some_user"}
+    )
     assert delete_response.status_code == 200
     delete_message = delete_response.json()
     assert (
@@ -109,7 +113,8 @@ def test_get_messages_for_nonexistent_groupchat():
     # Attempt to get messages for a groupchat that doesn't exist
     nonexistent_groupchat_id = 9999
     get_messages_response = client.get(
-        f"/api/groupchats/{nonexistent_groupchat_id}/messages"
+        f"/api/groupchats/{nonexistent_groupchat_id}/messages",
+        headers={"X-User-Id": "user1"},
     )
     assert get_messages_response.status_code == 422
 

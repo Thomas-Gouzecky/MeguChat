@@ -14,11 +14,11 @@ class Messages(SQLModel, table=True):
     group_chat_id: int = Field(
         sa_column=Column(
             Integer,
-            ForeignKey("GroupChats.id"),
+            ForeignKey("GroupChats.id", ondelete="CASCADE"),
             nullable=False,
         )
     )
-    message: str = Field(sa_column=Column(Text, default=""))
+    content: str = Field(sa_column=Column(Text, default=""))
     created_at: datetime | None = Field(
         default=None,
         sa_column=Column(

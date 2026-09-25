@@ -13,26 +13,48 @@ public class MembersClient : DatabaseClient, IMembersClient
         return members ?? new List<MemberResponseDto>();
     }
 
-    public async Task<IEnumerable<MemberResponseDto>> AddMembersToGroupChatAsync(int groupChatId, IEnumerable<string> userIds, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<MemberResponseDto>> AddMembersToGroupChatAsync(int groupChatId, IEnumerable<string> userIds, string currentUserId, CancellationToken cancellationToken = default)
     {
-        var response = await _dbApiClient.PostAsJsonAsync(
-            $"/api/groupchats/{groupChatId}/members",
-            new { users = userIds },
-            cancellationToken);
+
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"/api/groupchats/{groupChatId}/members"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", currentUserId);
+
+        httpRequest.Content = JsonContent.Create(new { users = userIds });
+
+        var response = await _dbApiClient.SendAsync(
+            httpRequest,
+            cancellationToken
+        );
         response.EnsureSuccessStatusCode();
 
         var addedMembers = await response.Content.ReadFromJsonAsync<List<MemberResponseDto>>();
         return addedMembers ?? new List<MemberResponseDto>();
     }
 
-    public async Task<bool> RemoveMemberFromGroupChatAsync(int groupChatId, string userId, CancellationToken cancellationToken = default)
+    public async Task<bool> RemoveMemberFromGroupChatAsync(int groupChatId, string userId, string currentUserId, CancellationToken cancellationToken = default)
     {
-        var response = await _dbApiClient.DeleteAsync($"/api/groupchats/{groupChatId}/members/{userId}", cancellationToken);
+
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Delete,
+            $"/api/groupchats/{groupChatId}/members/{userId}"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", currentUserId);
+
+        var response = await _dbApiClient.SendAsync(
+            httpRequest,
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             return false; // Member not found
         }
-        response.EnsureSuccessStatusCode();
         return true;
     }
 }

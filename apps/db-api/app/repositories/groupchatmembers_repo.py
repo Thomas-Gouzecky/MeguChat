@@ -3,10 +3,24 @@ from sqlalchemy.exc import IntegrityError
 from app.models import GroupChats, GroupChatMembers, Messages
 
 
-def add_member_to_groupchat(groupchat_id: int, user_id: str, session: Session) -> bool:
+def add_member_to_groupchat(
+    groupchat_id: int, user_id: str, session: Session, current_user: str
+) -> bool:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+
+    # Check if the current user is a member of the group chat
+    user_is_member = session.exec(
+        select(GroupChatMembers).where(
+            GroupChatMembers.user_id == current_user,
+            GroupChatMembers.group_chat_id == groupchat_id,
+        )
+    ).first()
+    if not user_is_member:
+        raise PermissionError(
+            f"User with ID {current_user} is not a member of groupchat with ID {groupchat_id}"
+        )
 
     existing_member = session.exec(
         select(GroupChatMembers).where(
@@ -31,11 +45,23 @@ def add_member_to_groupchat(groupchat_id: int, user_id: str, session: Session) -
 
 
 def remove_member_from_groupchat(
-    groupchat_id: int, user_id: str, session: Session
+    groupchat_id: int, user_id: str, session: Session, current_user: str
 ) -> None:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+
+    # Check if the user is a member of the group chat
+    user_is_member = session.exec(
+        select(GroupChatMembers).where(
+            GroupChatMembers.user_id == current_user,
+            GroupChatMembers.group_chat_id == groupchat_id,
+        )
+    ).first()
+    if not user_is_member:
+        raise PermissionError(
+            f"User with ID {current_user} is not a member of groupchat with ID {groupchat_id}"
+        )
 
     member_to_remove = session.exec(
         select(GroupChatMembers).where(

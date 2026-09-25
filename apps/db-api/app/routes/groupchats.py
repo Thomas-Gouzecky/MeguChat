@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from app.services import groupchat_service, groupchatmember_service
 from app.sql import SessionDep
 from app.DTOs import (
@@ -8,6 +8,7 @@ from app.DTOs import (
     AddMembersRequest,
     GroupChatMembersResponse,
 )
+from app.auth import get_current_user
 
 router = APIRouter(prefix="/api/groupchats", tags=["groupchats"])
 
@@ -75,7 +76,10 @@ def get_members_user_id_of_groupchat(
 
 @router.post("/{groupchat_id}/members", response_model=dict)
 def add_members_to_groupchat(
-    groupchat_id: int, request_body: AddMembersRequest, session: SessionDep
+    groupchat_id: int,
+    request_body: AddMembersRequest,
+    session: SessionDep,
+    current_user: str = Depends(get_current_user),
 ) -> dict:
     users = request_body.users
     if not users:
@@ -85,8 +89,10 @@ def add_members_to_groupchat(
 
     try:
         added_users = groupchatmember_service.add_members_to_groupchat(
-            groupchat_id, users, session
+            groupchat_id, users, session, current_user
         )
+    except PermissionError as error:
+        raise HTTPException(status_code=403, detail=str(error)) from error
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
@@ -97,12 +103,17 @@ def add_members_to_groupchat(
 
 @router.delete("/{groupchat_id}/members/{user_id}", response_model=dict)
 def remove_member_from_groupchat(
-    groupchat_id: int, user_id: str, session: SessionDep
+    groupchat_id: int,
+    user_id: str,
+    session: SessionDep,
+    current_user: str = Depends(get_current_user),
 ) -> dict:
     try:
         groupchatmember_service.remove_member_from_groupchat(
-            groupchat_id, user_id, session
+            groupchat_id, user_id, session, current_user
         )
+    except PermissionError as error:
+        raise HTTPException(status_code=403, detail=str(error)) from error
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 

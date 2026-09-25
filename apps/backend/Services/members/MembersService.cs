@@ -12,7 +12,6 @@ public class MembersService : IMembersService
     public async Task<IEnumerable<MemberResponseDto>> GetMembersOfGroupChatAsync(int groupChatId)
     {
         var user = await _userValidation.ValidateUser();
-        await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
 
         var members = await _membersClient.GetMembersOfGroupChatAsync(groupChatId);
         return members;
@@ -22,23 +21,21 @@ public class MembersService : IMembersService
     {
 
         var user = await _userValidation.ValidateUser();
-        await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
 
         if (request.UserId == null || !request.UserId.Any())
         {
             throw new ArgumentException("UserId list cannot be null or empty.", nameof(request.UserId));
         }
 
-        var addedMembers = await _membersClient.AddMembersToGroupChatAsync(groupChatId, request.UserId);
+        var addedMembers = await _membersClient.AddMembersToGroupChatAsync(groupChatId, request.UserId, user.Id);
         return addedMembers;
     }
 
     public async Task<bool> RemoveMemberFromGroupChatAsync(int groupChatId, string userId)
     {
         var user = await _userValidation.ValidateUser();
-        await _userValidation.EnsureUserIsMember(user.Id, groupChatId);
 
-        var result = await _membersClient.RemoveMemberFromGroupChatAsync(groupChatId, userId);
+        var result = await _membersClient.RemoveMemberFromGroupChatAsync(groupChatId, userId, user.Id);
         return result;
     }
 }

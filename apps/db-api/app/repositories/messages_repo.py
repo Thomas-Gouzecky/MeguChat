@@ -2,9 +2,26 @@ from sqlmodel import Session, SQLModel, select
 from app.models import GroupChats, GroupChatMembers, Messages
 
 
-def get_messages_for_groupchat(groupchat_id: int, session: Session) -> list[Messages]:
+def get_messages_for_groupchat(
+    groupchat_id: int, session: Session, current_user: str
+) -> list[Messages]:
     group_chats_table = SQLModel.metadata.tables[GroupChats.__tablename__]
     messages_table = SQLModel.metadata.tables[Messages.__tablename__]
+
+    if current_user is None:
+        raise ValueError("Current user is not authenticated")
+
+    # Check if the user is a member of the group chat
+    user_is_member = session.exec(
+        select(GroupChatMembers).where(
+            GroupChatMembers.user_id == current_user,
+            GroupChatMembers.group_chat_id == groupchat_id,
+        )
+    ).first()
+    if not user_is_member:
+        raise PermissionError(
+            f"User with ID {current_user} is not a member of groupchat with ID {groupchat_id}"
+        )
 
     if not session.get(GroupChats, groupchat_id):
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")

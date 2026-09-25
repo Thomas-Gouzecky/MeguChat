@@ -19,19 +19,19 @@ public class UserValidation : IUserValidation
         return Guid.TryParse(userId, out _);
     }
 
-    public async Task<GroupChatResponseDto> EnsureUserIsMember(string userId, int groupChatId)
-    {
-        // Ensure the user is a member of the group chat before allowing updates
-        var groupChats = await _groupChatClient.GetGroupChatsForUserAsync(userId, CancellationToken.None);
-        var groupChat = groupChats.FirstOrDefault(gc => gc.Id == groupChatId);
+    // public async Task<GroupChatResponseDto> EnsureUserIsMember(string userId, int groupChatId)
+    // {
+    //     // Ensure the user is a member of the group chat before allowing updates
+    //     var groupChats = await _groupChatClient.GetGroupChatsForUserAsync(userId, CancellationToken.None);
+    //     var groupChat = groupChats.FirstOrDefault(gc => gc.Id == groupChatId);
 
-        if (groupChat is null)
-        {
-            throw new NotFoundException($"Group chat with ID {groupChatId} was not found or the user is not a member of it.");
-        }
+    //     if (groupChat is null)
+    //     {
+    //         throw new NotFoundException($"Group chat with ID {groupChatId} was not found or the user is not a member of it.");
+    //     }
 
-        return groupChat;
-    }
+    //     return groupChat;
+    // }
 
     public async Task<ApplicationUser> ValidateUser()
     {

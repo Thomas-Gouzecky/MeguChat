@@ -1,5 +1,6 @@
 from sqlmodel import Session, SQLModel, select
 from app.models import GroupChats, GroupChatMembers, Messages
+from app.utils.user_permissions import validate_user_is_member_of_groupchat
 
 
 def create_a_new_groupchat_entry(
@@ -44,11 +45,12 @@ def update_groupchat(
     return groupchat
 
 
-def delete_groupchat(groupchat_id: int, session: Session) -> None:
+def delete_groupchat(groupchat_id: int, session: Session, current_user: str) -> None:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
 
+    validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
+
     session.delete(groupchat)
     session.commit()
-

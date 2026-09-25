@@ -28,9 +28,15 @@ def update_groupchat(
 
 
 @router.delete("/{groupchat_id}", response_model=dict)
-def delete_groupchat(groupchat_id: int, session: SessionDep) -> dict:
+def delete_groupchat(
+    groupchat_id: int,
+    session: SessionDep,
+    current_user: str = Depends(get_current_user),
+) -> dict:
     try:
-        groupchat_service.delete_groupchat(groupchat_id, session)
+        groupchat_service.delete_groupchat(groupchat_id, session, current_user)
+    except PermissionError as error:
+        raise HTTPException(status_code=403, detail=str(error)) from error
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 

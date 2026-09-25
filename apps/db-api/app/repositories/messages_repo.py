@@ -1,5 +1,6 @@
 from sqlmodel import Session, SQLModel, select
 from app.models import GroupChats, GroupChatMembers, Messages
+from app.utils.user_permissions import validate_user_is_member_of_groupchat
 
 
 def get_messages_for_groupchat(
@@ -11,17 +12,7 @@ def get_messages_for_groupchat(
     if current_user is None:
         raise ValueError("Current user is not authenticated")
 
-    # Check if the user is a member of the group chat
-    user_is_member = session.exec(
-        select(GroupChatMembers).where(
-            GroupChatMembers.user_id == current_user,
-            GroupChatMembers.group_chat_id == groupchat_id,
-        )
-    ).first()
-    if not user_is_member:
-        raise PermissionError(
-            f"User with ID {current_user} is not a member of groupchat with ID {groupchat_id}"
-        )
+    validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 
     if not session.get(GroupChats, groupchat_id):
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
@@ -45,16 +36,7 @@ def add_message_to_groupchat(
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
 
-    user_is_member = session.exec(
-        select(GroupChatMembers).where(
-            GroupChatMembers.user_id == user_id,
-            GroupChatMembers.group_chat_id == groupchat_id,
-        )
-    ).first()
-    if not user_is_member:
-        raise ValueError(
-            f"User with ID {user_id} is not a member of groupchat with ID {groupchat_id}"
-        )
+    validate_user_is_member_of_groupchat(user_id, groupchat_id, session)
 
     new_message = Messages(user_id=user_id, group_chat_id=groupchat_id, message=content)
     session.add(new_message)

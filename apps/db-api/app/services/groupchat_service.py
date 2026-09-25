@@ -76,5 +76,6 @@ def update_groupchat(
 def delete_groupchat(
     groupchat_id: int,
     session: Session,
+    current_user: str,
 ) -> None:
-    delete_groupchat_in_repository(groupchat_id, session)
+    delete_groupchat_in_repository(groupchat_id, session, current_user)

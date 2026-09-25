@@ -1,6 +1,7 @@
 from sqlmodel import Session, SQLModel, select
 from sqlalchemy.exc import IntegrityError
 from app.models import GroupChats, GroupChatMembers, Messages
+from app.utils.user_permissions import validate_user_is_member_of_groupchat
 
 
 def add_member_to_groupchat(
@@ -10,17 +11,7 @@ def add_member_to_groupchat(
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
 
-    # Check if the current user is a member of the group chat
-    user_is_member = session.exec(
-        select(GroupChatMembers).where(
-            GroupChatMembers.user_id == current_user,
-            GroupChatMembers.group_chat_id == groupchat_id,
-        )
-    ).first()
-    if not user_is_member:
-        raise PermissionError(
-            f"User with ID {current_user} is not a member of groupchat with ID {groupchat_id}"
-        )
+    validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 
     existing_member = session.exec(
         select(GroupChatMembers).where(
@@ -51,17 +42,7 @@ def remove_member_from_groupchat(
     if not groupchat:
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
 
-    # Check if the user is a member of the group chat
-    user_is_member = session.exec(
-        select(GroupChatMembers).where(
-            GroupChatMembers.user_id == current_user,
-            GroupChatMembers.group_chat_id == groupchat_id,
-        )
-    ).first()
-    if not user_is_member:
-        raise PermissionError(
-            f"User with ID {current_user} is not a member of groupchat with ID {groupchat_id}"
-        )
+    validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 
     member_to_remove = session.exec(
         select(GroupChatMembers).where(

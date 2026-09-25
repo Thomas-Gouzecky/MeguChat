@@ -64,7 +64,9 @@ public class MessagesClient : DatabaseClient, IMessagesClient
         );
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<bool>();
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        return response.IsSuccessStatusCode;
     }
 
     public async Task<MessageResponseDto> UpdateMessageInGroupChatAsync(int groupChatId, int messageId, MessageUpdateRequestDto request, string userId, CancellationToken cancellationToken = default)

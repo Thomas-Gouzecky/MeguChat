@@ -13,7 +13,7 @@ public class MembersService : IMembersService
     {
         var user = await _userValidation.ValidateUser();
 
-        var members = await _membersClient.GetMembersOfGroupChatAsync(groupChatId);
+        var members = await _membersClient.GetMembersOfGroupChatAsync(groupChatId, user.Id);
         return members;
     }
 

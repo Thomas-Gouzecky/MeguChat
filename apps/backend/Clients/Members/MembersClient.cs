@@ -4,9 +4,16 @@ public class MembersClient : DatabaseClient, IMembersClient
     {
     }
 
-    public async Task<IEnumerable<MemberResponseDto>> GetMembersOfGroupChatAsync(int groupChatId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<MemberResponseDto>> GetMembersOfGroupChatAsync(int groupChatId, string currentUserId, CancellationToken cancellationToken = default)
     {
-        var response = await _dbApiClient.GetAsync($"/api/groupchats/{groupChatId}/members", cancellationToken);
+
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"/api/groupchats/{groupChatId}/members"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", currentUserId);
+        var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var members = await response.Content.ReadFromJsonAsync<List<MemberResponseDto>>();

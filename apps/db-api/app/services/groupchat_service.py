@@ -26,6 +26,7 @@ def create_groupchat(
 
     groupchat = create_a_new_groupchat_entry(
         groupchat_request,
+        request_body.users,
         session,
         current_user,
     )
@@ -33,7 +34,9 @@ def create_groupchat(
     if groupchat.id is None or not isinstance(groupchat.id, int):
         raise ValueError("Groupchat ID is not an integer")
 
-    return GroupChatCreationResponse(groupchat_id=groupchat.id)
+    return GroupChatCreationResponse(
+        groupchat_id=groupchat.id, name=groupchat.name, created_at=groupchat.created_at
+    )
 
 
 def find_groupchats_for_user(

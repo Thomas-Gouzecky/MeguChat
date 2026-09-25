@@ -7,11 +7,12 @@ from app.utils.helper import add_users_to_groupchat
 
 def create_a_new_groupchat_entry(
     request_body: GroupChats,
+    users: list[str],
     session: Session,
     current_user: str,
 ) -> GroupChats:
 
-    groupchat = GroupChats(name=request.name)
+    groupchat = GroupChats(name=request_body.name)
     session.add(groupchat)
     session.flush()
 
@@ -20,7 +21,7 @@ def create_a_new_groupchat_entry(
 
     added_users = add_users_to_groupchat(
         groupchat_id=groupchat.id,
-        users=request.users,
+        users=users,
         session=session,
         current_user=current_user,
     )

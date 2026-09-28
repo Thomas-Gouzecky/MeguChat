@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from app.services import groupchat_service
 from app.sql import SessionDep
 from app.DTOs import (
@@ -10,7 +10,7 @@ from app.auth import get_current_user
 router = APIRouter(prefix="/api/groupchats", tags=["groupchats"])
 
 
-@router.post("", response_model=GroupChatDto)
+@router.post("", response_model=GroupChatDto, status_code=status.HTTP_201_CREATED)
 def create_new_groupchat(
     request_body: GroupChatCreationRequest,
     session: SessionDep,

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, status
 from app.services import groupchatmember_service
 from app.sql import SessionDep
 from app.DTOs import (
@@ -25,11 +25,16 @@ def get_members_user_id_of_groupchat(
     return members
 
 
-@router.post("", response_model=list[GroupChatMemberDto])
+@router.post(
+    "",
+    response_model=list[GroupChatMemberDto],
+    status_code=status.HTTP_201_CREATED | status.HTTP_200_OK,
+)
 def add_members_to_groupchat(
     groupchat_id: int,
     request_body: AddMembersRequest,
     session: SessionDep,
+    response: Response,
     current_user: str = Depends(get_current_user),
 ) -> list[GroupChatMemberDto]:
     users = request_body.users
@@ -45,6 +50,11 @@ def add_members_to_groupchat(
             groupchat_id, users, session, current_user
         )
     )
+
+    if added_users:
+        response.status_code = status.HTTP_201_CREATED
+    else:
+        response.status_code = status.HTTP_200_OK
 
     return added_users
 

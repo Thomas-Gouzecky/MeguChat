@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from app.auth import get_current_user
 from app.services import messages_service
 from app.sql import SessionDep
@@ -24,7 +24,7 @@ def get_messages_for_groupchat(
     return messages
 
 
-@router.post("", response_model=MessageDto)
+@router.post("", response_model=MessageDto, status_code=status.HTTP_201_CREATED)
 def create_message_for_groupchat(
     groupchat_id: int,
     request_body: MessageCreationRequest,

@@ -7,7 +7,9 @@ client = TestClient(app)
 
 def test_get_groupchat_for_user():
     user_id = "user1"
-    response = client.get(f"/api/groupchats/user/{user_id}")
+    response = client.get(
+        f"/api/groupchats/user/{user_id}", headers={"X-User-ID": user_id}
+    )
 
     assert response.status_code == 200
     response_body = response.json()
@@ -22,20 +24,26 @@ def test_get_groupchat_for_user():
 def test_add_multiple_members_to_groupchat():
     # Create a groupchat for user1
     user1_request_body = {"name": "User 1 Group Chat"}
-    create_response = client.post("/api/groupchats", json=user1_request_body)
+    create_response = client.post(
+        "/api/groupchats", json=user1_request_body, headers={"X-User-ID": "user1"}
+    )
     assert create_response.status_code == 200
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Add multiple members to the groupchat
     add_members_request_body = {"users": ["user2", "user3"]}
     add_members_response = client.post(
-        f"/api/groupchats/{groupchat_id}/members", json=add_members_request_body
+        f"/api/groupchats/{groupchat_id}/members",
+        json=add_members_request_body,
+        headers={"X-User-ID": "user1"},
     )
     assert add_members_response.status_code == 200
 
     # Verify that user2 and user3 can now see the groupchat
     for user_id in ["user2", "user3"]:
-        user_response = client.get(f"/api/groupchats/user/{user_id}")
+        user_response = client.get(
+            f"/api/groupchats/user/{user_id}", headers={"X-User-ID": user_id}
+        )
         assert user_response.status_code == 200
         user_groupchats = user_response.json()
         assert any(gc["groupchat_id"] == groupchat_id for gc in user_groupchats)
@@ -43,7 +51,9 @@ def test_add_multiple_members_to_groupchat():
 
 def test_get_groupchat_for_user_no_groupchats():
     user_id = "nonexistent_user"
-    response = client.get(f"/api/groupchats/user/{user_id}")
+    response = client.get(
+        f"/api/groupchats/user/{user_id}", headers={"X-User-ID": user_id}
+    )
 
     assert response.status_code == 200
     response_body = response.json()
@@ -55,10 +65,14 @@ def test_get_groupchat_for_user_no_groupchats():
 def test_groupchats_dont_show_to_users_not_in_them():
     # Create a groupchat for user1
     user1_request_body = {"name": "User 1 Group Chat"}
-    client.post("/api/groupchats", json=user1_request_body)
+    client.post(
+        "/api/groupchats", json=user1_request_body, headers={"X-User-ID": "user1"}
+    )
 
     # Get groupchats for user2 (who is not in the groupchat)
-    user2_response = client.get("/api/groupchats/user/user2")
+    user2_response = client.get(
+        "/api/groupchats/user/user2", headers={"X-User-ID": "user2"}
+    )
     assert user2_response.status_code == 200
     user2_groupchats = user2_response.json()
 
@@ -69,19 +83,25 @@ def test_groupchats_dont_show_to_users_not_in_them():
 def test_add_member_to_groupchat():
     # Create a groupchat for user1
     user1_request_body = {"name": "User 1 Group Chat"}
-    create_response = client.post("/api/groupchats", json=user1_request_body)
+    create_response = client.post(
+        "/api/groupchats", json=user1_request_body, headers={"X-User-ID": "user1"}
+    )
     assert create_response.status_code == 200
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Add user2 to the groupchat
     add_member_request_body = {"users": "user2"}
     add_member_response = client.post(
-        f"/api/groupchats/{groupchat_id}/members", json=add_member_request_body
+        f"/api/groupchats/{groupchat_id}/members",
+        json=add_member_request_body,
+        headers={"X-User-ID": "user1"},
     )
     assert add_member_response.status_code == 200
 
     # Verify that user2 can now see the groupchat
-    user2_response = client.get("/api/groupchats/user/user2")
+    user2_response = client.get(
+        "/api/groupchats/user/user2", headers={"X-User-ID": "user2"}
+    )
     assert user2_response.status_code == 200
     user2_groupchats = user2_response.json()
     assert any(gc["groupchat_id"] == groupchat_id for gc in user2_groupchats)
@@ -89,16 +109,22 @@ def test_add_member_to_groupchat():
 
 def test_adding_same_member_twice_is_ignored():
     create_response = client.post(
-        "/api/groupchats", json={"name": "Duplicate Member Test"}
+        "/api/groupchats",
+        json={"name": "Duplicate Member Test"},
+        headers={"X-User-ID": "user1"},
     )
     groupchat_id = create_response.json()["groupchat_id"]
     member_request = {"users": "user2"}
 
     first_response = client.post(
-        f"/api/groupchats/{groupchat_id}/members", json=member_request
+        f"/api/groupchats/{groupchat_id}/members",
+        json=member_request,
+        headers={"X-User-ID": "user1"},
     )
     duplicate_response = client.post(
-        f"/api/groupchats/{groupchat_id}/members", json=member_request
+        f"/api/groupchats/{groupchat_id}/members",
+        json=member_request,
+        headers={"X-User-ID": "user1"},
     )
 
     assert first_response.status_code == 200
@@ -107,21 +133,27 @@ def test_adding_same_member_twice_is_ignored():
 
 def test_duplicate_member_does_not_prevent_other_members_from_being_added():
     create_response = client.post(
-        "/api/groupchats", json={"name": "Partial Member Add Test"}
+        "/api/groupchats",
+        json={"name": "Partial Member Add Test"},
+        headers={"X-User-ID": "user1"},
     )
     groupchat_id = create_response.json()["groupchat_id"]
 
     client.post(
         f"/api/groupchats/{groupchat_id}/members",
         json={"users": "user2"},
+        headers={"X-User-ID": "user1"},
     )
     response = client.post(
         f"/api/groupchats/{groupchat_id}/members",
         json={"users": ["user2", "user3"]},
+        headers={"X-User-ID": "user1"},
     )
 
     assert response.status_code == 200
-    members_response = client.get(f"/api/groupchats/{groupchat_id}/members")
+    members_response = client.get(
+        f"/api/groupchats/{groupchat_id}/members", headers={"X-User-ID": "user1"}
+    )
     member_ids = [member["user_id"] for member in members_response.json()]
     assert member_ids.count("user2") == 1
     assert member_ids.count("user3") == 1
@@ -130,25 +162,32 @@ def test_duplicate_member_does_not_prevent_other_members_from_being_added():
 def test_remove_member_from_groupchat():
     # Create a groupchat for user1
     user1_request_body = {"name": "User 1 Group Chat"}
-    create_response = client.post("/api/groupchats", json=user1_request_body)
+    create_response = client.post(
+        "/api/groupchats", json=user1_request_body, headers={"X-User-ID": "user1"}
+    )
     assert create_response.status_code == 200
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Add user2 to the groupchat
     add_member_request_body = {"users": "user2"}
     add_member_response = client.post(
-        f"/api/groupchats/{groupchat_id}/members", json=add_member_request_body
+        f"/api/groupchats/{groupchat_id}/members",
+        json=add_member_request_body,
+        headers={"X-User-ID": "user1"},
     )
     assert add_member_response.status_code == 200
 
     # Remove user2 from the groupchat
     remove_member_response = client.delete(
-        f"/api/groupchats/{groupchat_id}/members/{add_member_request_body['users']}"
+        f"/api/groupchats/{groupchat_id}/members/{add_member_request_body['users']}",
+        headers={"X-User-ID": "user1"},
     )
     assert remove_member_response.status_code == 200
 
     # Verify that user2 can no longer see the groupchat
-    user2_response = client.get("/api/groupchats/user/user2")
+    user2_response = client.get(
+        "/api/groupchats/user/user2", headers={"X-User-ID": "user1"}
+    )
     assert user2_response.status_code == 200
     user2_groupchats = user2_response.json()
     assert all(gc["groupchat_id"] != groupchat_id for gc in user2_groupchats)
@@ -157,19 +196,25 @@ def test_remove_member_from_groupchat():
 def test_get_members_of_groupchat():
     # Create a groupchat for user1
     user1_request_body = {"name": "User 1 Group Chat"}
-    create_response = client.post("/api/groupchats", json=user1_request_body)
+    create_response = client.post(
+        "/api/groupchats", json=user1_request_body, headers={"X-User-ID": "user1"}
+    )
     assert create_response.status_code == 200
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Add user2 and user3 to the groupchat
     add_members_request_body = {"users": ["user2", "user3"]}
     add_members_response = client.post(
-        f"/api/groupchats/{groupchat_id}/members", json=add_members_request_body
+        f"/api/groupchats/{groupchat_id}/members",
+        json=add_members_request_body,
+        headers={"X-User-ID": "user1"},
     )
     assert add_members_response.status_code == 200
 
     # Get members of the groupchat
-    get_members_response = client.get(f"/api/groupchats/{groupchat_id}/members")
+    get_members_response = client.get(
+        f"/api/groupchats/{groupchat_id}/members", headers={"X-User-ID": "user1"}
+    )
     assert get_members_response.status_code == 200
     members = get_members_response.json()
 
@@ -181,22 +226,38 @@ def test_get_members_of_groupchat():
 
 def test_members_from_different_groupchats_are_separated():
     # Create two groupchats
-    groupchat1_response = client.post("/api/groupchats", json={"name": "Group Chat 1"})
-    groupchat2_response = client.post("/api/groupchats", json={"name": "Group Chat 2"})
+    groupchat1_response = client.post(
+        "/api/groupchats", json={"name": "Group Chat 1"}, headers={"X-User-ID": "user1"}
+    )
+    groupchat2_response = client.post(
+        "/api/groupchats", json={"name": "Group Chat 2"}, headers={"X-User-ID": "user1"}
+    )
     groupchat1_id = groupchat1_response.json()["groupchat_id"]
     groupchat2_id = groupchat2_response.json()["groupchat_id"]
 
     # Add user2 to the first groupchat and user3 to the second
-    client.post(f"/api/groupchats/{groupchat1_id}/members", json={"users": "user2"})
-    client.post(f"/api/groupchats/{groupchat2_id}/members", json={"users": "user3"})
+    client.post(
+        f"/api/groupchats/{groupchat1_id}/members",
+        json={"users": "user2"},
+        headers={"X-User-ID": "user1"},
+    )
+    client.post(
+        f"/api/groupchats/{groupchat2_id}/members",
+        json={"users": "user3"},
+        headers={"X-User-ID": "user1"},
+    )
 
     # Get members of the first groupchat
-    members_groupchat1_response = client.get(f"/api/groupchats/{groupchat1_id}/members")
+    members_groupchat1_response = client.get(
+        f"/api/groupchats/{groupchat1_id}/members", headers={"X-User-ID": "user1"}
+    )
     members_groupchat1 = members_groupchat1_response.json()
     member_ids_groupchat1 = [member["user_id"] for member in members_groupchat1]
 
     # Get members of the second groupchat
-    members_groupchat2_response = client.get(f"/api/groupchats/{groupchat2_id}/members")
+    members_groupchat2_response = client.get(
+        f"/api/groupchats/{groupchat2_id}/members", headers={"X-User-ID": "user1"}
+    )
     members_groupchat2 = members_groupchat2_response.json()
     member_ids_groupchat2 = [member["user_id"] for member in members_groupchat2]
 

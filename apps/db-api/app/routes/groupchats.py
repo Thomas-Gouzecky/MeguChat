@@ -38,7 +38,7 @@ def delete_groupchat(
     session: SessionDep,
     current_user: str = Depends(get_current_user),
 ) -> dict:
-    groupchat_service.delete_groupchat(groupchat_id, session, current_user)
+    groupchat: GroupChat = groupchat_service.delete_groupchat(groupchat_id, session, current_user)
 
     return {"message": f"Groupchat with ID {groupchat_id} has been deleted."}
 

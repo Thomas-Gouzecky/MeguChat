@@ -95,6 +95,7 @@ def test_delete_message_from_groupchat(create_groupchat):
         headers={"X-User-ID": "user1"},
     )
     assert delete_response.status_code == 200
+    assert delete_response.json()["id"] == message_id
 
     # Verify that the message has been deleted
     get_response = client.get(

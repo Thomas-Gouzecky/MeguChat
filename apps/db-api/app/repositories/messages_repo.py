@@ -1,5 +1,5 @@
 from sqlmodel import Session, SQLModel, select
-from app.models import GroupChats, GroupChatMembers, Messages
+from app.models import GroupChats, Messages
 from app.utils.user_permissions import validate_user_is_member_of_groupchat
 
 
@@ -46,7 +46,7 @@ def add_message_to_groupchat(
 
 def delete_message_from_groupchat(
     groupchat_id: int, message_id: int, user_id: str, session: Session
-) -> None:
+) -> Messages:
     message = session.get(Messages, message_id)
     if not message:
         raise LookupError(f"Message with ID {message_id} not found")
@@ -59,6 +59,8 @@ def delete_message_from_groupchat(
 
     session.delete(message)
     session.commit()
+
+    return message
 
 
 def update_message_in_groupchat(

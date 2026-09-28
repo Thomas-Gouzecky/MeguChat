@@ -6,9 +6,9 @@ client = TestClient(app)
 
 
 # test error handling for missing user ID in request
-def test_no_user_id_in_request_returns_400():
+def test_no_user_id_in_request_returns_401():
     response = client.get("/api/groupchats/user/")
-    assert response.status_code == 400
+    assert response.status_code == 401
 
 
 # test permission error when user is not a member of the groupchat

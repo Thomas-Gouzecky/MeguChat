@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.models import GroupChats, GroupChatMembers, Messages
 from app.utils.user_permissions import validate_user_is_member_of_groupchat
 from app.DTOs import GroupChatMembersResponse
+from app.errors import ConflictError
 
 
 def add_member_to_groupchat(
@@ -10,7 +11,7 @@ def add_member_to_groupchat(
 ) -> GroupChatMembersResponse | None:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
-        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+        raise LookupError(f"Groupchat with ID {groupchat_id} not found")
 
     validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 
@@ -29,7 +30,7 @@ def add_member_to_groupchat(
         session.commit()
     except IntegrityError as error:
         session.rollback()
-        raise ValueError(
+        raise ConflictError(
             f"User with ID {user_id} is already a member of groupchat {groupchat_id}"
         ) from error
 
@@ -48,7 +49,7 @@ def remove_member_from_groupchat(
 ) -> GroupChatMembersResponse:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
-        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+        raise LookupError(f"Groupchat with ID {groupchat_id} not found")
 
     validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 
@@ -60,7 +61,7 @@ def remove_member_from_groupchat(
     ).first()
 
     if not member_to_remove:
-        raise ValueError(
+        raise LookupError(
             f"User with ID {user_id} is not a member of groupchat {groupchat_id}"
         )
 
@@ -82,7 +83,7 @@ def get_members_of_groupchat(
 ) -> list[GroupChatMembers]:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
-        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+        raise LookupError(f"Groupchat with ID {groupchat_id} not found")
 
     validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 

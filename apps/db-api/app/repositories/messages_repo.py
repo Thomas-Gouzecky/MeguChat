@@ -9,12 +9,11 @@ def get_messages_for_groupchat(
     group_chats_table = SQLModel.metadata.tables[GroupChats.__tablename__]
     messages_table = SQLModel.metadata.tables[Messages.__tablename__]
 
-    if current_user is None:
-        raise ValueError("Current user is not authenticated")
-
     if not session.get(GroupChats, groupchat_id):
-        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+        raise LookupError(f"Groupchat with ID {groupchat_id} not found")
+
     validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
+
     statement = (
         select(Messages)
         .join(
@@ -33,7 +32,7 @@ def add_message_to_groupchat(
 ) -> Messages:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
-        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+        raise LookupError(f"Groupchat with ID {groupchat_id} not found")
 
     validate_user_is_member_of_groupchat(user_id, groupchat_id, session)
 
@@ -50,9 +49,11 @@ def delete_message_from_groupchat(
 ) -> None:
     message = session.get(Messages, message_id)
     if not message:
-        raise ValueError(f"Message with ID {message_id} not found")
+        raise LookupError(f"Message with ID {message_id} not found")
     if message.group_chat_id != groupchat_id:
-        raise ValueError(f"Message with ID {message_id} is not in this groupchat")
+        raise LookupError(
+            f"Message with ID {message_id} is not in this groupchat {groupchat_id}"
+        )
     if message.user_id != user_id:
         raise PermissionError("Only the message author can delete this message")
 
@@ -70,7 +71,7 @@ def update_message_in_groupchat(
         )
     ).first()
     if not message:
-        raise ValueError(f"Message with ID {message_id} not found")
+        raise LookupError(f"Message with ID {message_id} not found")
 
     if not new_content:
         raise ValueError("Message content cannot be empty")

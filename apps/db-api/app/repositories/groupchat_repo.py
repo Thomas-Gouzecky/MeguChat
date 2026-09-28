@@ -17,7 +17,7 @@ def create_a_new_groupchat_entry(
     session.flush()
 
     if groupchat.id is None or not isinstance(groupchat.id, int):
-        raise ValueError("Groupchat ID is not an integer")
+        raise LookupError("Groupchat ID is not an integer")
 
     added_users = add_users_to_groupchat(
         groupchat_id=groupchat.id,
@@ -53,7 +53,7 @@ def update_groupchat(
 ) -> GroupChats:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
-        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+        raise LookupError(f"Groupchat with ID {groupchat_id} not found")
 
     validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 
@@ -68,7 +68,7 @@ def update_groupchat(
 def delete_groupchat(groupchat_id: int, session: Session, current_user: str) -> None:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
-        raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+        raise LookupError(f"Groupchat with ID {groupchat_id} not found")
 
     validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from app.services import groupchat_service
 from app.sql import SessionDep
 from app.DTOs import (
@@ -38,12 +38,7 @@ def delete_groupchat(
     session: SessionDep,
     current_user: str = Depends(get_current_user),
 ) -> dict:
-    try:
-        groupchat_service.delete_groupchat(groupchat_id, session, current_user)
-    except PermissionError as error:
-        raise HTTPException(status_code=403, detail=str(error)) from error
-    except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
+    groupchat_service.delete_groupchat(groupchat_id, session, current_user)
 
     return {"message": f"Groupchat with ID {groupchat_id} has been deleted."}
 

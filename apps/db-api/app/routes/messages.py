@@ -38,14 +38,10 @@ def create_message_for_groupchat(
     session: SessionDep,
     current_user: str = Depends(get_current_user),
 ) -> dict:
-    try:
-        message = messages_service.create_message_for_groupchat(
-            groupchat_id, request_body, current_user, session
-        )
-    except PermissionError as error:
-        raise HTTPException(status_code=403, detail=str(error)) from error
-    except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    message = messages_service.create_message_for_groupchat(
+        groupchat_id, request_body, current_user, session
+    )
 
     return {
         "id": message.id,
@@ -64,14 +60,9 @@ def delete_message_from_groupchat(
     session: SessionDep,
     current_user: str = Depends(get_current_user),
 ) -> dict:
-    try:
-        messages_service.delete_message_from_groupchat(
-            groupchat_id, message_id, current_user, session
-        )
-    except PermissionError as error:
-        raise HTTPException(status_code=403, detail=str(error)) from error
-    except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
+    messages_service.delete_message_from_groupchat(
+        groupchat_id, message_id, current_user, session
+    )
 
     return {
         "message": f"Message with ID {message_id} has been deleted from groupchat {groupchat_id}."
@@ -86,14 +77,9 @@ def update_message_in_groupchat(
     session: SessionDep,
     current_user: str = Depends(get_current_user),
 ) -> dict:
-    try:
-        message = messages_service.update_message_in_groupchat(
-            groupchat_id, message_id, request_body, current_user, session
-        )
-    except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
-    except PermissionError as error:
-        raise HTTPException(status_code=403, detail=str(error)) from error
+    message = messages_service.update_message_in_groupchat(
+        groupchat_id, message_id, request_body, current_user, session
+    )
 
     return {
         "id": message.id,

@@ -16,14 +16,9 @@ def get_members_user_id_of_groupchat(
     session: SessionDep,
     current_user: str = Depends(get_current_user),
 ) -> list[GroupChatMembersResponse]:
-    try:
-        members = groupchatmember_service.get_members_of_groupchat(
-            groupchat_id, session, current_user
-        )
-    except PermissionError as error:
-        raise HTTPException(status_code=403, detail=str(error)) from error
-    except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
+    members = groupchatmember_service.get_members_of_groupchat(
+        groupchat_id, session, current_user
+    )
 
     return [
         GroupChatMembersResponse(
@@ -46,19 +41,16 @@ def add_members_to_groupchat(
     current_user: str = Depends(get_current_user),
 ) -> list[GroupChatMembersResponse]:
     users = request_body.users
+
     if not users:
-        raise HTTPException(status_code=422, detail="Missing 'users' in request body")
+        raise ValueError("Missing 'users' in request body")
+
     if isinstance(users, str):
         users = [users]
 
-    try:
-        added_users = groupchatmember_service.add_members_to_groupchat(
-            groupchat_id, users, session, current_user
-        )
-    except PermissionError as error:
-        raise HTTPException(status_code=403, detail=str(error)) from error
-    except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
+    added_users = groupchatmember_service.add_members_to_groupchat(
+        groupchat_id, users, session, current_user
+    )
 
     return [
         GroupChatMembersResponse(
@@ -80,15 +72,10 @@ def remove_member_from_groupchat(
     session: SessionDep,
     current_user: str = Depends(get_current_user),
 ) -> GroupChatMembersResponse:
-    try:
-        deleted_member: GroupChatMembersResponse = (
-            groupchatmember_service.remove_member_from_groupchat(
-                groupchat_id, user_id, session, current_user
-            )
+    deleted_member: GroupChatMembersResponse = (
+        groupchatmember_service.remove_member_from_groupchat(
+            groupchat_id, user_id, session, current_user
         )
-    except PermissionError as error:
-        raise HTTPException(status_code=403, detail=str(error)) from error
-    except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
+    )
 
     return deleted_member

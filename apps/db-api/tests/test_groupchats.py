@@ -109,7 +109,7 @@ def test_delete_nonexistent_groupchat():
         f"/api/groupchats/{nonexistent_groupchat_id}",
         headers={"X-User-Id": "some_user"},
     )
-    assert delete_response.status_code == 422
+    assert delete_response.status_code == 404
 
 
 def test_get_messages_for_groupchat():
@@ -137,7 +137,7 @@ def test_get_messages_for_nonexistent_groupchat():
         f"/api/groupchats/{nonexistent_groupchat_id}/messages",
         headers={"X-User-ID": "user1"},
     )
-    assert get_messages_response.status_code == 422
+    assert get_messages_response.status_code == 404
 
 
 def test_ensure_messages_are_groupchat_specific():

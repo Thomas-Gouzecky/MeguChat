@@ -3,5 +3,5 @@ from .GroupChatDto import GroupChatDto
 from .MessageCreationRequest import MessageCreationRequest
 from .MessageDeletionRequest import MessageDeletionRequest
 from .AddMembersRequest import AddMembersRequest
-from .GroupChatMembersResponse import GroupChatMembersResponse
+from .GroupChatMemberDto import GroupChatMemberDto
 from .MessageDto import MessageDto

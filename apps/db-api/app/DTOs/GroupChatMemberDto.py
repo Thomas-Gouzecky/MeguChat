@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class GroupChatMembersResponse(BaseModel):
+class GroupChatMemberDto(BaseModel):
     id: int | None = None
     group_chat_id: int
     user_id: str

@@ -11,7 +11,8 @@ def test_create_new_groupchat_successful():
         "/api/groupchats", json=request_body, headers={"X-User-ID": "user1"}
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 201
+    assert response.json()["name"] == "Testing Group Chat"
 
     response_body = response.json()
 
@@ -37,7 +38,7 @@ def test_update_groupchat_name():
         json=request_body,
         headers={"X-User-ID": "user1"},
     )
-    assert create_response.status_code == 200
+    assert create_response.status_code == 201
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Update the groupchat name
@@ -61,7 +62,7 @@ def test_update_groupchat_missing_fields():
     create_response = client.post(
         "/api/groupchats", json=request_body, headers={"X-User-ID": "user1"}
     )
-    assert create_response.status_code == 200
+    assert create_response.status_code == 201
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Update the groupchat with missing fields
@@ -81,7 +82,7 @@ def test_delete_groupchat():
     create_response = client.post(
         "/api/groupchats", json=request_body, headers={"X-User-Id": "some_user"}
     )
-    assert create_response.status_code == 200
+    assert create_response.status_code == 201
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Delete the groupchat
@@ -89,11 +90,14 @@ def test_delete_groupchat():
         f"/api/groupchats/{groupchat_id}", headers={"X-User-Id": "some_user"}
     )
     assert delete_response.status_code == 200
-    delete_message = delete_response.json()
-    assert (
-        delete_message["message"]
-        == f"Groupchat with ID {groupchat_id} has been deleted."
-    )
+
+    delete_result = delete_response.json()
+    assert delete_result == {
+        "groupchat_id": groupchat_id,
+        "name": "Group Chat to Delete",
+        "created_at": delete_result["created_at"],
+    }
+    assert delete_result["created_at"] is not None
 
     # Verify that the groupchat no longer exists
     get_response = client.get(f"/api/groupchats/user/some_user")
@@ -118,7 +122,7 @@ def test_get_messages_for_groupchat():
     create_response = client.post(
         "/api/groupchats", json=request_body, headers={"X-User-ID": "user1"}
     )
-    assert create_response.status_code == 200
+    assert create_response.status_code == 201
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Get messages for the newly created groupchat
@@ -146,14 +150,14 @@ def test_ensure_messages_are_groupchat_specific():
     create_response1 = client.post(
         "/api/groupchats", json=request_body1, headers={"X-User-ID": "user1"}
     )
-    assert create_response1.status_code == 200
+    assert create_response1.status_code == 201
     groupchat_id1 = create_response1.json()["groupchat_id"]
 
     request_body2 = {"name": "Group Chat 2"}
     create_response2 = client.post(
         "/api/groupchats", json=request_body2, headers={"X-User-ID": "user1"}
     )
-    assert create_response2.status_code == 200
+    assert create_response2.status_code == 201
     groupchat_id2 = create_response2.json()["groupchat_id"]
 
     # Get messages for both groupchats

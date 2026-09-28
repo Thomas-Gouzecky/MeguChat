@@ -1,14 +1,13 @@
-from sqlmodel import Session, SQLModel, select
+from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
-from app.models import GroupChats, GroupChatMembers, Messages
+from app.models import GroupChats, GroupChatMembers
 from app.utils.user_permissions import validate_user_is_member_of_groupchat
-from app.DTOs import GroupChatMembersResponse
 from app.errors import ConflictError
 
 
 def add_member_to_groupchat(
     groupchat_id: int, user_id: str, session: Session, current_user: str
-) -> GroupChatMembersResponse | None:
+) -> GroupChatMembers | None:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise LookupError(f"Groupchat with ID {groupchat_id} not found")
@@ -34,19 +33,12 @@ def add_member_to_groupchat(
             f"User with ID {user_id} is already a member of groupchat {groupchat_id}"
         ) from error
 
-    return GroupChatMembersResponse(
-        id=new_member.id,
-        user_id=new_member.user_id,
-        group_chat_id=new_member.group_chat_id,
-        joined_at=new_member.joined_at,
-        last_active_at=new_member.last_active_at,
-        last_read_message_id=new_member.last_read_message_id,
-    )  # User successfully added to the groupchat
+    return new_member
 
 
 def remove_member_from_groupchat(
     groupchat_id: int, user_id: str, session: Session, current_user: str
-) -> GroupChatMembersResponse:
+) -> GroupChatMembers:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise LookupError(f"Groupchat with ID {groupchat_id} not found")
@@ -68,14 +60,7 @@ def remove_member_from_groupchat(
     session.delete(member_to_remove)
     session.commit()
 
-    return GroupChatMembersResponse(
-        id=member_to_remove.id,
-        user_id=member_to_remove.user_id,
-        group_chat_id=member_to_remove.group_chat_id,
-        joined_at=member_to_remove.joined_at,
-        last_active_at=member_to_remove.last_active_at,
-        last_read_message_id=member_to_remove.last_read_message_id,
-    )
+    return member_to_remove
 
 
 def get_members_of_groupchat(

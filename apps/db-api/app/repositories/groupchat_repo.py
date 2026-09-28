@@ -1,6 +1,6 @@
 from httpx import request
 from sqlmodel import Session, SQLModel, select
-from app.models import GroupChats, GroupChatMembers, Messages
+from app.models import GroupChats, GroupChatMembers
 from app.utils.user_permissions import validate_user_is_member_of_groupchat
 from app.utils.helper import add_users_to_groupchat
 
@@ -65,12 +65,19 @@ def update_groupchat(
     return groupchat
 
 
-def delete_groupchat(groupchat_id: int, session: Session, current_user: str) -> None:
+def delete_groupchat(
+    groupchat_id: int, session: Session, current_user: str
+) -> GroupChats:
     groupchat = session.get(GroupChats, groupchat_id)
     if not groupchat:
         raise LookupError(f"Groupchat with ID {groupchat_id} not found")
+
+    if not isinstance(groupchat.id, int):
+        raise ValueError("Groupchat ID is not an integer")
 
     validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
 
     session.delete(groupchat)
     session.commit()
+
+    return groupchat

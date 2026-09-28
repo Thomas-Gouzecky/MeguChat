@@ -1,45 +1,42 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Response, status
 from app.services import groupchatmember_service
 from app.sql import SessionDep
 from app.DTOs import (
     AddMembersRequest,
-    GroupChatMembersResponse,
+    GroupChatMemberDto,
 )
 from app.auth import get_current_user
 
 router = APIRouter(prefix="/api/groupchats/{groupchat_id}/members", tags=["members"])
 
 
-@router.get("", response_model=list[GroupChatMembersResponse])
+@router.get("", response_model=list[GroupChatMemberDto])
 def get_members_user_id_of_groupchat(
     groupchat_id: int,
     session: SessionDep,
     current_user: str = Depends(get_current_user),
-) -> list[GroupChatMembersResponse]:
-    members = groupchatmember_service.get_members_of_groupchat(
-        groupchat_id, session, current_user
+) -> list[GroupChatMemberDto]:
+    members: list[GroupChatMemberDto] = (
+        groupchatmember_service.get_members_of_groupchat(
+            groupchat_id, session, current_user
+        )
     )
 
-    return [
-        GroupChatMembersResponse(
-            id=member.id,
-            user_id=member.user_id,
-            group_chat_id=member.group_chat_id,
-            joined_at=member.joined_at,
-            last_active_at=member.last_active_at,
-            last_read_message_id=member.last_read_message_id,
-        )
-        for member in members
-    ]
+    return members
 
 
-@router.post("", response_model=list[GroupChatMembersResponse])
+@router.post(
+    "",
+    response_model=list[GroupChatMemberDto],
+    status_code=status.HTTP_201_CREATED | status.HTTP_200_OK,
+)
 def add_members_to_groupchat(
     groupchat_id: int,
     request_body: AddMembersRequest,
     session: SessionDep,
+    response: Response,
     current_user: str = Depends(get_current_user),
-) -> list[GroupChatMembersResponse]:
+) -> list[GroupChatMemberDto]:
     users = request_body.users
 
     if not users:
@@ -48,31 +45,28 @@ def add_members_to_groupchat(
     if isinstance(users, str):
         users = [users]
 
-    added_users = groupchatmember_service.add_members_to_groupchat(
-        groupchat_id, users, session, current_user
+    added_users: list[GroupChatMemberDto] = (
+        groupchatmember_service.add_members_to_groupchat(
+            groupchat_id, users, session, current_user
+        )
     )
 
-    return [
-        GroupChatMembersResponse(
-            id=added_users.id,
-            user_id=added_users.user_id,
-            group_chat_id=added_users.group_chat_id,
-            joined_at=added_users.joined_at,
-            last_active_at=added_users.last_active_at,
-            last_read_message_id=added_users.last_read_message_id,
-        )
-        for added_users in added_users
-    ]
+    if added_users:
+        response.status_code = status.HTTP_201_CREATED
+    else:
+        response.status_code = status.HTTP_200_OK
+
+    return added_users
 
 
-@router.delete("/{user_id}", response_model=GroupChatMembersResponse)
+@router.delete("/{user_id}", response_model=GroupChatMemberDto)
 def remove_member_from_groupchat(
     groupchat_id: int,
     user_id: str,
     session: SessionDep,
     current_user: str = Depends(get_current_user),
-) -> GroupChatMembersResponse:
-    deleted_member: GroupChatMembersResponse = (
+) -> GroupChatMemberDto:
+    deleted_member: GroupChatMemberDto = (
         groupchatmember_service.remove_member_from_groupchat(
             groupchat_id, user_id, session, current_user
         )

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, status
 from app.auth import get_current_user
 from app.services import messages_service
 from app.sql import SessionDep
@@ -16,76 +16,53 @@ def get_messages_for_groupchat(
     session: SessionDep,
     current_user: str = Depends(get_current_user),
 ) -> list[MessageDto]:
-    try:
-        messages = messages_service.get_messages_for_groupchat(
-            groupchat_id, session, current_user
-        )
-    except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
-    except LookupError as error:
-        raise HTTPException(status_code=404, detail=str(error)) from error
-    except PermissionError as error:
-        raise HTTPException(status_code=403, detail=str(error)) from error
-    except Exception as error:
-        raise HTTPException(status_code=500, detail="Internal Server Error") from error
+
+    messages: list[MessageDto] = messages_service.get_messages_for_groupchat(
+        groupchat_id, session, current_user
+    )
+
     return messages
 
 
-@router.post("", response_model=dict)
+@router.post("", response_model=MessageDto, status_code=status.HTTP_201_CREATED)
 def create_message_for_groupchat(
     groupchat_id: int,
     request_body: MessageCreationRequest,
     session: SessionDep,
     current_user: str = Depends(get_current_user),
-) -> dict:
+) -> MessageDto:
 
-    message = messages_service.create_message_for_groupchat(
+    created_message: MessageDto = messages_service.create_message_for_groupchat(
         groupchat_id, request_body, current_user, session
     )
 
-    return {
-        "id": message.id,
-        "user_id": message.user_id,
-        "group_chat_id": message.group_chat_id,
-        "content": message.content,
-        "created_at": message.created_at,
-        "modified_at": message.modified_at,
-    }
+    return created_message
 
 
-@router.delete("/{message_id}", response_model=dict)
+@router.delete("/{message_id}", response_model=MessageDto)
 def delete_message_from_groupchat(
     groupchat_id: int,
     message_id: int,
     session: SessionDep,
     current_user: str = Depends(get_current_user),
-) -> dict:
-    messages_service.delete_message_from_groupchat(
+) -> MessageDto:
+    deleted_message: MessageDto = messages_service.delete_message_from_groupchat(
         groupchat_id, message_id, current_user, session
     )
 
-    return {
-        "message": f"Message with ID {message_id} has been deleted from groupchat {groupchat_id}."
-    }
+    return deleted_message
 
 
-@router.put("/{message_id}", response_model=dict)
+@router.put("/{message_id}", response_model=MessageDto)
 def update_message_in_groupchat(
     groupchat_id: int,
     message_id: int,
     request_body: MessageCreationRequest,
     session: SessionDep,
     current_user: str = Depends(get_current_user),
-) -> dict:
-    message = messages_service.update_message_in_groupchat(
+) -> MessageDto:
+    updated_message: MessageDto = messages_service.update_message_in_groupchat(
         groupchat_id, message_id, request_body, current_user, session
     )
 
-    return {
-        "id": message.id,
-        "user_id": message.user_id,
-        "group_chat_id": message.group_chat_id,
-        "content": message.content,
-        "created_at": message.created_at,
-        "modified_at": message.modified_at,
-    }
+    return updated_message

@@ -25,7 +25,7 @@ def create_groupchat():
         response = client.post(
             "/api/groupchats", json={"name": name}, headers={"X-User-ID": "user1"}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         groupchat_id = response.json()["groupchat_id"]
 
         member_response = client.post(
@@ -33,7 +33,10 @@ def create_groupchat():
             json={"users": ["user1", "user2"]},
             headers={"X-User-ID": "user1"},
         )
-        assert member_response.status_code == 200
+        assert member_response.status_code == 201
+        assert (
+            len(member_response.json()) == 1
+        )  # user1 is already a member, so only user2 should be added
 
         return groupchat_id
 
@@ -63,7 +66,7 @@ def test_add_messages_to_groupchat(create_groupchat):
         json=message_request_body,
         headers={"X-User-ID": "user1"},
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json()["content"] == "Hello, this is a test message."
 
     # Retrieve messages for the groupchat
@@ -86,7 +89,7 @@ def test_delete_message_from_groupchat(create_groupchat):
         json=message_request_body,
         headers={"X-User-ID": "user1"},
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     message_id = response.json()["id"]
 
     # Delete the message
@@ -95,6 +98,7 @@ def test_delete_message_from_groupchat(create_groupchat):
         headers={"X-User-ID": "user1"},
     )
     assert delete_response.status_code == 200
+    assert delete_response.json()["id"] == message_id
 
     # Verify that the message has been deleted
     get_response = client.get(
@@ -116,7 +120,7 @@ def test_other_users_cannot_delete_messages(create_groupchat):
         json=message_request_body,
         headers={"X-User-ID": "user1"},
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     message_id = response.json()["id"]
 
     # Attempt to delete the message by user2 (not the owner)
@@ -137,7 +141,7 @@ def test_update_message_in_groupchat(create_groupchat):
         json=message_request_body,
         headers={"X-User-ID": "user1"},
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     message_id = response.json()["id"]
 
     # Update the message
@@ -171,7 +175,7 @@ def test_other_users_cannot_update_messages(create_groupchat):
         json=message_request_body,
         headers={"X-User-ID": "user1"},
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     message_id = response.json()["id"]
 
     # Attempt to update the message by user2 (not the owner)
@@ -194,7 +198,7 @@ def test_users_not_in_groupchat_cannot_see_messages(create_groupchat):
         json=message_request_body,
         headers={"X-User-ID": "user2"},
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     # Attempt to retrieve messages for a user not in the groupchat
     get_response = client.get(
@@ -213,6 +217,5 @@ def test_users_not_in_groupchat_cannot_add_messages(create_groupchat):
         json=message_request_body,
         headers={"X-User-ID": "unauthorized_user"},
     )
-    # Assuming the API does not allow adding messages by users not in the groupchat,
-    # we expect a 403 Forbidden or similar status code. Adjust based on your implementation.
-    assert response.status_code == 422 or response.status_code == 403
+
+    assert response.status_code == 403

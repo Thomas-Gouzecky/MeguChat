@@ -27,7 +27,7 @@ def test_add_multiple_members_to_groupchat():
     create_response = client.post(
         "/api/groupchats", json=user1_request_body, headers={"X-User-ID": "user1"}
     )
-    assert create_response.status_code == 200
+    assert create_response.status_code == 201
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Add multiple members to the groupchat
@@ -37,7 +37,15 @@ def test_add_multiple_members_to_groupchat():
         json=add_members_request_body,
         headers={"X-User-ID": "user1"},
     )
-    assert add_members_response.status_code == 200
+    assert add_members_response.status_code == 201
+
+    # Add users that are already members to the groupchat - should be 200 OKF
+    add_existing_members_response = client.post(
+        f"/api/groupchats/{groupchat_id}/members",
+        json=add_members_request_body,
+        headers={"X-User-ID": "user1"},
+    )
+    assert add_existing_members_response.status_code == 200
 
     # Verify that user2 and user3 can now see the groupchat
     for user_id in ["user2", "user3"]:
@@ -86,7 +94,7 @@ def test_add_member_to_groupchat():
     create_response = client.post(
         "/api/groupchats", json=user1_request_body, headers={"X-User-ID": "user1"}
     )
-    assert create_response.status_code == 200
+    assert create_response.status_code == 201
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Add user2 to the groupchat
@@ -96,7 +104,7 @@ def test_add_member_to_groupchat():
         json=add_member_request_body,
         headers={"X-User-ID": "user1"},
     )
-    assert add_member_response.status_code == 200
+    assert add_member_response.status_code == 201
 
     # Verify that user2 can now see the groupchat
     user2_response = client.get(
@@ -127,7 +135,7 @@ def test_adding_same_member_twice_is_ignored():
         headers={"X-User-ID": "user1"},
     )
 
-    assert first_response.status_code == 200
+    assert first_response.status_code == 201
     assert duplicate_response.status_code == 200
 
 
@@ -150,7 +158,7 @@ def test_duplicate_member_does_not_prevent_other_members_from_being_added():
         headers={"X-User-ID": "user1"},
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     members_response = client.get(
         f"/api/groupchats/{groupchat_id}/members", headers={"X-User-ID": "user1"}
     )
@@ -165,7 +173,7 @@ def test_remove_member_from_groupchat():
     create_response = client.post(
         "/api/groupchats", json=user1_request_body, headers={"X-User-ID": "user1"}
     )
-    assert create_response.status_code == 200
+    assert create_response.status_code == 201
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Add user2 to the groupchat
@@ -175,7 +183,7 @@ def test_remove_member_from_groupchat():
         json=add_member_request_body,
         headers={"X-User-ID": "user1"},
     )
-    assert add_member_response.status_code == 200
+    assert add_member_response.status_code == 201
 
     # Remove user2 from the groupchat
     remove_member_response = client.delete(
@@ -183,6 +191,7 @@ def test_remove_member_from_groupchat():
         headers={"X-User-ID": "user1"},
     )
     assert remove_member_response.status_code == 200
+    assert remove_member_response.json()["user_id"] == "user2"
 
     # Verify that user2 can no longer see the groupchat
     user2_response = client.get(
@@ -199,7 +208,7 @@ def test_get_members_of_groupchat():
     create_response = client.post(
         "/api/groupchats", json=user1_request_body, headers={"X-User-ID": "user1"}
     )
-    assert create_response.status_code == 200
+    assert create_response.status_code == 201
     groupchat_id = create_response.json()["groupchat_id"]
 
     # Add user2 and user3 to the groupchat
@@ -209,7 +218,7 @@ def test_get_members_of_groupchat():
         json=add_members_request_body,
         headers={"X-User-ID": "user1"},
     )
-    assert add_members_response.status_code == 200
+    assert add_members_response.status_code == 201
 
     # Get members of the groupchat
     get_members_response = client.get(

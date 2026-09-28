@@ -40,3 +40,10 @@ def create_exception_handlers(app: FastAPI):
             status_code=422,
             content={"detail": str(exc)},
         )
+
+    @app.exception_handler(LookupError)
+    async def lookup_error_handler(request: Request, exc: LookupError):
+        return JSONResponse(
+            status_code=404,
+            content={"detail": str(exc)},
+        )

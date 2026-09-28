@@ -1,6 +1,5 @@
 from .GroupChatCreationRequest import GroupChatCreationRequest
 from .GroupChatDto import GroupChatDto
-from .GroupChatUpdateResponse import GroupChatUpdateResponse
 from .MessageCreationRequest import MessageCreationRequest
 from .MessageDeletionRequest import MessageDeletionRequest
 from .AddMembersRequest import AddMembersRequest

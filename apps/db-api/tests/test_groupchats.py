@@ -89,11 +89,12 @@ def test_delete_groupchat():
         f"/api/groupchats/{groupchat_id}", headers={"X-User-Id": "some_user"}
     )
     assert delete_response.status_code == 200
-    delete_message = delete_response.json()
-    assert (
-        delete_message["message"]
-        == f"Groupchat with ID {groupchat_id} has been deleted."
-    )
+    delete_result = delete_response.json()
+    assert delete_result == {
+        "groupchat_id": groupchat_id,
+        "name": "Group Chat to Delete",
+        "created_at": delete_result["created_at"],
+    }
 
     # Verify that the groupchat no longer exists
     get_response = client.get(f"/api/groupchats/user/some_user")

@@ -9,8 +9,7 @@ from app.repositories.groupchat_repo import (
 )
 from app.DTOs import (
     GroupChatCreationRequest,
-    GroupChatCreationResponse,
-    GroupChatUpdateResponse,
+    GroupChatDto,
 )
 
 
@@ -18,40 +17,42 @@ def create_groupchat(
     request_body: GroupChatCreationRequest,
     session: Session,
     current_user: str,
-) -> GroupChatCreationResponse:
+) -> GroupChatDto:
 
     groupchat_request = GroupChats(
         name=request_body.name,
     )
 
-    groupchat = create_a_new_groupchat_entry(
+    created_groupchat = create_a_new_groupchat_entry(
         groupchat_request,
         request_body.users,
         session,
         current_user,
     )
 
-    if groupchat.id is None or not isinstance(groupchat.id, int):
+    if created_groupchat.id is None or not isinstance(created_groupchat.id, int):
         raise ValueError("Groupchat ID is not an integer")
 
-    return GroupChatCreationResponse(
-        groupchat_id=groupchat.id, name=groupchat.name, created_at=groupchat.created_at
+    return GroupChatDto(
+        groupchat_id=created_groupchat.id,
+        name=created_groupchat.name,
+        created_at=created_groupchat.created_at,
     )
 
 
 def find_groupchats_for_user(
     user_id: str,
     session: Session,
-) -> list[GroupChatCreationResponse]:
+) -> list[GroupChatDto]:
 
-    groupchats = find_groupchats_for_user_in_repository(user_id, session)
+    users_groupchats = find_groupchats_for_user_in_repository(user_id, session)
     return [
-        GroupChatCreationResponse(
+        GroupChatDto(
             groupchat_id=groupchat.id,
             name=groupchat.name,
             created_at=groupchat.created_at,
         )
-        for groupchat in groupchats
+        for groupchat in users_groupchats
         if groupchat.id is not None
     ]
 
@@ -61,22 +62,22 @@ def update_groupchat(
     request_body: GroupChatCreationRequest,
     session: Session,
     current_user: str,
-) -> GroupChatUpdateResponse:
+) -> GroupChatDto:
     groupchat_request = GroupChats(name=request_body.name)
-    groupchat = update_groupchat_in_repository(
+    updated_groupchat = update_groupchat_in_repository(
         groupchat_id,
         groupchat_request,
         session,
         current_user,
     )
 
-    if groupchat.id is None:
+    if updated_groupchat.id is None:
         raise ValueError("Groupchat ID is missing")
 
-    return GroupChatUpdateResponse(
-        groupchat_id=groupchat.id,
-        name=groupchat.name,
-        created_at=groupchat.created_at,
+    return GroupChatDto(
+        groupchat_id=updated_groupchat.id,
+        name=updated_groupchat.name,
+        created_at=updated_groupchat.created_at,
     )
 
 
@@ -84,5 +85,17 @@ def delete_groupchat(
     groupchat_id: int,
     session: Session,
     current_user: str,
-) -> None:
-    delete_groupchat_in_repository(groupchat_id, session, current_user)
+) -> GroupChatDto:
+
+    deleted_groupchat: GroupChats = delete_groupchat_in_repository(
+        groupchat_id, session, current_user
+    )
+
+    if deleted_groupchat.id is None:
+        raise ValueError("Groupchat ID is missing")
+
+    return GroupChatDto(
+        groupchat_id=deleted_groupchat.id,
+        name=deleted_groupchat.name,
+        created_at=deleted_groupchat.created_at,
+    )

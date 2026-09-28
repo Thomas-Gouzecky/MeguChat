@@ -9,12 +9,11 @@ def get_messages_for_groupchat(
     group_chats_table = SQLModel.metadata.tables[GroupChats.__tablename__]
     messages_table = SQLModel.metadata.tables[Messages.__tablename__]
 
-    if current_user is None:
-        raise ValueError("Current user is not authenticated")
-
     if not session.get(GroupChats, groupchat_id):
         raise ValueError(f"Groupchat with ID {groupchat_id} not found")
+
     validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
+
     statement = (
         select(Messages)
         .join(

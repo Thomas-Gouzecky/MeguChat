@@ -1,5 +1,6 @@
 from sqlmodel import Session, select
 from app.models import GroupChatMembers
+from app.errors import UnauthenticateError
 
 
 def is_user_member_of_groupchat(
@@ -39,6 +40,9 @@ def validate_user_is_member_of_groupchat(
     Raises:
         PermissionError: If the user is not a member of the group chat.
     """
+    if user_id is None:
+        raise UnauthenticateError("Current user is not authenticated")
+
     if not is_user_member_of_groupchat(user_id, groupchat_id, session):
         raise PermissionError(
             f"User {user_id} is not a member of group chat {groupchat_id}."

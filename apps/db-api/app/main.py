@@ -4,11 +4,15 @@ from app.sql import create_db_and_tables
 
 from app.routes import messages, groupchats, members
 
+from app.utils.exception_handlers import create_exception_handlers
+
 app = FastAPI()
 
 app.include_router(messages.router)
 app.include_router(groupchats.router)
 app.include_router(members.router)
+
+create_exception_handlers(app)
 
 
 @app.on_event("startup")

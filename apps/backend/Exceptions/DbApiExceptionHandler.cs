@@ -28,6 +28,8 @@ public class DbApiExceptionHandler : IExceptionHandler
             Status = (int)dbApiException.StatusCode
         };
 
+        problemDetails.Extensions["Errors"] = dbApiException.ResponseBody;
+
         httpContext.Response.StatusCode = problemDetails.Status!.Value;
 
         await httpContext.Response.WriteAsJsonAsync(

@@ -14,7 +14,11 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Headers.Add("X-User-ID", currentUserId);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadFromJsonAsync<DatabaseErrorDto>() ?? new DatabaseErrorDto();
+            throw new DbApiException(response.StatusCode, body);
+        }
 
         var groupChats = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatResponseDto>>();
         return groupChats ?? Enumerable.Empty<GroupChatResponseDto>();
@@ -32,7 +36,11 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Content = JsonContent.Create(request);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadFromJsonAsync<DatabaseErrorDto>() ?? new DatabaseErrorDto();
+            throw new DbApiException(response.StatusCode, body);
+        }
 
         var groupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
         if (groupChat is null)
@@ -54,11 +62,11 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Content = JsonContent.Create(groupChat);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        if (!response.IsSuccessStatusCode)
         {
-            throw new NotFoundException($"Group chat with ID {groupChatId} not found.");
+            var body = await response.Content.ReadFromJsonAsync<DatabaseErrorDto>() ?? new DatabaseErrorDto();
+            throw new DbApiException(response.StatusCode, body);
         }
-        response.EnsureSuccessStatusCode();
 
         var updatedGroupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
         return updatedGroupChat ?? throw new InvalidOperationException("Failed to update group chat.");
@@ -75,11 +83,11 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
 
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        if (!response.IsSuccessStatusCode)
         {
-            throw new NotFoundException($"Group chat with ID {groupChatId} not found.");
+            var body = await response.Content.ReadFromJsonAsync<DatabaseErrorDto>() ?? new DatabaseErrorDto();
+            throw new DbApiException(response.StatusCode, body);
         }
-        response.EnsureSuccessStatusCode();
 
         return response.IsSuccessStatusCode;
     }

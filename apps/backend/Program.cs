@@ -29,6 +29,7 @@ builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
 
 builder.Services.AddControllers();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddExceptionHandler<DbApiExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddHttpClient();

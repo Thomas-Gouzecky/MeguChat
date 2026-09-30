@@ -51,7 +51,7 @@ public class GroupChatService : IGroupChatService
         return response;
     }
 
-    public async Task<bool> DeleteGroupChatAsync(int groupChatId)
+    public async Task<GroupChatResponseDto> DeleteGroupChatAsync(int groupChatId)
     {
         var user = await _userValidation.ValidateUser();
 

@@ -59,12 +59,12 @@ public class GroupChatsController : ControllerBase
     [HttpDelete("{groupChatId}")]
     public async Task<IActionResult> DeleteGroupChat(int groupChatId)
     {
-        var isDeleted = await _groupChatService.DeleteGroupChatAsync(groupChatId);
-        if (!isDeleted)
+        var deletedGroupChat = await _groupChatService.DeleteGroupChatAsync(groupChatId);
+        if (deletedGroupChat is null)
         {
             return NotFound();
         }
 
-        return NoContent();
+        return Ok(deletedGroupChat);
     }
 }

@@ -57,7 +57,7 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         return updatedGroupChat ?? throw new InvalidOperationException("Failed to update group chat.");
     }
 
-    public async Task<bool> DeleteGroupChatAsync(int groupChatId, string currentUserId, CancellationToken cancellationToken)
+    public async Task<GroupChatResponseDto> DeleteGroupChatAsync(int groupChatId, string currentUserId, CancellationToken cancellationToken)
     {
         using var httpRequest = new HttpRequestMessage(
             HttpMethod.Delete,
@@ -69,6 +69,7 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
         await EnsureSuccessAsync(response, cancellationToken);
 
-        return response.IsSuccessStatusCode;
+        var deletedGroupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
+        return deletedGroupChat ?? throw new InvalidOperationException("Failed to delete group chat.");
     }
 }

@@ -16,7 +16,7 @@ public class GroupChatsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<GroupChatResponseDto>> GetCurrentUserGroupChats()
+    public async Task<ActionResult<IEnumerable<GroupChatResponseDto>>> GetCurrentUserGroupChats()
     {
 
         var groupChats = await _groupChatService.GetCurrentUserGroupChatsAsync();

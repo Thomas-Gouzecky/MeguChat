@@ -30,7 +30,7 @@ public class MembersController : ControllerBase
     }
 
     [HttpDelete("{userId}")]
-    public async Task<ActionResult> RemoveMemberFromGroupChat(int groupChatId, string userId)
+    public async Task<ActionResult<MemberResponseDto>> RemoveMemberFromGroupChat(int groupChatId, string userId)
     {
         var result = await _membersService.RemoveMemberFromGroupChatAsync(groupChatId, userId);
 
@@ -39,6 +39,6 @@ public class MembersController : ControllerBase
             return NotFound();
         }
 
-        return NoContent();
+        return Ok(result);
     }
 }

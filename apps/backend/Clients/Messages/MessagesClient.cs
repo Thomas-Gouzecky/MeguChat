@@ -21,7 +21,7 @@ public class MessagesClient : DatabaseClient, IMessagesClient
             httpRequest,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
 
         var messages = await response.Content.ReadFromJsonAsync<List<MessageResponseDto>>();
@@ -43,7 +43,7 @@ public class MessagesClient : DatabaseClient, IMessagesClient
             httpRequest,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var message = await response.Content.ReadFromJsonAsync<MessageResponseDto>();
         return message ?? throw new InvalidOperationException("Failed to send message.");
@@ -62,7 +62,7 @@ public class MessagesClient : DatabaseClient, IMessagesClient
             httpRequest,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
@@ -84,7 +84,7 @@ public class MessagesClient : DatabaseClient, IMessagesClient
             httpRequest,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var message = await response.Content.ReadFromJsonAsync<MessageResponseDto>();
         return message ?? throw new InvalidOperationException("Failed to update message.");

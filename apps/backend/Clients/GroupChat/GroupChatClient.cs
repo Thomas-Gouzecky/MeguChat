@@ -14,11 +14,7 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Headers.Add("X-User-ID", currentUserId);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-        if (!response.IsSuccessStatusCode)
-        {
-            var body = await response.Content.ReadFromJsonAsync<DatabaseErrorDto>() ?? new DatabaseErrorDto();
-            throw new DbApiException(response.StatusCode, body);
-        }
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var groupChats = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatResponseDto>>();
         return groupChats ?? Enumerable.Empty<GroupChatResponseDto>();
@@ -36,18 +32,11 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Content = JsonContent.Create(request);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-        if (!response.IsSuccessStatusCode)
-        {
-            var body = await response.Content.ReadFromJsonAsync<DatabaseErrorDto>() ?? new DatabaseErrorDto();
-            throw new DbApiException(response.StatusCode, body);
-        }
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var groupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
-        if (groupChat is null)
-        {
-            throw new InvalidOperationException("Failed to create group chat.");
-        }
-        return groupChat;
+
+        return groupChat ?? throw new InvalidOperationException("Failed to create group chat.");
     }
 
     public async Task<GroupChatResponseDto> UpdateGroupChatAsync(int groupChatId, string currentUserId, UpdateGroupChatRequestDto groupChat, CancellationToken cancellationToken)
@@ -62,11 +51,7 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Content = JsonContent.Create(groupChat);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-        if (!response.IsSuccessStatusCode)
-        {
-            var body = await response.Content.ReadFromJsonAsync<DatabaseErrorDto>() ?? new DatabaseErrorDto();
-            throw new DbApiException(response.StatusCode, body);
-        }
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var updatedGroupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
         return updatedGroupChat ?? throw new InvalidOperationException("Failed to update group chat.");
@@ -82,12 +67,7 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Headers.Add("X-User-ID", currentUserId);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var body = await response.Content.ReadFromJsonAsync<DatabaseErrorDto>() ?? new DatabaseErrorDto();
-            throw new DbApiException(response.StatusCode, body);
-        }
+        await EnsureSuccessAsync(response, cancellationToken);
 
         return response.IsSuccessStatusCode;
     }

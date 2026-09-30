@@ -14,7 +14,7 @@ public class MembersClient : DatabaseClient, IMembersClient
 
         httpRequest.Headers.Add("X-User-ID", currentUserId);
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var members = await response.Content.ReadFromJsonAsync<List<MemberResponseDto>>();
         return members ?? new List<MemberResponseDto>();
@@ -36,7 +36,7 @@ public class MembersClient : DatabaseClient, IMembersClient
             httpRequest,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var addedMembers = await response.Content.ReadFromJsonAsync<List<MemberResponseDto>>();
         return addedMembers ?? new List<MemberResponseDto>();
@@ -56,7 +56,7 @@ public class MembersClient : DatabaseClient, IMembersClient
             httpRequest,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var removedMember = await response.Content.ReadFromJsonAsync<MemberResponseDto>();
         return removedMember ?? new MemberResponseDto(); // Member removed successfully

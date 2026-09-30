@@ -5,6 +5,20 @@ from app.utils.user_permissions import validate_user_is_member_of_groupchat
 from app.utils.helper import add_users_to_groupchat
 
 
+def get_groupchat_by_id(
+    groupchat_id: int,
+    session: Session,
+    current_user: str,
+) -> GroupChats:
+    groupchat = session.get(GroupChats, groupchat_id)
+    if not groupchat:
+        raise LookupError(f"Groupchat with ID {groupchat_id} not found")
+
+    validate_user_is_member_of_groupchat(current_user, groupchat_id, session)
+
+    return groupchat
+
+
 def create_a_new_groupchat_entry(
     request_body: GroupChats,
     users: list[str],

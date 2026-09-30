@@ -51,6 +51,18 @@ def delete_groupchat(
     return deleted_groupchat
 
 
+@router.get("/{groupchat_id}", response_model=GroupChatDto)
+def get_groupchat_by_id(
+    groupchat_id: int,
+    session: SessionDep,
+    current_user: str = Depends(get_current_user),
+) -> GroupChatDto:
+    groupchat: GroupChatDto = groupchat_service.get_groupchat_by_id(
+        groupchat_id, session, current_user
+    )
+    return groupchat
+
+
 # Get groupchats for a specific user
 
 

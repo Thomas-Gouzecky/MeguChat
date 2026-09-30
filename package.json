@@ -4,6 +4,11 @@
   "license": "MIT",
   "scripts": {},
   "private": true,
+  "dependencies": {
+    "next": "16.3.8",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
   "devDependencies": {
     "@nx/js": "23.2.0",
     "@swc-node/register": "1.11.1",
@@ -13,7 +18,16 @@
     "nx": "23.2.0",
     "prettier": "^3.8.1",
     "tslib": "^2.3.0",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^18.0.5",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.8",
+    "tailwindcss": "^4",
+    "vitest": "^4.1.11"
   },
   "workspaces": [
     "packages/*"

@@ -5,7 +5,7 @@ public class MessageResponseDto
     [JsonPropertyName("id")]
     public int Id { get; set; }
     [JsonPropertyName("content")]
-    public string Message { get; set; } = string.Empty;
+    public string Content { get; set; } = string.Empty;
     [JsonPropertyName("user_id")]
     public string UserId { get; set; } = string.Empty;
     [JsonPropertyName("group_chat_id")]

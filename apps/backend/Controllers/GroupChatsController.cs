@@ -33,8 +33,7 @@ public class GroupChatsController : ControllerBase
     [HttpGet("{groupChatId}")]
     public async Task<ActionResult<GroupChatResponseDto>> GetGroupChatById(int groupChatId)
     {
-        var groupChats = await _groupChatService.GetCurrentUserGroupChatsAsync();
-        var groupChat = groupChats.FirstOrDefault(gc => gc.Id == groupChatId);
+        var groupChat = await _groupChatService.GetGroupChatByIdAsync(groupChatId);
 
         if (groupChat is null)
         {

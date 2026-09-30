@@ -20,6 +20,22 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         return groupChats ?? Enumerable.Empty<GroupChatResponseDto>();
     }
 
+    public async Task<GroupChatResponseDto> GetGroupChatByIdAsync(int groupChatId, string currentUserId, CancellationToken cancellationToken)
+    {
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"/api/groupchats/{groupChatId}"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", currentUserId);
+
+        var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+
+        var groupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
+        return groupChat ?? throw new InvalidOperationException("Failed to retrieve group chat.");
+    }
+
     public async Task<GroupChatResponseDto> CreateGroupChatAsync(string currentUserId, CreateGroupChatRequestDto request, CancellationToken cancellationToken)
     {
         using var httpRequest = new HttpRequestMessage(

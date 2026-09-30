@@ -22,6 +22,20 @@ public class GroupChatService : IGroupChatService
         return groupChats;
     }
 
+    public async Task<GroupChatResponseDto> GetGroupChatByIdAsync(int groupChatId)
+    {
+        var user = await _userValidation.ValidateUser();
+
+        var groupChat = await _groupChatClient.GetGroupChatByIdAsync(groupChatId, user.Id, CancellationToken.None);
+
+        if (groupChat is null)
+        {
+            throw new NotFoundException($"Group chat with ID {groupChatId} not found for the current user.");
+        }
+
+        return groupChat;
+    }
+
     public async Task<GroupChatResponseDto> CreateGroupChatAsync(CreateGroupChatRequestDto request)
     {
         ValidateObject.Validate(request);

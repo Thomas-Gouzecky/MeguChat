@@ -30,7 +30,7 @@ public class DbApiExceptionHandler : IExceptionHandler
             Status = (int)dbApiException.StatusCode
         };
 
-        problemDetails.Extensions["errors"] = dbApiException.ResponseBody;
+        problemDetails.Extensions["error_message"] = dbApiException.ResponseBody.ErrorMessage;
 
         httpContext.Response.StatusCode = problemDetails.Status!.Value;
 

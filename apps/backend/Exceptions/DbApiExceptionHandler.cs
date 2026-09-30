@@ -16,10 +16,12 @@ public class DbApiExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        if (exception is not DbApiException dbApiException)
+        if (exception is not DbApiException dbApiException) // Looks for a DbApiException, if not found, returns false to let other handlers handle it
         {
             return false;
         }
+
+        _logger.LogError(exception, "Database API error occurred: {Message}", exception.Message);
 
         var problemDetails = new ProblemDetails
         {
@@ -27,6 +29,8 @@ public class DbApiExceptionHandler : IExceptionHandler
             Detail = dbApiException.Message,
             Status = (int)dbApiException.StatusCode
         };
+
+        problemDetails.Extensions["error_message"] = dbApiException.ResponseBody.ErrorMessage;
 
         httpContext.Response.StatusCode = problemDetails.Status!.Value;
 

@@ -24,12 +24,12 @@ public class MessagesService : IMessagesService
         var message = await _messagesClient.SendMessageToGroupChatAsync(groupChatId, request, user.Id, cancellationToken);
         return message;
     }
-
-    public async Task<bool> DeleteMessageByIdAsync(int groupChatId, int messageId, CancellationToken cancellationToken = default)
+    public async Task<MessageResponseDto> DeleteMessageByIdAsync(int groupChatId, int messageId, CancellationToken cancellationToken = default)
     {
         var user = await _userValidation.ValidateUser();
 
-        return await _messagesClient.DeleteMessageFromGroupChatAsync(groupChatId, messageId, user.Id, cancellationToken);
+        var deletedMessage = await _messagesClient.DeleteMessageFromGroupChatAsync(groupChatId, messageId, user.Id, cancellationToken);
+        return deletedMessage;
     }
 
     public async Task<MessageResponseDto> UpdateMessageByIdAsync(int groupChatId, int messageId, MessageUpdateRequestDto request, CancellationToken cancellationToken = default)

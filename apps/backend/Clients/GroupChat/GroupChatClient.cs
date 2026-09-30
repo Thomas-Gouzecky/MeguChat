@@ -14,10 +14,26 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Headers.Add("X-User-ID", currentUserId);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var groupChats = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatResponseDto>>();
         return groupChats ?? Enumerable.Empty<GroupChatResponseDto>();
+    }
+
+    public async Task<GroupChatResponseDto> GetGroupChatByIdAsync(int groupChatId, string currentUserId, CancellationToken cancellationToken)
+    {
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"/api/groupchats/{groupChatId}"
+        );
+
+        httpRequest.Headers.Add("X-User-ID", currentUserId);
+
+        var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+
+        var groupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
+        return groupChat ?? throw new InvalidOperationException("Failed to retrieve group chat.");
     }
 
     public async Task<GroupChatResponseDto> CreateGroupChatAsync(string currentUserId, CreateGroupChatRequestDto request, CancellationToken cancellationToken)
@@ -32,14 +48,11 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Content = JsonContent.Create(request);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var groupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
-        if (groupChat is null)
-        {
-            throw new InvalidOperationException("Failed to create group chat.");
-        }
-        return groupChat;
+
+        return groupChat ?? throw new InvalidOperationException("Failed to create group chat.");
     }
 
     public async Task<GroupChatResponseDto> UpdateGroupChatAsync(int groupChatId, string currentUserId, UpdateGroupChatRequestDto groupChat, CancellationToken cancellationToken)
@@ -54,17 +67,13 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Content = JsonContent.Create(groupChat);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            throw new NotFoundException($"Group chat with ID {groupChatId} not found.");
-        }
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var updatedGroupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
         return updatedGroupChat ?? throw new InvalidOperationException("Failed to update group chat.");
     }
 
-    public async Task<bool> DeleteGroupChatAsync(int groupChatId, string currentUserId, CancellationToken cancellationToken)
+    public async Task<GroupChatResponseDto> DeleteGroupChatAsync(int groupChatId, string currentUserId, CancellationToken cancellationToken)
     {
         using var httpRequest = new HttpRequestMessage(
             HttpMethod.Delete,
@@ -74,13 +83,9 @@ public class GroupChatClient : DatabaseClient, IGroupChatClient
         httpRequest.Headers.Add("X-User-ID", currentUserId);
 
         var response = await _dbApiClient.SendAsync(httpRequest, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
 
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            throw new NotFoundException($"Group chat with ID {groupChatId} not found.");
-        }
-        response.EnsureSuccessStatusCode();
-
-        return response.IsSuccessStatusCode;
+        var deletedGroupChat = await response.Content.ReadFromJsonAsync<GroupChatResponseDto>();
+        return deletedGroupChat ?? throw new InvalidOperationException("Failed to delete group chat.");
     }
 }

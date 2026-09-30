@@ -21,7 +21,7 @@ public class MessagesClient : DatabaseClient, IMessagesClient
             httpRequest,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
 
         var messages = await response.Content.ReadFromJsonAsync<List<MessageResponseDto>>();
@@ -43,13 +43,13 @@ public class MessagesClient : DatabaseClient, IMessagesClient
             httpRequest,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var message = await response.Content.ReadFromJsonAsync<MessageResponseDto>();
         return message ?? throw new InvalidOperationException("Failed to send message.");
     }
 
-    public async Task<bool> DeleteMessageFromGroupChatAsync(int groupChatId, int messageId, string userId, CancellationToken cancellationToken = default)
+    public async Task<MessageResponseDto> DeleteMessageFromGroupChatAsync(int groupChatId, int messageId, string userId, CancellationToken cancellationToken = default)
     {
         using var httpRequest = new HttpRequestMessage(
             HttpMethod.Delete,
@@ -62,11 +62,12 @@ public class MessagesClient : DatabaseClient, IMessagesClient
             httpRequest,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        return response.IsSuccessStatusCode;
+        var deletedMessage = await response.Content.ReadFromJsonAsync<MessageResponseDto>();
+        return deletedMessage ?? throw new InvalidOperationException("Failed to delete message.");
     }
 
     public async Task<MessageResponseDto> UpdateMessageInGroupChatAsync(int groupChatId, int messageId, MessageUpdateRequestDto request, string userId, CancellationToken cancellationToken = default)
@@ -84,7 +85,7 @@ public class MessagesClient : DatabaseClient, IMessagesClient
             httpRequest,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessAsync(response, cancellationToken);
 
         var message = await response.Content.ReadFromJsonAsync<MessageResponseDto>();
         return message ?? throw new InvalidOperationException("Failed to update message.");

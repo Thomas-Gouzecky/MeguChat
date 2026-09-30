@@ -3,6 +3,7 @@ from sqlmodel import Session
 from app.models import GroupChats
 from app.repositories.groupchat_repo import (
     create_a_new_groupchat_entry,
+    get_groupchat_by_id as get_groupchat_by_id_from_repository,
     find_groupchats_for_user as find_groupchats_for_user_in_repository,
     update_groupchat as update_groupchat_in_repository,
     delete_groupchat as delete_groupchat_in_repository,
@@ -11,6 +12,25 @@ from app.DTOs import (
     GroupChatCreationRequest,
     GroupChatDto,
 )
+
+
+def get_groupchat_by_id(
+    groupchat_id: int,
+    session: Session,
+    current_user: str,
+) -> GroupChatDto:
+    groupchat: GroupChats = get_groupchat_by_id_from_repository(
+        groupchat_id, session, current_user
+    )
+
+    if groupchat.id is None:
+        raise ValueError("Groupchat ID is missing")
+
+    return GroupChatDto(
+        groupchat_id=groupchat.id,
+        name=groupchat.name,
+        created_at=groupchat.created_at,
+    )
 
 
 def create_groupchat(

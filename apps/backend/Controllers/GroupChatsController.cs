@@ -16,7 +16,7 @@ public class GroupChatsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetCurrentUserGroupChats()
+    public async Task<ActionResult<IEnumerable<GroupChatResponseDto>>> GetCurrentUserGroupChats()
     {
 
         var groupChats = await _groupChatService.GetCurrentUserGroupChatsAsync();
@@ -24,17 +24,16 @@ public class GroupChatsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateGroupChat([FromBody] CreateGroupChatRequestDto request)
+    public async Task<ActionResult<GroupChatResponseDto>> CreateGroupChat([FromBody] CreateGroupChatRequestDto request)
     {
         var groupChat = await _groupChatService.CreateGroupChatAsync(request);
         return CreatedAtAction(nameof(GetCurrentUserGroupChats), new { id = groupChat.Id }, groupChat);
     }
 
     [HttpGet("{groupChatId}")]
-    public async Task<IActionResult> GetGroupChatById(int groupChatId)
+    public async Task<ActionResult<GroupChatResponseDto>> GetGroupChatById(int groupChatId)
     {
-        var groupChats = await _groupChatService.GetCurrentUserGroupChatsAsync();
-        var groupChat = groupChats.FirstOrDefault(gc => gc.Id == groupChatId);
+        var groupChat = await _groupChatService.GetGroupChatByIdAsync(groupChatId);
 
         if (groupChat is null)
         {
@@ -45,7 +44,7 @@ public class GroupChatsController : ControllerBase
     }
 
     [HttpPut("{groupChatId}")]
-    public async Task<IActionResult> UpdateGroupChat(int groupChatId, [FromBody] UpdateGroupChatRequestDto request)
+    public async Task<ActionResult<GroupChatResponseDto>> UpdateGroupChat(int groupChatId, [FromBody] UpdateGroupChatRequestDto request)
     {
         var groupChat = await _groupChatService.UpdateGroupChatAsync(groupChatId, request);
         if (groupChat is null)
@@ -57,14 +56,14 @@ public class GroupChatsController : ControllerBase
     }
 
     [HttpDelete("{groupChatId}")]
-    public async Task<IActionResult> DeleteGroupChat(int groupChatId)
+    public async Task<ActionResult<GroupChatResponseDto>> DeleteGroupChat(int groupChatId)
     {
-        var isDeleted = await _groupChatService.DeleteGroupChatAsync(groupChatId);
-        if (!isDeleted)
+        var deletedGroupChat = await _groupChatService.DeleteGroupChatAsync(groupChatId);
+        if (deletedGroupChat is null)
         {
             return NotFound();
         }
 
-        return NoContent();
+        return Ok(deletedGroupChat);
     }
 }

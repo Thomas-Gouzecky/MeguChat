@@ -34,6 +34,13 @@
     "docker-run-all": {
       "executor": "nx:run-commands",
       "options": {
+        "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml up -d",
+        "cwd": "infra"
+      }
+    },
+    "docker-build-run-all": {
+      "executor": "nx:run-commands",
+      "options": {
         "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml up --build -d",
         "cwd": "infra"
       }

@@ -31,7 +31,7 @@ public class PUTMessagesTests : IClassFixture<TestWebApplicationFactory>
         // Act
         var updateRequest = new MessageUpdateRequestDto
         {
-            Message = "Updated message content."
+            Content = "Updated message content."
         };
         var response = await _client.PutAsJsonAsync($"/api/groupchats/{groupChatId}/messages/{messageIdToUpdate}", updateRequest);
 
@@ -41,7 +41,7 @@ public class PUTMessagesTests : IClassFixture<TestWebApplicationFactory>
         Assert.NotNull(updatedMessage);
         Assert.Equal(messageIdToUpdate, updatedMessage.Id);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal("Updated message content.", updatedMessage.Message);
+        Assert.Equal("Updated message content.", updatedMessage.Content);
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class PUTMessagesTests : IClassFixture<TestWebApplicationFactory>
         // Act
         var updateRequest = new MessageUpdateRequestDto
         {
-            Message = "Updated message content."
+            Content = "Updated message content."
         };
         var response = await _client.PutAsJsonAsync($"/api/groupchats/{groupChatId}/messages/{messageIdToUpdate}", updateRequest);
 
@@ -108,7 +108,7 @@ public class PUTMessagesTests : IClassFixture<TestWebApplicationFactory>
         // Act
         var updateRequest = new MessageUpdateRequestDto
         {
-            Message = "Updated message content."
+            Content = "Updated message content."
         };
         response = await _client.PutAsJsonAsync($"/api/groupchats/{groupChatId}/messages/{messageIdToUpdate}", updateRequest);
 
@@ -134,7 +134,7 @@ public class PUTMessagesTests : IClassFixture<TestWebApplicationFactory>
         // Act
         var updateRequest = new MessageUpdateRequestDto
         {
-            Message = "Updated message content."
+            Content = "Updated message content."
         };
         var response = await _client.PutAsJsonAsync($"/api/groupchats/{groupChatId}/messages/{nonExistentMessageId}", updateRequest);
 

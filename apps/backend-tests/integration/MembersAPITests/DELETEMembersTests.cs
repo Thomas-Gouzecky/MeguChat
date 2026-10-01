@@ -77,7 +77,7 @@ public class DELETEMembersTests : IClassFixture<TestWebApplicationFactory>
         var response = await _client.DeleteAsync($"/api/groupchats/{groupChatId}/members/user1");
 
         // Assert
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]

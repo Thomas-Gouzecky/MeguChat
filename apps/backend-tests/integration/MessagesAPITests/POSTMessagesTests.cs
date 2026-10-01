@@ -30,7 +30,7 @@ public class POSTMessagesTests : IClassFixture<TestWebApplicationFactory>
         // Act
         var messageRequest = new MessageCreationRequestDto
         {
-            Message = "This is a test message."
+            Content = "This is a test message."
         };
         var response = await _client.PostAsJsonAsync($"/api/groupchats/{groupChatId}/messages", messageRequest);
 
@@ -38,6 +38,6 @@ public class POSTMessagesTests : IClassFixture<TestWebApplicationFactory>
         response.EnsureSuccessStatusCode();
         var createdMessage = await response.Content.ReadFromJsonAsync<MessageResponseDto>();
         Assert.NotNull(createdMessage);
-        Assert.Equal(messageRequest.Message, createdMessage.Message);
+        Assert.Equal(messageRequest.Content, createdMessage.Content);
     }
 }

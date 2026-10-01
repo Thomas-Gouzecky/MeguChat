@@ -265,7 +265,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                             return member;
                         }
                     }
-                      return new MemberResponseDto();
+                    return new MemberResponseDto();
                 });
 
             _messagesClient

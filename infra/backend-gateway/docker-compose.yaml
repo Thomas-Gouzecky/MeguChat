@@ -1,0 +1,18 @@
+services:
+  megu-chat-backend:
+    container_name: megu-chat-backend
+    build:
+      context: ../../apps/backend
+      dockerfile: Dockerfile.app
+      no_cache: true
+    env_file:
+      - ../../apps/backend/.env.local.docker
+    ports:
+      - '5192:5192'
+    networks:
+      - meguchat-network
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+      backend-migrations:
+        condition: service_completed_successfully

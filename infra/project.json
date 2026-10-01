@@ -6,29 +6,29 @@
     "docker-build-db-api": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker compose -f docker-compose.db-api.yaml build",
+        "command": "docker compose -f docker-compose.yaml build",
         "cwd": "infra/database-api"
       }
     },
     "docker-build-backend": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker compose -f docker-compose.backend.yaml build",
-        "cwd": "infra/backend"
+        "command": "docker compose -f docker-compose.yaml build",
+        "cwd": "infra/backend-gateway"
       }
     },
     "docker-run-backend": {
       "executor": "nx:run-commands",
       "options": {
         "command": "docker compose -f docker-compose.backend.yaml up --build -d",
-        "cwd": "infra/backend"
+        "cwd": "infra"
       }
     },
     "docker-stop-backend": {
       "executor": "nx:run-commands",
       "options": {
         "command": "docker compose -f docker-compose.backend.yaml down",
-        "cwd": "infra/backend"
+        "cwd": "infra"
       }
     },
     "docker-run-db": {

@@ -1,0 +1,6 @@
+include:
+  - backend-gateway/docker-compose.yaml
+
+networks:
+  meguchat-network:
+    driver: bridge

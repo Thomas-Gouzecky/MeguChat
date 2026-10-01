@@ -24,6 +24,13 @@
         "cwd": "apps/backend"
       }
     },
+    "docker-build-image": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t tomcheese/megu-chat-backend .",
+        "cwd": "apps/backend"
+      }
+    },
     "test": {
       "executor": "nx:run-commands",
       "options": {

@@ -24,7 +24,7 @@
         "cwd": "apps/db-api"
       }
     },
-    "docker-build": {
+    "docker-build-image": {
       "executor": "nx:run-commands",
       "options": {
         "command": "docker build -t tomcheese/megu-chat-db-api .",

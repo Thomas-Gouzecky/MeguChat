@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout Backend
         uses: actions/checkout@v4
-        with:
-          sparse-checkout: Backend
 
       - name: Get Version
         id: Version
@@ -39,5 +37,5 @@ jobs:
           file: ./apps/backend/Dockerfile.app
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/meguurl-backend-repo:${{ steps.version.outputs.version }}
-            ${{ secrets.DOCKER_USERNAME }}/meguurl-backend-repo:latest
+            ${{ secrets.DOCKER_USERNAME }}/meguchat-backend-repo:${{ steps.version.outputs.version }}
+            ${{ secrets.DOCKER_USERNAME }}/meguchat-backend-repo:latest

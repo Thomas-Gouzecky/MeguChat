@@ -3,20 +3,6 @@
   "sourceRoot": "infra",
   "projectType": "application",
   "targets": {
-    "docker-build-db-api": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "docker compose -f docker-compose.yaml build",
-        "cwd": "infra/database-api"
-      }
-    },
-    "docker-build-backend": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "docker compose -f docker-compose.yaml build",
-        "cwd": "infra/backend-gateway"
-      }
-    },
     "docker-run-backend": {
       "executor": "nx:run-commands",
       "options": {

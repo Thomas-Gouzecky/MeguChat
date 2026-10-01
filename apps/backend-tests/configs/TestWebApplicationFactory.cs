@@ -43,6 +43,8 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             CreatedAt = DateTime.UtcNow
         });
 
+        AddMember(1, TestUserId);
+
         AddMessage(1, "Hello from testuser!", TestUserId);
         AddMessage(1, "Hello Again!", TestUserId);
     }
@@ -89,6 +91,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             };
             _groupChatsByUser[testUser.Id] = new List<GroupChatResponseDto> { existingGroupChat };
             _groupChatsByUser[noGroupChatsUser.Id] = new List<GroupChatResponseDto>();
+            AddMember(existingGroupChat.Id, testUser.Id);
 
             AddMessage(existingGroupChat.Id, "Hello from testuser!", testUser.Id);
             AddMessage(existingGroupChat.Id, "Hello Again!", testUser.Id);
@@ -102,17 +105,58 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                         : Enumerable.Empty<GroupChatResponseDto>());
 
             _groupChatClient
+                .Setup(client => client.GetGroupChatByIdAsync(
+                    It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns((int groupChatId, string userId, CancellationToken _) =>
+                    Task.FromResult<GroupChatResponseDto>(
+                        _groupChatsByUser.TryGetValue(userId, out var groupChats)
+                            ? groupChats.FirstOrDefault(groupChat => groupChat.Id == groupChatId)!
+                            : null!));
+
+            _groupChatClient
                 .Setup(client => client.CreateGroupChatAsync(
                     It.IsAny<string>(),
                     It.IsAny<CreateGroupChatRequestDto>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync((string _, CreateGroupChatRequestDto request, CancellationToken _) =>
-                    new GroupChatResponseDto
+                .ReturnsAsync((string userId, CreateGroupChatRequestDto request, CancellationToken _) =>
                     {
-                        Id = _nextGroupChatId++,
-                        Name = request.Name,
-                        CreatedAt = DateTime.UtcNow
+                        var groupChat = new GroupChatResponseDto
+                        {
+                            Id = _nextGroupChatId++,
+                            Name = request.Name,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        if (!_groupChatsByUser.TryGetValue(userId, out var groupChats))
+                        {
+                            groupChats = new List<GroupChatResponseDto>();
+                            _groupChatsByUser[userId] = groupChats;
+                        }
+
+                        groupChats.Add(groupChat);
+                        AddMember(groupChat.Id, userId);
+                        foreach (var requestedUserId in request.UserIds ?? [])
+                        {
+                            AddMember(groupChat.Id, requestedUserId);
+                        }
+
+                        return groupChat;
                     });
+
+            _groupChatClient
+                .Setup(client => client.UpdateGroupChatAsync(
+                    It.IsAny<int>(), It.IsAny<string>(), It.IsAny<UpdateGroupChatRequestDto>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, string userId, UpdateGroupChatRequestDto request, CancellationToken _) =>
+                {
+                    var groupChat = FindUserGroupChat(groupChatId, userId);
+                    if (groupChat is null)
+                    {
+                        throw new NotFoundException("Group chat not found.");
+                    }
+
+                    groupChat.Name = request.Name;
+                    return groupChat;
+                });
 
 
             _groupChatClient
@@ -120,23 +164,30 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((int groupChatId, string currentUserId, CancellationToken _) =>
                 {
-                    var wasDeleted = false;
+                    var deletedGroupChat = FindUserGroupChat(groupChatId, currentUserId);
+                    if (deletedGroupChat is null)
+                    {
+                        throw new NotFoundException("Group chat not found.");
+                    }
 
                     foreach (var groupChats in _groupChatsByUser.Values)
                     {
-                        wasDeleted |= groupChats.RemoveAll(groupChat => groupChat.Id == groupChatId) > 0;
+                        groupChats.RemoveAll(groupChat => groupChat.Id == groupChatId);
                     }
 
-                    return wasDeleted;
+                    _membersByGroupChat.Remove(groupChatId);
+                    _messagesByGroupChat.Remove(groupChatId);
+                    return deletedGroupChat;
                 });
 
             _membersClient
                 .Setup(client => client.GetMembersOfGroupChatAsync(
-                    It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((int groupChatId, CancellationToken _) =>
-                    _membersByGroupChat.TryGetValue(groupChatId, out var members)
-                        ? members.AsEnumerable()
-                        : Enumerable.Empty<MemberResponseDto>());
+                    It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int groupChatId, string currentUserId, CancellationToken _) =>
+                {
+                    EnsureMember(groupChatId, currentUserId);
+                    return _membersByGroupChat[groupChatId].AsEnumerable();
+                });
 
             _membersClient
                 .Setup(client => client.AddMembersToGroupChatAsync(
@@ -146,6 +197,8 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync((int groupChatId, IEnumerable<string> userIds, string currentUserId, CancellationToken _) =>
                 {
+                    EnsureMember(groupChatId, currentUserId);
+
                     if (!_membersByGroupChat.TryGetValue(groupChatId, out var members))
                     {
                         members = new List<MemberResponseDto>();
@@ -201,25 +254,30 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync((int groupChatId, string userId, string currentUserId, CancellationToken _) =>
                 {
+                    EnsureMember(groupChatId, currentUserId);
+
                     if (_membersByGroupChat.TryGetValue(groupChatId, out var members))
                     {
                         var member = members.FirstOrDefault(m => m.UserId == userId);
                         if (member != null)
                         {
                             members.Remove(member);
-                            return true;
+                            return member;
                         }
                     }
-                    return false;
+                      return new MemberResponseDto();
                 });
 
             _messagesClient
                 .Setup(client => client.GetMessagesOfGroupChatAsync(
                     It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((int groupChatId, string userId, CancellationToken _) =>
-                    _messagesByGroupChat.TryGetValue(groupChatId, out var messages)
+                {
+                    EnsureMember(groupChatId, userId);
+                    return _messagesByGroupChat.TryGetValue(groupChatId, out var messages)
                         ? messages.AsEnumerable()
-                        : Enumerable.Empty<MessageResponseDto>());
+                        : Enumerable.Empty<MessageResponseDto>();
+                });
 
             _messagesClient
                 .Setup(client => client.SendMessageToGroupChatAsync(
@@ -229,7 +287,8 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync((int groupChatId, MessageCreationRequestDto request, string userId, CancellationToken _) =>
                 {
-                    return AddMessage(groupChatId, request.Message, userId);
+                    EnsureMember(groupChatId, userId);
+                    return AddMessage(groupChatId, request.Content, userId);
                 });
 
             _messagesClient
@@ -240,6 +299,8 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync((int groupChatId, int messageId, string userId, CancellationToken _) =>
                 {
+                    EnsureMember(groupChatId, userId);
+
                     if (_messagesByGroupChat.TryGetValue(groupChatId, out var messages))
                     {
                         var message = messages.FirstOrDefault(m => m.Id == messageId && m.UserId == userId);
@@ -247,10 +308,10 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                         if (message != null)
                         {
                             messages.Remove(message);
-                            return true;
+                            return message;
                         }
                     }
-                    return false;
+                    throw new NotFoundException("Message not found.");
                 });
 
             _messagesClient
@@ -262,6 +323,8 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync((int groupChatId, int messageId, MessageUpdateRequestDto request, string userId, CancellationToken _) =>
                 {
+                    EnsureMember(groupChatId, userId);
+
                     if (!_messagesByGroupChat.TryGetValue(groupChatId, out var messages))
                     {
                         throw new NotFoundException("Group chat not found.");
@@ -281,7 +344,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                         );
                     }
 
-                    message.Message = request.Message;
+                    message.Content = request.Content;
                     message.ModifiedAt = DateTime.UtcNow;
 
                     return message;
@@ -332,7 +395,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         var message = new MessageResponseDto
         {
             Id = messages.Count + 1,
-            Message = content,
+            Content = content,
             UserId = userId,
             GroupChatId = groupChatId,
             CreatedAt = DateTime.UtcNow,
@@ -341,5 +404,56 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
         messages.Add(message);
         return message;
+    }
+
+    private void AddMember(int groupChatId, string userId)
+    {
+        var groupChat = _groupChatsByUser.Values
+            .SelectMany(groupChats => groupChats)
+            .FirstOrDefault(candidate => candidate.Id == groupChatId);
+
+        if (groupChat is not null &&
+            (!_groupChatsByUser.TryGetValue(userId, out var userGroupChats) ||
+             userGroupChats.All(candidate => candidate.Id != groupChatId)))
+        {
+            userGroupChats ??= new List<GroupChatResponseDto>();
+            userGroupChats.Add(groupChat);
+            _groupChatsByUser[userId] = userGroupChats;
+        }
+
+        if (!_membersByGroupChat.TryGetValue(groupChatId, out var members))
+        {
+            members = new List<MemberResponseDto>();
+            _membersByGroupChat[groupChatId] = members;
+        }
+
+        if (members.Any(member => member.UserId == userId))
+        {
+            return;
+        }
+
+        members.Add(new MemberResponseDto
+        {
+            Id = members.Count + 1,
+            GroupChatId = groupChatId,
+            UserId = userId,
+            JoinedAt = DateTime.UtcNow,
+            LastActiveAt = DateTime.UtcNow
+        });
+    }
+
+    private GroupChatResponseDto? FindUserGroupChat(int groupChatId, string userId)
+    {
+        return _groupChatsByUser.TryGetValue(userId, out var groupChats)
+            ? groupChats.FirstOrDefault(groupChat => groupChat.Id == groupChatId)
+            : null;
+    }
+
+    private void EnsureMember(int groupChatId, string userId)
+    {
+        if (FindUserGroupChat(groupChatId, userId) is null)
+        {
+            throw new NotFoundException("Group chat not found for the current user.");
+        }
     }
 }

@@ -40,7 +40,7 @@ public class DELETESpecificGroupChatTests : IClassFixture<TestWebApplicationFact
 
         // Assert
         Assert.True(response.IsSuccessStatusCode);
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
     }
 

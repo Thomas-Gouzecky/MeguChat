@@ -32,7 +32,7 @@ public class DELETEMessagesTests : IClassFixture<TestWebApplicationFactory>
         var response = await _client.DeleteAsync($"/api/groupchats/{groupChatId}/messages/{messageIdToDelete}");
 
         // Assert
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]

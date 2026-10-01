@@ -3,6 +3,20 @@
   "sourceRoot": "infra",
   "projectType": "application",
   "targets": {
+    "docker-run-backend": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.backend.yaml up --build -d",
+        "cwd": "infra"
+      }
+    },
+    "docker-stop-backend": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.backend.yaml down",
+        "cwd": "infra"
+      }
+    },
     "docker-run-db": {
       "executor": "nx:run-commands",
       "options": {
@@ -14,6 +28,27 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "docker compose -f docker-compose.db.yaml down",
+        "cwd": "infra"
+      }
+    },
+    "docker-run-all": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml up -d",
+        "cwd": "infra"
+      }
+    },
+    "docker-build-run-all": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml up --build -d",
+        "cwd": "infra"
+      }
+    },
+    "docker-stop-all": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml down",
         "cwd": "infra"
       }
     }

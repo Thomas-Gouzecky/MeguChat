@@ -1,16 +1,16 @@
 services:
-  megu-chat-db-api:
-    container_name: megu-chat-db-api
-    image: tomcheese/megu-chat-db-api:latest
+  megu-chat-backend:
+    container_name: megu-chat-backend
+    image: tomcheese/megu-chat-backend:latest
     pull_policy: always
     build:
-      context: ../../apps/db-api
-      dockerfile: Dockerfile
+      context: ../../apps/backend
+      dockerfile: Dockerfile.app
       no_cache: true
     env_file:
-      - ../../apps/db-api/.env.local.docker
+      - ../../apps/backend/.env.local.docker
     ports:
-      - '8000:8000'
+      - '8080:8080'
     networks:
       - meguchat-network
     depends_on:

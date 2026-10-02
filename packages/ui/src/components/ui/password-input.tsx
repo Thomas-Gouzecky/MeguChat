@@ -17,7 +17,7 @@ export function PasswordInput({
   return (
     <InputGroup>
       <InputGroupInput
-        id={props.id}
+        id={props.id ? props.id : 'password'}
         type={showPassword ? 'text' : 'password'}
         placeholder="Enter password"
         required

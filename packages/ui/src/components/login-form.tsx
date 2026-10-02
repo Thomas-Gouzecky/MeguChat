@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from 'cn';
 
 import { Button } from './ui/button';
@@ -10,6 +12,14 @@ import {
 } from './ui/card';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from './ui/field';
 import { Input } from './ui/input';
+import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupAddon,
+  InputGroupButton,
+} from './ui/input-group';
+import { Eye, EyeOffIcon } from 'lucide-react';
+import { useState } from 'react';
 
 export function LoginForm({
   className,
@@ -46,7 +56,7 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <PasswordInput />
               </Field>
               <Field>
                 <Button type="submit">Login</Button>
@@ -62,5 +72,34 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function PasswordInput({ className, ...props }: React.ComponentProps<'input'>) {
+  const [showPassword, setShowPassword] = useState(false);
+  return (
+    <InputGroup>
+      <InputGroupInput
+        id="password"
+        type={showPassword ? 'text' : 'password'}
+        placeholder="Enter password"
+        required
+      />
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton
+          aria-label={showPassword ? 'Hide password' : 'Show password'}
+          variant="ghost"
+          size="icon-sm"
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? (
+            <Eye className="h-4 w-4" />
+          ) : (
+            <EyeOffIcon className="h-4 w-4" />
+          )}
+        </InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
   );
 }

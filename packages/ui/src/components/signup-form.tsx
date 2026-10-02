@@ -8,6 +8,7 @@ import {
 } from './ui/card';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from './ui/field';
 import { Input } from './ui/input';
+import { PasswordInput } from './ui/password-input';
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   return (
@@ -40,7 +41,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" required />
+              <PasswordInput id="password" />
               <FieldDescription>
                 Must be at least 8 characters long.
               </FieldDescription>
@@ -49,7 +50,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <Input id="confirm-password" type="password" required />
+              <PasswordInput id="confirm-password" />
               <FieldDescription>Please confirm your password.</FieldDescription>
             </Field>
             <FieldGroup>

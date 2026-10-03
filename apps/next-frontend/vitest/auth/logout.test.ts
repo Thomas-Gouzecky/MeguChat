@@ -50,9 +50,7 @@ describe('POST /api/auth/logout', () => {
     );
 
     expect(response.status).toBe(401);
-    expect(response.headers.get('Set-Cookie')).toBe(
-      'auth=; Max-Age=0; Path=/',
-    );
+    expect(response.headers.get('Set-Cookie')).toBe('auth=; Max-Age=0; Path=/');
   });
 
   it('returns a 500 response when the gateway request fails', async () => {

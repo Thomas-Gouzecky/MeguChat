@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '@meguchat/ui/styles.css';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
+import { ModeToggle } from '@meguchat/ui/components/mode-toggle';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           enableSystem
           disableTransitionOnChange
         >
+          <ModeToggle className="absolute top-4 right-4 z-999" />
           {children}
         </ThemeProvider>
       </body>

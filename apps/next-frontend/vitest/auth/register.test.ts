@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Register } from '../../api/auth/register';
+import { POST as register } from '@/app/api/auth/register/route';
 
 describe('Register', () => {
   const gatewayUrl = 'http://localhost:8080';
@@ -10,14 +10,14 @@ describe('Register', () => {
   };
 
   beforeEach(() => {
-    process.env.NEXT_PUBLIC_GATEWAY_URL = gatewayUrl;
+    process.env.GATEWAY_URL = gatewayUrl;
     vi.stubGlobal('fetch', vi.fn());
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
-    delete process.env.NEXT_PUBLIC_GATEWAY_URL;
+    delete process.env.GATEWAY_URL;
   });
 
   it('sends the registration request and returns the API response', async () => {
@@ -26,7 +26,12 @@ describe('Register', () => {
       new Response(JSON.stringify(response), { status: 201 }),
     );
 
-    await expect(Register(request)).resolves.toEqual(response);
+    const routeRequest = new Request('http://localhost/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+
+    await expect(register(routeRequest)).resolves.toHaveProperty('status', 201);
 
     expect(fetch).toHaveBeenCalledWith(`${gatewayUrl}/api/auth/register`, {
       method: 'POST',
@@ -46,16 +51,31 @@ describe('Register', () => {
       new Response(JSON.stringify(response), { status: 400 }),
     );
 
-    await expect(Register(request)).resolves.toEqual(response);
+    const routeRequest = new Request('http://localhost/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+
+    const result = await register(routeRequest);
+
+    await expect(result.json()).resolves.toEqual(response);
   });
 
   it('returns a fallback error when the request fails', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.mocked(fetch).mockRejectedValue(new Error('Network error'));
 
-    await expect(Register(request)).resolves.toEqual({
+    const routeRequest = new Request('http://localhost/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+
+    const result = await register(routeRequest);
+
+    await expect(result.json()).resolves.toEqual({
       isSuccess: false,
       errorMessage: 'An error occurred while registering.',
     });
+    expect(result.status).toBe(500);
   });
 });

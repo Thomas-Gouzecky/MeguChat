@@ -5,6 +5,8 @@ import { cn } from 'cn';
 
 import { LogOut } from 'lucide-react';
 
+import { redirect } from 'next/navigation';
+
 export function SignOutButton({
   className,
   ...props
@@ -14,6 +16,7 @@ export function SignOutButton({
       <Button
         type="button"
         variant="ghost"
+        onClick={handleSignOut}
         className={cn('w-full justify-start', className)}
         {...props}
       >
@@ -22,4 +25,17 @@ export function SignOutButton({
       </Button>
     </div>
   );
+}
+async function handleSignOut() {
+  const response = await fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    alert('Sign out failed');
+    return;
+  }
+
+  alert('Sign out successful');
+  redirect('/login');
 }

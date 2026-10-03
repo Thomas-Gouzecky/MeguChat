@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from 'cn';
 
 import { Button } from './ui/button';
@@ -14,6 +16,8 @@ import { PasswordInput } from './ui/password-input';
 
 import Link from 'next/link';
 
+import { redirect } from 'next/navigation';
+
 export function LoginForm({
   className,
   ...props
@@ -28,12 +32,13 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="username">Username</FieldLabel>
                 <Input
                   id="username"
+                  name="username"
                   type="text"
                   placeholder="Your username"
                   required
@@ -49,7 +54,7 @@ export function LoginForm({
                     Forgot your password?
                   </Link>
                 </div>
-                <PasswordInput id="password" />
+                <PasswordInput id="password" name="password" required />
               </Field>
               <Field>
                 <Button type="submit">Login</Button>
@@ -67,4 +72,40 @@ export function LoginForm({
       </Card>
     </div>
   );
+}
+
+async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+  const formData = new FormData(event.currentTarget);
+  const username = formData.get('username') as string;
+  const password = formData.get('password') as string;
+
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password }),
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Login failed.';
+
+    try {
+      const errorData = (await response.json()) as {
+        errorMessage?: string;
+        ErrorMessage?: string;
+      };
+      errorMessage =
+        errorData.errorMessage ?? errorData.ErrorMessage ?? errorMessage;
+    } catch {
+      // Keep the fallback when the API response has no JSON body.
+    }
+
+    alert(`Error: ${errorMessage}`);
+    return;
+  }
+
+  redirect('/');
 }

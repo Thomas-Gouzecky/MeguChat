@@ -25,20 +25,15 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         <form>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" placeholder="John Doe" required />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <FieldLabel htmlFor="username">Username</FieldLabel>
               <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
+                id="username"
+                type="text"
+                placeholder="Your username"
                 required
               />
               <FieldDescription>
-                We&apos;ll use this to contact you. We will not share your email
-                with anyone else.
+                This is your public display name.
               </FieldDescription>
             </Field>
             <Field>

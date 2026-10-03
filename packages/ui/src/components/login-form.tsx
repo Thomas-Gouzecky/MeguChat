@@ -24,30 +24,30 @@ export function LoginForm({
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your username below to login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="username">Username</FieldLabel>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
+                  id="username"
+                  type="text"
+                  placeholder="Your username"
                   required
                 />
               </Field>
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
+                  <Link
+                    href="/LOL"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
-                  </a>
+                  </Link>
                 </div>
                 <PasswordInput id="password" />
               </Field>

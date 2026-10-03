@@ -17,10 +17,12 @@ export function PasswordInput({
   return (
     <InputGroup>
       <InputGroupInput
+        {...props}
         id={props.id ? props.id : 'password'}
         type={showPassword ? 'text' : 'password'}
         placeholder="Enter password"
         required
+        className={className}
       />
       <InputGroupAddon align="inline-end">
         <InputGroupButton

@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from './ui/button';
 import {
   Card,
@@ -22,12 +24,13 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form>
+        <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="username">Username</FieldLabel>
               <Input
                 id="username"
+                name="username"
                 type="text"
                 placeholder="Your username"
                 required
@@ -38,16 +41,28 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <PasswordInput id="password" />
+              <PasswordInput
+                id="password"
+                name="password"
+                minLength={8}
+                pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}"
+                required
+              />
               <FieldDescription>
-                Must be at least 8 characters long.
+                Use 8+ characters with uppercase, lowercase, a number, and a
+                symbol.
               </FieldDescription>
             </Field>
             <Field>
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <PasswordInput id="confirm-password" />
+              <PasswordInput
+                id="confirm-password"
+                name="confirm-password"
+                minLength={8}
+                required
+              />
               <FieldDescription>Please confirm your password.</FieldDescription>
             </Field>
             <FieldGroup>
@@ -66,4 +81,46 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       </CardContent>
     </Card>
   );
+}
+
+async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+  const formData = new FormData(event.currentTarget);
+  const username = formData.get('username') as string;
+  const password = formData.get('password') as string;
+  const confirmPassword = formData.get('confirm-password') as string;
+
+  if (password !== confirmPassword) {
+    alert('Passwords do not match');
+    return;
+  }
+
+  const response = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username: username, password: password }),
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Registration failed.';
+
+    try {
+      const errorData = (await response.json()) as {
+        errorMessage?: string;
+        ErrorMessage?: string;
+      };
+      errorMessage =
+        errorData.errorMessage ?? errorData.ErrorMessage ?? errorMessage;
+    } catch {
+      // Keep the fallback when the API response has no JSON body.
+    }
+
+    alert(`Error: ${errorMessage}`);
+    return;
+  }
+
+  alert('Account created successfully!');
 }

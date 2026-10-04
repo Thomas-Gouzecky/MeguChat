@@ -19,7 +19,10 @@ public sealed class AuthService : IAuthService
         var user = await _userManager.FindByNameAsync(username);
         if (user is null)
         {
-            return AuthResult.Failure("User not found");
+            return AuthResult.Failure(new[]
+            {
+                new AuthError("UserNotFound", "User not found", "username")
+            });
         }
 
         var result = await _signInManager.PasswordSignInAsync(
@@ -30,7 +33,10 @@ public sealed class AuthService : IAuthService
 
         return result.Succeeded
             ? AuthResult.Success()
-            : AuthResult.Failure("Invalid Credentials");
+            : AuthResult.Failure(new[]
+            {
+                new AuthError("InvalidCredentials", "Invalid Credentials")
+            });
     }
 
     public async Task<AuthResult> RegisterAsync(string username, string password)

@@ -66,6 +66,13 @@ public class AuthTests
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal("User not found", result.ErrorMessage);
+        Assert.Collection(
+            result.Errors!,
+            error =>
+            {
+                Assert.Equal("UserNotFound", error.Code);
+                Assert.Equal("username", error.InputField);
+            });
         _signInManager.Verify(
             manager => manager.PasswordSignInAsync(username, password, false, false),
             Times.Never);
@@ -90,6 +97,13 @@ public class AuthTests
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal("Invalid Credentials", result.ErrorMessage);
+        Assert.Collection(
+            result.Errors!,
+            error =>
+            {
+                Assert.Equal("InvalidCredentials", error.Code);
+                Assert.Equal("general", error.InputField);
+            });
     }
 
     [Fact]

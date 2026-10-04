@@ -41,8 +41,6 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
             enableSystem
             disableTransitionOnChange
           >
-            <ModeToggle className="absolute top-4 right-4 z-999" />
-            <SignOutButton className="absolute top-4 right-16 z-999" />
             {children}
           </ThemeProvider>
         </StoreProvider>

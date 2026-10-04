@@ -35,7 +35,7 @@ public sealed class AuthService : IAuthService
             ? AuthResult.Success()
             : AuthResult.Failure(new[]
             {
-                new AuthError("InvalidCredentials", "Invalid Credentials")
+                new AuthError("InvalidCredentials", "Invalid Credentials", "password")
             });
     }
 

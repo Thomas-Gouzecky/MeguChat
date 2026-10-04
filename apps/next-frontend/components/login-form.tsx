@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@meguchat/ui/components/ui/button';
@@ -24,12 +24,14 @@ import { cn } from '@meguchat/ui/lib/utils';
 
 import { Login } from '@/lib/api/auth';
 import validateForm from '@/lib/validateForm';
+import router from 'next/router';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const [errors, setErrors] = useState<AuthError[]>([]);
+  const router = useRouter();
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -63,7 +65,8 @@ export function LoginForm({
       return;
     }
 
-    redirect('/');
+    router.push('/');
+    router.refresh();
   }
 
   const getError = (inputField: AuthError['inputField']) =>

@@ -102,7 +102,7 @@ public class AuthTests
             error =>
             {
                 Assert.Equal("InvalidCredentials", error.Code);
-                Assert.Equal("general", error.InputField);
+                Assert.Equal("password", error.InputField);
             });
     }
 

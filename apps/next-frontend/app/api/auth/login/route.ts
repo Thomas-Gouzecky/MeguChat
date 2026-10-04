@@ -2,8 +2,16 @@ import { Login } from '@/lib/auth/login';
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    const body: AuthRequest = await request.json();
-    return await Login(body);
+    const requestBody = await request.json();
+
+    const authRequest: AuthRequest = {
+      username: requestBody.username,
+      password: requestBody.password,
+    };
+
+    const response = await Login(authRequest);
+
+    return response;
   } catch (error) {
     console.error('Error logging in:', error);
     return Response.json(

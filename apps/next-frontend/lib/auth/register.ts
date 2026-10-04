@@ -9,7 +9,9 @@ export async function Register(request: AuthRequest): Promise<Response> {
     body: JSON.stringify(request),
   });
 
-  return new Response(await response.text(), {
+  const responseData: AuthResponse = await response.json();
+
+  return new Response(JSON.stringify(responseData), {
     status: response.status,
     headers: response.headers,
   });

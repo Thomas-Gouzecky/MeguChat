@@ -1,4 +1,4 @@
 type AuthValidationError = {
-  type: 'username' | 'password';
+  type: 'backend-unavailable' | 'username' | 'password' | 'confirm-password';
   message: string;
 };

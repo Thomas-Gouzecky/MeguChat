@@ -45,14 +45,12 @@ export function LoginForm({
     if (!response.ok) {
       try {
         const errorData = await response.json();
-        const errorMessage = {
-          errorMessage:
-            errorData.errorMessage ?? errorData.ErrorMessage ?? 'Login failed.',
-        };
+        const errorMessage =
+          errorData.errorMessage ?? errorData.ErrorMessage ?? 'Login failed.';
 
         const parsedError = {
-          type: 'username',
-          message: errorMessage.errorMessage,
+          type: errorData.type ?? 'backend-unavailable',
+          message: errorMessage,
         } as AuthValidationError;
 
         setError(parsedError);
@@ -78,6 +76,14 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
+            {error?.type === 'backend-unavailable' && (
+              <FieldDescription
+                role="alert"
+                className="text-destructive bg-accent border p-2 rounded-md mb-4"
+              >
+                The backend is currently unavailable. Please try again later.
+              </FieldDescription>
+            )}
             <FieldGroup>
               <Field
                 data-invalid={error?.type === 'username' ? 'true' : 'false'}

@@ -36,6 +36,5 @@ async function handleSignOut() {
     return;
   }
 
-  alert('Sign out successful');
   redirect('/login');
 }

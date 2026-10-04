@@ -10,7 +10,9 @@ export async function Login(request: AuthRequest): Promise<Response> {
     credentials: 'include',
   });
 
-  return new Response(await response.text(), {
+  const responseData: AuthResponse = await response.json();
+
+  return new Response(JSON.stringify(responseData), {
     status: response.status,
     headers: response.headers,
   });

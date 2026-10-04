@@ -17,11 +17,56 @@ import { PasswordInput } from './ui/password-input';
 import Link from 'next/link';
 
 import { redirect } from 'next/navigation';
+import { useState } from 'react';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const [error, setError] = useState<AuthValidationError | null>(null);
+
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const username = formData.get('username') as string;
+    const password = formData.get('password') as string;
+
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        const errorMessage = {
+          errorMessage:
+            errorData.errorMessage ?? errorData.ErrorMessage ?? 'Login failed.',
+        };
+
+        const parsedError = {
+          type: 'username',
+          message: errorMessage.errorMessage,
+        } as AuthValidationError;
+
+        setError(parsedError);
+        return;
+      } catch {
+        // Keep the fallback when the API response has no JSON body.
+      }
+    }
+
+    setError(null);
+
+    redirect('/');
+  }
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
@@ -34,17 +79,30 @@ export function LoginForm({
         <CardContent>
           <form onSubmit={handleSubmit}>
             <FieldGroup>
-              <Field>
+              <Field
+                data-invalid={error?.type === 'username' ? 'true' : 'false'}
+              >
                 <FieldLabel htmlFor="username">Username</FieldLabel>
                 <Input
+                  aria-invalid={error?.type === 'username' ? 'true' : 'false'}
                   id="username"
                   name="username"
                   type="text"
                   placeholder="Your username"
                   required
                 />
+                {error?.type === 'username' && (
+                  <FieldDescription
+                    id="username-error"
+                    className="text-destructive"
+                  >
+                    {error?.message}
+                  </FieldDescription>
+                )}
               </Field>
-              <Field>
+              <Field
+                data-invalid={error?.type === 'password' ? 'true' : 'false'}
+              >
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                   <Link
@@ -54,7 +112,20 @@ export function LoginForm({
                     Forgot your password?
                   </Link>
                 </div>
-                <PasswordInput id="password" name="password" required />
+                <PasswordInput
+                  aria-invalid={error?.type === 'password' ? 'true' : 'false'}
+                  id="password"
+                  name="password"
+                  required
+                />
+                {error?.type === 'password' && (
+                  <FieldDescription
+                    id="password-error"
+                    className="text-destructive"
+                  >
+                    {error?.message}
+                  </FieldDescription>
+                )}
               </Field>
               <Field>
                 <Button type="submit">Login</Button>
@@ -72,40 +143,4 @@ export function LoginForm({
       </Card>
     </div>
   );
-}
-
-async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-  const formData = new FormData(event.currentTarget);
-  const username = formData.get('username') as string;
-  const password = formData.get('password') as string;
-
-  const response = await fetch('/api/auth/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username, password }),
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    let errorMessage = 'Login failed.';
-
-    try {
-      const errorData = (await response.json()) as {
-        errorMessage?: string;
-        ErrorMessage?: string;
-      };
-      errorMessage =
-        errorData.errorMessage ?? errorData.ErrorMessage ?? errorMessage;
-    } catch {
-      // Keep the fallback when the API response has no JSON body.
-    }
-
-    alert(`Error: ${errorMessage}`);
-    return;
-  }
-
-  redirect('/');
 }

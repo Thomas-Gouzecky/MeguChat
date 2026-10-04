@@ -1,0 +1,25 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { setUser, clearUser } from '@/store/authSlice';
+
+interface AuthInitializerProps {
+  user: {
+    userName: string;
+  } | null;
+}
+
+export default function AuthInitializer({ user }: AuthInitializerProps) {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (user) {
+      dispatch(setUser(user));
+    } else {
+      dispatch(clearUser());
+    }
+  }, [user, dispatch]);
+
+  return null;
+}

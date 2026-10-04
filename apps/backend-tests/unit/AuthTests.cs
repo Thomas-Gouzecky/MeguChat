@@ -118,7 +118,11 @@ public class AuthTests
         // Arrange
         var username = "existinguser";
         var password = "password";
-        var identityError = new IdentityError { Description = "User already exists" };
+        var identityError = new IdentityError
+        {
+            Code = "DuplicateUserName",
+            Description = "User already exists"
+        };
         _userManager
             .Setup(manager => manager.CreateAsync(It.IsAny<ApplicationUser>(), password))
             .ReturnsAsync(IdentityResult.Failed(identityError));
@@ -129,6 +133,14 @@ public class AuthTests
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal("User already exists", result.ErrorMessage);
+        Assert.Collection(
+            result.Errors!,
+            error =>
+            {
+                Assert.Equal("DuplicateUserName", error.Code);
+                Assert.Equal("User already exists", error.Description);
+                Assert.Equal("username", error.InputField);
+            });
     }
 
     [Fact]

@@ -40,7 +40,28 @@ public sealed class AuthService : IAuthService
 
         return result.Succeeded
             ? AuthResult.Success()
-            : AuthResult.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
+            : AuthResult.Failure(result.Errors.Select(error =>
+                new AuthError(
+                    error.Code,
+                    error.Description,
+                    GetInputField(error.Code))));
+    }
+
+    private static string GetInputField(string errorCode)
+    {
+        if (!string.IsNullOrEmpty(errorCode) &&
+            errorCode.Contains("UserName", StringComparison.OrdinalIgnoreCase))
+        {
+            return "username";
+        }
+
+        if (!string.IsNullOrEmpty(errorCode) &&
+            errorCode.Contains("Password", StringComparison.OrdinalIgnoreCase))
+        {
+            return "password";
+        }
+
+        return "general";
     }
 
     public async Task<AuthResult> LogoutAsync()

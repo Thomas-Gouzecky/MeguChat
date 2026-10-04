@@ -1,22 +1,27 @@
 'use client';
 
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { useState } from 'react';
-import { Button } from './ui/button';
+
+import { Button } from '@meguchat/ui/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from './ui/card';
-import { Field, FieldDescription, FieldGroup, FieldLabel } from './ui/field';
-import { Input } from './ui/input';
-import { PasswordInput } from './ui/password-input';
-
-import Link from 'next/link';
-import { Register } from '../lib/api/auth';
-import { redirect } from 'next/navigation';
-import validateForm from '../lib/validateForm';
+} from '@meguchat/ui/components/ui/card';
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from '@meguchat/ui/components/ui/field';
+import { Input } from '@meguchat/ui/components/ui/input';
+import { PasswordInput } from '@meguchat/ui/components/ui/password-input';
+import { Register } from '@/lib/api/auth';
+import validateForm from '@/lib/validateForm';
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [errors, setErrors] = useState<AuthError[]>([]);
@@ -30,16 +35,25 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     const confirmPassword = formData.get('confirm-password') as string;
 
     const formErrors = validateForm(username, password, confirmPassword);
-
     if (formErrors.length > 0) {
       setErrors(formErrors);
       return;
     }
 
     const response = await Register({ username, password });
-
     if (response.errors && response.errors.length > 0) {
       setErrors(response.errors);
+      return;
+    }
+
+    if (!response.isSuccess) {
+      setErrors([
+        {
+          code: 'signup-failed',
+          description: response.errorMessage ?? 'Unable to create account.',
+          inputField: 'general',
+        },
+      ]);
       return;
     }
 
@@ -47,11 +61,13 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   }
 
   const getError = (inputField: AuthError['inputField']) =>
-    errors.find((currentError) => currentError.inputField === inputField);
-
+    errors.find((error) => error.inputField === inputField);
   const usernameError = getError('username');
   const passwordError = getError('password');
   const generalError = getError('general');
+  const confirmPasswordError = errors.find(
+    (error) => error.inputField === 'confirm-password',
+  );
 
   return (
     <Card {...props}>
@@ -82,11 +98,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 aria-invalid={usernameError ? 'true' : 'false'}
               />
               {usernameError ? (
-                <FieldDescription
-                  id="username-error"
-                  role="alert"
-                  className="text-destructive"
-                >
+                <FieldDescription id="username-error" role="alert">
                   {usernameError.description}
                 </FieldDescription>
               ) : (
@@ -103,11 +115,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 aria-invalid={passwordError ? 'true' : 'false'}
               />
               {passwordError ? (
-                <FieldDescription
-                  id="password-error"
-                  role="alert"
-                  className="text-destructive"
-                >
+                <FieldDescription id="password-error" role="alert">
                   {passwordError.description}
                 </FieldDescription>
               ) : (
@@ -117,38 +125,21 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 </FieldDescription>
               )}
             </Field>
-            <Field
-              data-invalid={errors.some(
-                (currentError) =>
-                  currentError.inputField === 'confirm-password',
-              )}
-            >
+            <Field data-invalid={confirmPasswordError ? 'true' : 'false'}>
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
               <PasswordInput
                 id="confirm-password"
                 name="confirm-password"
-                aria-invalid={errors.some(
-                  (currentError) =>
-                    currentError.inputField === 'confirm-password',
-                )}
+                aria-invalid={confirmPasswordError ? 'true' : 'false'}
               />
-              {errors.some(
-                (currentError) =>
-                  currentError.inputField === 'confirm-password',
-              ) ? (
+              {confirmPasswordError ? (
                 <FieldDescription
                   id="confirm-password-error"
                   role="alert"
-                  className="text-destructive"
                 >
-                  {
-                    errors.find(
-                      (currentError) =>
-                        currentError.inputField === 'confirm-password',
-                    )?.description
-                  }
+                  {confirmPasswordError.description}
                 </FieldDescription>
               ) : (
                 <FieldDescription>
@@ -156,17 +147,15 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 </FieldDescription>
               )}
             </Field>
-            <FieldGroup>
-              <Field>
-                <Button type="submit">Create Account</Button>
-                <Button variant="outline" type="button">
-                  Sign up with Google
-                </Button>
-                <FieldDescription className="px-6 text-center">
-                  Already have an account? <Link href="/login">Sign in</Link>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
+            <Field>
+              <Button type="submit">Create Account</Button>
+              <Button variant="outline" type="button">
+                Sign up with Google
+              </Button>
+              <FieldDescription className="px-6 text-center">
+                Already have an account? <Link href="/login">Sign in</Link>
+              </FieldDescription>
+            </Field>
           </FieldGroup>
         </form>
       </CardContent>

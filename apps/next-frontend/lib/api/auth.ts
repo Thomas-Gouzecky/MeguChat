@@ -9,9 +9,7 @@ export async function Login(request: AuthRequest): Promise<AuthResponse> {
       credentials: 'include',
     });
 
-    const responseData: AuthResponse = await response.json();
-
-    return responseData;
+    return (await response.json()) as AuthResponse;
   } catch (error) {
     console.error('Error logging in:', error);
     return {
@@ -31,9 +29,7 @@ export async function Register(request: AuthRequest): Promise<AuthResponse> {
       body: JSON.stringify(request),
     });
 
-    const responseData: AuthResponse = await response.json();
-
-    return responseData;
+    return (await response.json()) as AuthResponse;
   } catch (error) {
     console.error('Error registering:', error);
     return {

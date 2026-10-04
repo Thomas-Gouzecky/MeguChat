@@ -1,4 +1,4 @@
-import { SignupForm } from '@meguchat/ui/components/signup-form';
+import { SignupForm } from '@/components/signup-form';
 
 export default function SignupPage() {
   return (

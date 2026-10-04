@@ -18,52 +18,58 @@ import Link from 'next/link';
 
 import { redirect } from 'next/navigation';
 import { useState } from 'react';
+import { Login } from '../lib/api/auth';
+import validateForm from '../lib/validateForm';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const [error, setError] = useState<AuthValidationError | null>(null);
+  const [errors, setErrors] = useState<AuthError[]>([]);
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
+    setErrors([]);
     const formData = new FormData(event.currentTarget);
     const username = formData.get('username') as string;
     const password = formData.get('password') as string;
 
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-      credentials: 'include',
-    });
+    const formErrors = validateForm(username, password);
 
-    if (!response.ok) {
-      try {
-        const errorData = await response.json();
-        const errorMessage =
-          errorData.errorMessage ?? errorData.ErrorMessage ?? 'Login failed.';
-
-        const parsedError = {
-          type: errorData.type ?? 'backend-unavailable',
-          message: errorMessage,
-        } as AuthValidationError;
-
-        setError(parsedError);
-        return;
-      } catch {
-        // Keep the fallback when the API response has no JSON body.
-      }
+    if (formErrors.length > 0) {
+      setErrors(formErrors);
+      return;
     }
 
-    setError(null);
+    const response = await Login({ username, password });
+
+    if (response.errors && response.errors.length > 0) {
+      setErrors(response.errors);
+      return;
+    }
+
+    if (!response.isSuccess) {
+      setErrors([
+        {
+          code: 'login-failed',
+          description: response.errorMessage ?? 'Unable to log in.',
+          inputField: 'general',
+        },
+      ]);
+      return;
+    }
 
     redirect('/');
   }
+
+  const getError = (inputField: AuthError['inputField']) =>
+    errors.find((currentError) => currentError.inputField === inputField);
+
+  const usernameError = getError('username');
+  const passwordError = getError('password');
+  const generalError = getError('general');
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -76,39 +82,34 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
-            {error?.type === 'backend-unavailable' && (
+            {generalError && (
               <FieldDescription
                 role="alert"
                 className="text-destructive bg-accent border p-2 rounded-md mb-4"
               >
-                The backend is currently unavailable. Please try again later.
+                {generalError.description}
               </FieldDescription>
             )}
             <FieldGroup>
-              <Field
-                data-invalid={error?.type === 'username' ? 'true' : 'false'}
-              >
+              <Field data-invalid={usernameError ? 'true' : 'false'}>
                 <FieldLabel htmlFor="username">Username</FieldLabel>
                 <Input
-                  aria-invalid={error?.type === 'username' ? 'true' : 'false'}
                   id="username"
                   name="username"
                   type="text"
                   placeholder="Your username"
-                  required
+                  aria-invalid={usernameError ? 'true' : 'false'}
                 />
-                {error?.type === 'username' && (
+                {usernameError && (
                   <FieldDescription
                     id="username-error"
                     className="text-destructive"
                   >
-                    {error?.message}
+                    {usernameError.description}
                   </FieldDescription>
                 )}
               </Field>
-              <Field
-                data-invalid={error?.type === 'password' ? 'true' : 'false'}
-              >
+              <Field data-invalid={passwordError ? 'true' : 'false'}>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                   <Link
@@ -119,17 +120,17 @@ export function LoginForm({
                   </Link>
                 </div>
                 <PasswordInput
-                  aria-invalid={error?.type === 'password' ? 'true' : 'false'}
+                  aria-invalid={passwordError ? 'true' : 'false'}
                   id="password"
                   name="password"
                   required
                 />
-                {error?.type === 'password' && (
+                {passwordError && (
                   <FieldDescription
                     id="password-error"
                     className="text-destructive"
                   >
-                    {error?.message}
+                    {passwordError.description}
                   </FieldDescription>
                 )}
               </Field>

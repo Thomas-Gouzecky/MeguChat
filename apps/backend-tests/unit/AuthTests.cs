@@ -66,6 +66,13 @@ public class AuthTests
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal("User not found", result.ErrorMessage);
+        Assert.Collection(
+            result.Errors!,
+            error =>
+            {
+                Assert.Equal("UserNotFound", error.Code);
+                Assert.Equal("username", error.InputField);
+            });
         _signInManager.Verify(
             manager => manager.PasswordSignInAsync(username, password, false, false),
             Times.Never);
@@ -90,6 +97,13 @@ public class AuthTests
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal("Invalid Credentials", result.ErrorMessage);
+        Assert.Collection(
+            result.Errors!,
+            error =>
+            {
+                Assert.Equal("InvalidCredentials", error.Code);
+                Assert.Equal("password", error.InputField);
+            });
     }
 
     [Fact]
@@ -118,7 +132,11 @@ public class AuthTests
         // Arrange
         var username = "existinguser";
         var password = "password";
-        var identityError = new IdentityError { Description = "User already exists" };
+        var identityError = new IdentityError
+        {
+            Code = "DuplicateUserName",
+            Description = "User already exists"
+        };
         _userManager
             .Setup(manager => manager.CreateAsync(It.IsAny<ApplicationUser>(), password))
             .ReturnsAsync(IdentityResult.Failed(identityError));
@@ -129,6 +147,14 @@ public class AuthTests
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal("User already exists", result.ErrorMessage);
+        Assert.Collection(
+            result.Errors!,
+            error =>
+            {
+                Assert.Equal("DuplicateUserName", error.Code);
+                Assert.Equal("User already exists", error.Description);
+                Assert.Equal("username", error.InputField);
+            });
     }
 
     [Fact]

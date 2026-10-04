@@ -19,7 +19,10 @@ public sealed class AuthService : IAuthService
         var user = await _userManager.FindByNameAsync(username);
         if (user is null)
         {
-            return AuthResult.Failure("User not found");
+            return AuthResult.Failure(new[]
+            {
+                new AuthError("UserNotFound", "User not found", "username")
+            });
         }
 
         var result = await _signInManager.PasswordSignInAsync(
@@ -30,7 +33,10 @@ public sealed class AuthService : IAuthService
 
         return result.Succeeded
             ? AuthResult.Success()
-            : AuthResult.Failure("Invalid Credentials");
+            : AuthResult.Failure(new[]
+            {
+                new AuthError("InvalidCredentials", "Invalid Credentials", "password")
+            });
     }
 
     public async Task<AuthResult> RegisterAsync(string username, string password)
@@ -40,7 +46,28 @@ public sealed class AuthService : IAuthService
 
         return result.Succeeded
             ? AuthResult.Success()
-            : AuthResult.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
+            : AuthResult.Failure(result.Errors.Select(error =>
+                new AuthError(
+                    error.Code,
+                    error.Description,
+                    GetInputField(error.Code))));
+    }
+
+    private static string GetInputField(string errorCode)
+    {
+        if (!string.IsNullOrEmpty(errorCode) &&
+            errorCode.Contains("UserName", StringComparison.OrdinalIgnoreCase))
+        {
+            return "username";
+        }
+
+        if (!string.IsNullOrEmpty(errorCode) &&
+            errorCode.Contains("Password", StringComparison.OrdinalIgnoreCase))
+        {
+            return "password";
+        }
+
+        return "general";
     }
 
     public async Task<AuthResult> LogoutAsync()

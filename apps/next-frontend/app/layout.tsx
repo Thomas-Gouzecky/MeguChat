@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import '@meguchat/ui/styles.css';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
-import { ModeToggle } from '@meguchat/ui/components/mode-toggle';
-import { SignOutButton } from '@/components/signout-button';
+import Navbar from '@/components/navbar';
 import { getCurrentUser } from '@/lib/auth/auth';
 import StoreProvider from '@/store/storeProvider';
 import AuthInitializer from '@/components/AuthInitializer';
@@ -41,6 +40,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
             enableSystem
             disableTransitionOnChange
           >
+            <Navbar />
             {children}
           </ThemeProvider>
         </StoreProvider>

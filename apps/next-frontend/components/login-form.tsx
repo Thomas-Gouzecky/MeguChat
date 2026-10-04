@@ -1,31 +1,37 @@
 'use client';
 
-import { cn } from 'cn';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
-import { Button } from './ui/button';
+import { Button } from '@meguchat/ui/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from './ui/card';
-import { Field, FieldDescription, FieldGroup, FieldLabel } from './ui/field';
-import { Input } from './ui/input';
-import { PasswordInput } from './ui/password-input';
+} from '@meguchat/ui/components/ui/card';
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from '@meguchat/ui/components/ui/field';
+import { Input } from '@meguchat/ui/components/ui/input';
+import { PasswordInput } from '@meguchat/ui/components/ui/password-input';
+import { cn } from '@meguchat/ui/lib/utils';
 
-import Link from 'next/link';
-
-import { redirect } from 'next/navigation';
-import { useState } from 'react';
-import { Login } from '../lib/api/auth';
-import validateForm from '../lib/validateForm';
+import { Login } from '@/lib/api/auth';
+import validateForm from '@/lib/validateForm';
+import router from 'next/router';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const [errors, setErrors] = useState<AuthError[]>([]);
+  const router = useRouter();
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -37,14 +43,12 @@ export function LoginForm({
     const password = formData.get('password') as string;
 
     const formErrors = validateForm(username, password);
-
     if (formErrors.length > 0) {
       setErrors(formErrors);
       return;
     }
 
     const response = await Login({ username, password });
-
     if (response.errors && response.errors.length > 0) {
       setErrors(response.errors);
       return;
@@ -61,12 +65,12 @@ export function LoginForm({
       return;
     }
 
-    redirect('/');
+    router.push('/');
+    router.refresh();
   }
 
   const getError = (inputField: AuthError['inputField']) =>
-    errors.find((currentError) => currentError.inputField === inputField);
-
+    errors.find((error) => error.inputField === inputField);
   const usernameError = getError('username');
   const passwordError = getError('password');
   const generalError = getError('general');
@@ -101,10 +105,7 @@ export function LoginForm({
                   aria-invalid={usernameError ? 'true' : 'false'}
                 />
                 {usernameError && (
-                  <FieldDescription
-                    id="username-error"
-                    className="text-destructive"
-                  >
+                  <FieldDescription id="username-error" role="alert">
                     {usernameError.description}
                   </FieldDescription>
                 )}
@@ -126,10 +127,7 @@ export function LoginForm({
                   required
                 />
                 {passwordError && (
-                  <FieldDescription
-                    id="password-error"
-                    className="text-destructive"
-                  >
+                  <FieldDescription id="password-error" role="alert">
                     {passwordError.description}
                   </FieldDescription>
                 )}

@@ -1,10 +1,14 @@
 'use server';
 
-export async function getCurrentUser(cookie: string) {
+import { cookies } from 'next/headers';
+
+export async function getCurrentUser() {
   try {
+    const cookieStore = await cookies();
+
     const response = await fetch(`${process.env.GATEWAY_URL}/api/auth/me`, {
       headers: {
-        Cookie: cookie,
+        Cookie: cookieStore.toString(),
       },
       cache: 'no-store',
     });

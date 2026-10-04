@@ -8,7 +8,7 @@ type AuthResponse = {
 type AuthError = {
   code: string;
   description: string;
-  inputField: 'username' | 'password' | 'general';
+  inputField: 'username' | 'password' | 'confirm-password' | 'general';
 };
 
 // AuthRequest is a type that represents the request body for authentication-related API calls. It can be defined as follows:

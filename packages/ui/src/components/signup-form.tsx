@@ -61,6 +61,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         // Keep the fallback when the API response has no JSON body.
       }
     }
+
+    setError(null);
   }
 
   return (

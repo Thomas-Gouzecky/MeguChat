@@ -135,10 +135,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 aria-invalid={confirmPasswordError ? 'true' : 'false'}
               />
               {confirmPasswordError ? (
-                <FieldDescription
-                  id="confirm-password-error"
-                  role="alert"
-                >
+                <FieldDescription id="confirm-password-error" role="alert">
                   {confirmPasswordError.description}
                 </FieldDescription>
               ) : (

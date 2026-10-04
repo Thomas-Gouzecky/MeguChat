@@ -3,7 +3,7 @@ import '@meguchat/ui/styles.css';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ModeToggle } from '@meguchat/ui/components/mode-toggle';
-import { SignOutButton } from '@meguchat/ui/components/signout-button';
+import { SignOutButton } from '@/components/signout-button';
 import { getCurrentUser } from '@/lib/auth/auth';
 import StoreProvider from '@/store/storeProvider';
 import AuthInitializer from '@/components/AuthInitializer';

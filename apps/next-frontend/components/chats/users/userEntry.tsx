@@ -1,3 +1,13 @@
+import { Avatar, AvatarFallback } from '@meguchat/ui/components/ui/avatar';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemMedia,
+  ItemTitle,
+} from '@meguchat/ui/components/ui/item';
+import { useState } from 'react';
+
 export function UserEntry({
   className,
   user,
@@ -5,10 +15,32 @@ export function UserEntry({
   className?: string;
   user: User;
 }) {
+  const [selected, setSelected] = useState(false);
   return (
-    <label className={className}>
-      <input type="checkbox" name="users" value={user.user_id} />
-      <span>{user.username}</span>
-    </label>
+    <Item
+      variant="outline"
+      onClick={() => setSelected(!selected)}
+      className={className}
+    >
+      <ItemMedia>
+        <Avatar>
+          <AvatarFallback>
+            {user.username.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      </ItemMedia>
+      <ItemContent>
+        <ItemTitle>{user.username}</ItemTitle>
+      </ItemContent>
+      <ItemActions>
+        <input
+          type="checkbox"
+          checked={selected}
+          name="users"
+          value={user.user_id}
+          onChange={() => setSelected(!selected)}
+        />
+      </ItemActions>
+    </Item>
   );
 }

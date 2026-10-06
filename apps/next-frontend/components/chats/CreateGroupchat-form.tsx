@@ -18,6 +18,8 @@ import { AppDispatch } from '@/store/store';
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 
+import SelectableUserList from './selectableUserList';
+
 export function CreateGroupchatForm({
   className,
   ...props
@@ -74,8 +76,7 @@ export function CreateGroupchatForm({
               <FieldLabel htmlFor="users">Users</FieldLabel>
               <ScrollArea className="h-32 w-full">
                 <ScrollBar orientation="vertical" />
-                {/* Get all the users from the /api/users endpoint */}
-                {/* Display each user in the scroll area and allow selection */}
+                <SelectableUserList />
               </ScrollArea>
             </div>
           </Field>

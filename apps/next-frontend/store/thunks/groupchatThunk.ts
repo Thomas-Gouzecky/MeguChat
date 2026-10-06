@@ -5,15 +5,12 @@ export const fetchGroupchats = createAsyncThunk<
   Groupchat[],
   void,
   { rejectValue: ErrorResponse }
->(
-  'groupchats/fetchGroupchats',
-  async (_, { rejectWithValue }) => {
-    const response = await getUsersGroupchats();
+>('groupchats/fetchGroupchats', async (_, { rejectWithValue }) => {
+  const response = await getUsersGroupchats();
 
-    if ('status' in response && response.status >= 400) {
-      return rejectWithValue(response);
-    }
+  if ('status' in response && response.status >= 400) {
+    return rejectWithValue(response);
+  }
 
-    return response as Groupchat[];
-  },
-);
+  return response as Groupchat[];
+});

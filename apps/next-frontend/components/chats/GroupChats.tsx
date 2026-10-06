@@ -19,15 +19,17 @@ import { useDispatch, useSelector } from 'react-redux';
 
 export default function Groupchats({ className }: { className?: string }) {
   const dispatch = useDispatch<AppDispatch>();
-  const { groupchats, loading: isLoading, error } = useSelector(
-    (state: RootState) => state.groupchats,
-  );
+  const {
+    groupchats,
+    loading: isLoading,
+    error,
+  } = useSelector((state: RootState) => state.groupchats);
 
   useEffect(() => {
     void dispatch(fetchGroupchats());
   }, [dispatch]);
 
-  if (error) {
+  if (error && error.status !== 404) {
     return (
       <div className="p-4 text-sm text-destructive">
         {error.title}: {error.detail}

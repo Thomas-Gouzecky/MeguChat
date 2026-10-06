@@ -41,7 +41,7 @@ export default function DisplayCreateGroupchatForm({
           </DialogDescription>
         </DialogHeader>
 
-        <EditGroupchatForm groupchat={groupchat} className="px-4" />
+        <EditGroupchatForm groupchat={groupchat} setOpen={setOpen} className="px-4" />
       </DialogContent>
     </Dialog>
   );

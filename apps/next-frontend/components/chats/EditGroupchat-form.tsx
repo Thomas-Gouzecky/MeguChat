@@ -21,11 +21,15 @@ import { useDispatch } from 'react-redux';
 
 export function EditGroupchatForm({
   groupchat,
+  setOpen,
   className,
   ...props
-}: React.ComponentProps<'div'> & { groupchat: Groupchat }) {
+}: React.ComponentProps<'div'> & {
+  groupchat: Groupchat;
+  setOpen: (open: boolean) => void;
+}) {
   const [error, setError] = useState<ErrorResponse | null>(null);
-  const router = useRouter();
+  const [groupchatState, setGroupchatState] = useState<Groupchat>(groupchat);
   const dispatch = useDispatch<AppDispatch>();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -35,6 +39,11 @@ export function EditGroupchatForm({
     const formData = new FormData(event.currentTarget);
     const groupchatName = formData.get('groupchat-name') as string;
     const selectedUsers = formData.getAll('users') as string[];
+
+    setGroupchatState({
+      ...groupchatState,
+      name: groupchatName,
+    });
 
     const response = await editGroupchat(groupchat.groupchat_id, {
       name: groupchatName,
@@ -50,7 +59,7 @@ export function EditGroupchatForm({
     // would be a successful groupchat creation
     if ('groupchat_id' in response) {
       dispatch(updateGroupchat(response));
-      router.push(`/chats`);
+      setOpen(false);
     }
   }
   return (
@@ -71,7 +80,13 @@ export function EditGroupchatForm({
               name="groupchat-name"
               type="text"
               placeholder="Your group chat name"
-              defaultValue={groupchat.name}
+              value={groupchatState.name}
+              onChange={(event) =>
+                setGroupchatState({
+                  ...groupchatState,
+                  name: event.target.value,
+                })
+              }
             />
           </Field>
           <Field>

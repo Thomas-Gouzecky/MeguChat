@@ -29,6 +29,7 @@ export function DisplayCreateGroupchatForm() {
   const isDesktop = useMediaQuery('(min-width: 768px)', {
     initializeWithValue: false,
   });
+
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>

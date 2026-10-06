@@ -60,7 +60,7 @@ export default function Groupchats({ className }: { className?: string }) {
           key={groupchat.groupchat_id}
           href={`/chats/${groupchat.groupchat_id}`}
         >
-          <Card key={groupchat.groupchat_id}>
+          <Card>
             <CardHeader>
               <CardTitle>{groupchat.name}</CardTitle>
               <CardDescription>

@@ -50,7 +50,7 @@ export function CreateGroupchatForm({
 
     // would be a successful groupchat creation
     if ('groupchat_id' in response) {
-      router.push(`/groupchats/${response.groupchat_id}`);
+      router.push(`/chats/${response.groupchat_id}`);
       router.refresh();
     }
   }

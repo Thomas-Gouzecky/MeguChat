@@ -1,11 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { UserEntry } from './userEntry';
 import { AppDispatch, RootState } from '@/store/store';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { fetchUsers } from '@/store/thunks/usersThunk';
 
 export function DisplayAllUsers() {
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const dispatch = useDispatch<AppDispatch>();
   const { users, isLoading, error } = useSelector(
     (state: RootState) => state.users,

@@ -3,6 +3,8 @@ type AuthResponse = {
   isSuccess: boolean;
   errorMessage?: string;
   errors?: AuthError[];
+  userId?: string;
+  username?: string;
 };
 
 type AuthError = {

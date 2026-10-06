@@ -24,6 +24,9 @@ import { cn } from '@meguchat/ui/lib/utils';
 
 import { Login } from '@/lib/api/auth';
 import validateForm from '@/lib/validateForm';
+import { setUser } from '@/store/slices/authSlice';
+import { AppDispatch } from '@/store/store';
+import { useDispatch } from 'react-redux';
 
 export function LoginForm({
   className,
@@ -31,6 +34,7 @@ export function LoginForm({
 }: React.ComponentProps<'div'>) {
   const [errors, setErrors] = useState<AuthError[]>([]);
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -62,6 +66,15 @@ export function LoginForm({
         },
       ]);
       return;
+    }
+
+    if (response.userId && response.username) {
+      dispatch(
+        setUser({
+          user_id: response.userId,
+          username: response.username,
+        }),
+      );
     }
 
     router.push('/');

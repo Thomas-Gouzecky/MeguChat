@@ -10,7 +10,7 @@ type CreateGroupchatRequest = {
 };
 
 type User = {
-  user_id: number;
+  user_id: string;
   username: string;
 };
 

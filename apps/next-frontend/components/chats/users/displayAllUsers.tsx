@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { fetchUsers } from '@/store/thunks/usersThunk';
 
 export function DisplayAllUsers() {
-  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const dispatch = useDispatch<AppDispatch>();
   const { users, isLoading, error } = useSelector(
     (state: RootState) => state.users,
@@ -28,21 +28,10 @@ export function DisplayAllUsers() {
   }
 
   return (
-    <div>
+    <>
       {users?.map((user) => (
-        <UserEntry
-          key={user.user_id}
-          user={user}
-          isSelected={selectedUserIds.includes(user.user_id)}
-          onSelect={(userId) =>
-            setSelectedUserIds((currentIds) =>
-              currentIds.includes(userId)
-                ? currentIds.filter((id) => id !== userId)
-                : [...currentIds, userId],
-            )
-          }
-        />
+        <UserEntry key={user.user_id} user={user} />
       ))}
-    </div>
+    </>
   );
 }

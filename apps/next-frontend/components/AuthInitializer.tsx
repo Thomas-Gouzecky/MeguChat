@@ -6,7 +6,8 @@ import { setUser, clearUser } from '@/store/slices/authSlice';
 
 interface AuthInitializerProps {
   user: {
-    userName: string;
+    username: string;
+    user_id: string;
   } | null;
 }
 

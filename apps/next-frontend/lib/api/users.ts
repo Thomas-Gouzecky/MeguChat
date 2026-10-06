@@ -36,7 +36,7 @@ export async function getAllUsers(): Promise<User[] | ErrorResponse> {
     }>;
 
     return users.map((user) => ({
-      user_id: Number(user.id),
+      user_id: user.id,
       username: user.username,
     }));
   } catch (error) {

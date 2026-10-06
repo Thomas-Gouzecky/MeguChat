@@ -18,6 +18,7 @@ import { AppDispatch } from '@/store/store';
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { DisplayAllUsers } from './users/displayAllUsers';
+import { Label } from '@meguchat/ui/components/ui/label';
 
 export function CreateGroupchatForm({
   className,
@@ -72,7 +73,7 @@ export function CreateGroupchatForm({
           </Field>
           <Field>
             <div className="flex items-center">
-              <FieldLabel htmlFor="users">Users</FieldLabel>
+              <Label htmlFor="users">Users</Label>
               <ScrollArea className="h-32 w-full">
                 <ScrollBar orientation="vertical" />
                 <DisplayAllUsers />

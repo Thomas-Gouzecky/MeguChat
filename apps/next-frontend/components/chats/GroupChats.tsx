@@ -54,12 +54,12 @@ export default function Groupchats() {
     <div className="space-y-3 p-4">
       {groupchats.map((groupchat) => (
         <div
-          key={groupchat.id}
+          key={groupchat.groupchat_id}
           className="rounded-lg border border-border bg-card p-4 shadow-sm"
         >
           <p className="text-lg font-semibold">{groupchat.name}</p>
           <p className="text-sm text-muted-foreground">
-            Group chat ID: {groupchat.id}
+            Group chat ID: {groupchat.groupchat_id}
           </p>
         </div>
       ))}

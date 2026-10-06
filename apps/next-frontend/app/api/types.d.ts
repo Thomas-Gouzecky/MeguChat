@@ -1,5 +1,5 @@
 type Groupchat = {
-  id: number;
+  groupchat_id: number;
   name: string;
   created_at?: string;
 };

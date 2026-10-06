@@ -19,7 +19,7 @@ export async function getUsersGroupchats(): Promise<
     const groupchats = (await response.json()) as Groupchat[];
 
     return groupchats.map((groupchat) => ({
-      id: groupchat.id,
+      groupchat_id: groupchat.groupchat_id,
       name: groupchat.name,
       created_at: groupchat.created_at,
     }));
@@ -56,7 +56,7 @@ export async function createGroupchat(
     const groupchat = (await response.json()) as Groupchat;
 
     return {
-      id: groupchat.id,
+      groupchat_id: groupchat.groupchat_id,
       name: groupchat.name,
       created_at: groupchat.created_at,
     };

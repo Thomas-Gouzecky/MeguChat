@@ -42,12 +42,17 @@ export function CreateGroupchatForm({
       users: selectedUsers,
     });
 
+    // would be an error
     if ('status' in response && response.status >= 400) {
       setError(response);
       return;
     }
 
-    router.refresh();
+    // would be a successful groupchat creation
+    if ('groupchat_id' in response) {
+      router.push(`/groupchats/${response.groupchat_id}`);
+      router.refresh();
+    }
   }
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>

@@ -102,3 +102,38 @@ export async function deleteGroupchat(
     } as ErrorResponse;
   }
 }
+
+export async function editGroupchat(
+  groupchatId: number,
+  updatedGroupchat: { name?: string; users?: string[] },
+): Promise<Groupchat | ErrorResponse> {
+  try {
+    const response = await fetch(`/api/groupchats/${groupchatId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(updatedGroupchat),
+    });
+
+    if (!response.ok) {
+      return (await response.json()) as ErrorResponse;
+    }
+
+    const groupchat = (await response.json()) as Groupchat;
+
+    return {
+      groupchat_id: groupchat.groupchat_id,
+      name: groupchat.name,
+      created_at: groupchat.created_at,
+    };
+  } catch (error) {
+    console.error('Error editing group chat:', error);
+    return {
+      title: 'Server Error',
+      status: 500,
+      detail: 'An error occurred while editing the group chat.',
+    } as ErrorResponse;
+  }
+}

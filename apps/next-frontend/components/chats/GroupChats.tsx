@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from '@meguchat/ui/components/ui/card';
 import DeleteGroupchatButton from './deleteGroupchatButton';
+import DisplayEditGroupchatForm from './displayEditGroupchatForm';
 
 export default function Groupchats({ className }: { className?: string }) {
   const [groupchats, setGroupchats] = useState<Groupchat[]>([]);
@@ -73,6 +74,7 @@ export default function Groupchats({ className }: { className?: string }) {
             <CardDescription>
               Created at: {groupchat.created_at ?? 'Unknown'}
             </CardDescription>
+            <DisplayEditGroupchatForm groupchat={groupchat} />
             <DeleteGroupchatButton groupchatId={groupchat.groupchat_id} />
           </CardContent>
         </Card>

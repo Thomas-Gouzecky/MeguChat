@@ -5,6 +5,14 @@ import { useEffect, useState } from 'react';
 import { EmptyGroupchats } from '@/components/chats/EmptyGroupchats';
 import { getUsersGroupchats } from '@/lib/api/groupchats';
 import { cn } from '@meguchat/ui/lib/utils';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@meguchat/ui/components/ui/card';
+import DeleteGroupchatButton from './deleteGroupchatButton';
 
 export default function Groupchats({ className }: { className?: string }) {
   const [groupchats, setGroupchats] = useState<Groupchat[]>([]);
@@ -54,15 +62,20 @@ export default function Groupchats({ className }: { className?: string }) {
   return (
     <div className={cn('space-y-3 p-4', className)}>
       {groupchats.map((groupchat) => (
-        <div
-          key={groupchat.groupchat_id}
-          className="rounded-lg border border-border bg-card p-4 shadow-sm"
-        >
-          <p className="text-lg font-semibold">{groupchat.name}</p>
-          <p className="text-sm text-muted-foreground">
-            Group chat ID: {groupchat.groupchat_id}
-          </p>
-        </div>
+        <Card key={groupchat.groupchat_id}>
+          <CardHeader>
+            <CardTitle>{groupchat.name}</CardTitle>
+            <CardDescription>
+              Group chat ID: {groupchat.groupchat_id}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CardDescription>
+              Created at: {groupchat.created_at ?? 'Unknown'}
+            </CardDescription>
+            <DeleteGroupchatButton groupchatId={groupchat.groupchat_id} />
+          </CardContent>
+        </Card>
       ))}
     </div>
   );

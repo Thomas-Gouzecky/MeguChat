@@ -14,9 +14,7 @@ export default function DeleteGroupchatButton({
   groupchatId: number;
 }) {
   const dispatch = useDispatch<AppDispatch>();
-  async function handleDelete(event: React.MouseEvent<HTMLButtonElement>) {
-    event.preventDefault();
-
+  async function handleDelete() {
     // Deletes from the database
     const response = await deleteGroupchat(groupchatId);
 
@@ -33,7 +31,7 @@ export default function DeleteGroupchatButton({
       onClick={handleDelete}
       variant="outline"
       type="button"
-      className="text-destructive hover:text-destructive"
+      className="cursor-pointer text-destructive hover:text-destructive"
     >
       <Trash />
     </Button>

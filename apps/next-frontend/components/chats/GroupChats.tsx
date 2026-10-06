@@ -56,26 +56,36 @@ export default function Groupchats({ className }: { className?: string }) {
   return (
     <div className={cn('space-y-3 p-4', className)}>
       {groupchats.map((groupchat) => (
-        <Link
-          key={groupchat.groupchat_id}
-          href={`/chats/${groupchat.groupchat_id}`}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle>{groupchat.name}</CardTitle>
-              <CardDescription>
-                Group chat ID: {groupchat.groupchat_id}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Created at: {groupchat.created_at ?? 'Unknown'}
-              </CardDescription>
-              <DisplayEditGroupchatForm groupchat={groupchat} />
-              <DeleteGroupchatButton groupchatId={groupchat.groupchat_id} />
-            </CardContent>
-          </Card>
-        </Link>
+        <Card key={groupchat.groupchat_id} className="relative">
+          <Link
+            href={`/chats/${groupchat.groupchat_id}`}
+            aria-label={`Open ${groupchat.name}`}
+            className="absolute inset-0 z-10 cursor-pointer"
+          />
+          <div className="flex flex-row justify-between">
+            <div className="pointer-events-none relative z-20">
+              <CardHeader>
+                <CardTitle>{groupchat.name}</CardTitle>
+                <CardDescription>
+                  Group chat ID: {groupchat.groupchat_id}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Created at: {groupchat.created_at ?? 'Unknown'}
+                </CardDescription>
+              </CardContent>
+            </div>
+            <div className="pointer-events-none z-20 flex flex-row gap-2 absolute right-2 top-2">
+              <div className="pointer-events-auto h-fit">
+                <DisplayEditGroupchatForm groupchat={groupchat} />
+              </div>
+              <div className="pointer-events-auto h-fit">
+                <DeleteGroupchatButton groupchatId={groupchat.groupchat_id} />
+              </div>
+            </div>
+          </div>
+        </Card>
       ))}
     </div>
   );

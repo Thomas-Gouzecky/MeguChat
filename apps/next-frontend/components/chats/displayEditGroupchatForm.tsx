@@ -24,7 +24,7 @@ export default function DisplayCreateGroupchatForm({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button variant="outline">
+          <Button variant="outline" className="cursor-pointer">
             <Pencil />
           </Button>
         }
@@ -41,7 +41,11 @@ export default function DisplayCreateGroupchatForm({
           </DialogDescription>
         </DialogHeader>
 
-        <EditGroupchatForm groupchat={groupchat} setOpen={setOpen} className="px-4" />
+        <EditGroupchatForm
+          groupchat={groupchat}
+          setOpen={setOpen}
+          className="px-4"
+        />
       </DialogContent>
     </Dialog>
   );

@@ -15,6 +15,9 @@ import { ScrollArea, ScrollBar } from '@meguchat/ui/components/ui/scroll-area';
 
 import { useRouter } from 'next/navigation';
 import { editGroupchat } from '@/lib/api/groupchats';
+import { updateGroupchat } from '@/store/slices/groupchatSlice';
+import { AppDispatch } from '@/store/store';
+import { useDispatch } from 'react-redux';
 
 export function EditGroupchatForm({
   groupchat,
@@ -23,6 +26,7 @@ export function EditGroupchatForm({
 }: React.ComponentProps<'div'> & { groupchat: Groupchat }) {
   const [error, setError] = useState<ErrorResponse | null>(null);
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,8 +49,8 @@ export function EditGroupchatForm({
 
     // would be a successful groupchat creation
     if ('groupchat_id' in response) {
+      dispatch(updateGroupchat(response));
       router.push(`/chats`);
-      router.refresh();
     }
   }
   return (

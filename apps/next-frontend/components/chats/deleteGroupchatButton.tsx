@@ -5,13 +5,15 @@ import { deleteGroupchat } from '@/lib/api/groupchats';
 import { Button } from '@meguchat/ui/components/ui/button';
 import { Trash } from 'lucide-react';
 import { useDispatch } from 'react-redux';
+import { removeGroupchat } from '@/store/slices/groupchatSlice';
+import { AppDispatch } from '@/store/store';
 
 export default function DeleteGroupchatButton({
   groupchatId,
 }: {
   groupchatId: number;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   async function handleDelete(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
 
@@ -23,7 +25,7 @@ export default function DeleteGroupchatButton({
       return;
     }
 
-    // Deletes from the store -> should automatically update the UI
+    dispatch(removeGroupchat(groupchatId));
   }
 
   return (

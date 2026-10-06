@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { EmptyGroupchats } from '@/components/chats/EmptyGroupchats';
-import { getUsersGroupchats } from '@/lib/api/groupchats';
+import { fetchGroupchats } from '@/store/thunks/groupchatThunk';
+import { AppDispatch, RootState } from '@/store/store';
 import { cn } from '@meguchat/ui/lib/utils';
 import {
   Card,
@@ -14,36 +15,25 @@ import {
 } from '@meguchat/ui/components/ui/card';
 import DeleteGroupchatButton from './deleteGroupchatButton';
 import DisplayEditGroupchatForm from './displayEditGroupchatForm';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function Groupchats({ className }: { className?: string }) {
-  const [groupchats, setGroupchats] = useState<Groupchat[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { groupchats, loading: isLoading, error } = useSelector(
+    (state: RootState) => state.groupchats,
+  );
 
   useEffect(() => {
-    let isMounted = true;
+    void dispatch(fetchGroupchats());
+  }, [dispatch]);
 
-    async function fetchGroupchats() {
-      const response = await getUsersGroupchats();
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (Array.isArray(response)) {
-        setGroupchats(response);
-      } else {
-        console.error('Error fetching group chats:', response.detail);
-      }
-
-      setIsLoading(false);
-    }
-
-    fetchGroupchats();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  if (error) {
+    return (
+      <div className="p-4 text-sm text-destructive">
+        {error.title}: {error.detail}
+      </div>
+    );
+  }
 
   // Loading state
   if (isLoading) {

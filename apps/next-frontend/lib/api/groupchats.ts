@@ -12,7 +12,7 @@ export async function getUsersGroupchats(): Promise<
       credentials: 'include',
     });
 
-    if (response.ok) {
+    if (!response.ok) {
       return (await response.json()) as ErrorResponse;
     }
 

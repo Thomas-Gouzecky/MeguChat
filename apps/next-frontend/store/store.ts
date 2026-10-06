@@ -1,9 +1,11 @@
-import authReducer from './authSlice';
+import authReducer from './slices/authSlice';
+import groupchatReducer from './slices/groupchatSlice';
 import { configureStore } from '@reduxjs/toolkit';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    groupchats: groupchatReducer,
   },
 });
 

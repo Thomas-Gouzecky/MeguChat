@@ -2,13 +2,6 @@
 
 import { Button } from '@meguchat/ui/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@meguchat/ui/components/ui/card';
-import {
   Field,
   FieldDescription,
   FieldGroup,
@@ -19,8 +12,11 @@ import { cn } from '@meguchat/ui/lib/utils';
 import { useState } from 'react';
 import { ScrollArea, ScrollBar } from '@meguchat/ui/components/ui/scroll-area';
 import { createGroupchat } from '@/lib/api/groupchats';
+import { addGroupchat } from '@/store/slices/groupchatSlice';
+import { AppDispatch } from '@/store/store';
 
 import { useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
 
 export function CreateGroupchatForm({
   className,
@@ -28,6 +24,7 @@ export function CreateGroupchatForm({
 }: React.ComponentProps<'div'>) {
   const [error, setError] = useState<ErrorResponse | null>(null);
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,8 +47,8 @@ export function CreateGroupchatForm({
 
     // would be a successful groupchat creation
     if ('groupchat_id' in response) {
+      dispatch(addGroupchat(response));
       router.push(`/chats/${response.groupchat_id}`);
-      router.refresh();
     }
   }
   return (

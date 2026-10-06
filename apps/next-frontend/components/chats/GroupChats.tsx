@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 
 import { EmptyGroupchats } from '@/components/chats/EmptyGroupchats';
 import { getUsersGroupchats } from '@/lib/api/groupchats';
+import { cn } from '@meguchat/ui/lib/utils';
 
-export default function Groupchats() {
+export default function Groupchats({ className }: { className?: string }) {
   const [groupchats, setGroupchats] = useState<Groupchat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -51,7 +52,7 @@ export default function Groupchats() {
 
   // Render the actual group chats
   return (
-    <div className="space-y-3 p-4">
+    <div className={cn('space-y-3 p-4', className)}>
       {groupchats.map((groupchat) => (
         <div
           key={groupchat.groupchat_id}

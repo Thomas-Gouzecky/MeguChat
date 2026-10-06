@@ -1,3 +1,5 @@
+'use client';
+
 import { CreateGroupchatForm } from '@/components/chats/CreateGroupchat-form';
 import { Button } from '@meguchat/ui/components/ui/button';
 import {
@@ -24,7 +26,9 @@ import { useMediaQuery } from 'usehooks-ts';
 
 export function DisplayCreateGroupchatForm() {
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const isDesktop = useMediaQuery('(min-width: 768px)', {
+    initializeWithValue: false,
+  });
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>

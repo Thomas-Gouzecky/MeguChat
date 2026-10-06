@@ -1,6 +1,5 @@
-import { MessageCirclePlus, MessagesCircle } from 'lucide-react';
+import { MessagesCircle } from 'lucide-react';
 
-import { Button } from '@meguchat/ui/components/ui/button';
 import {
   Empty,
   EmptyContent,

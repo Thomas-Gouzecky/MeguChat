@@ -34,7 +34,7 @@ export async function getUsersGroupchats(): Promise<
 }
 
 export async function createGroupchat(
-  name: string,
+  CreateGroupchatRequest: CreateGroupchatRequest,
 ): Promise<Groupchat | ErrorResponse> {
   try {
     const response = await fetch('/api/groupchats', {
@@ -43,7 +43,10 @@ export async function createGroupchat(
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({
+        name: CreateGroupchatRequest.name,
+        users: CreateGroupchatRequest.users,
+      }),
     });
 
     if (!response.ok) {

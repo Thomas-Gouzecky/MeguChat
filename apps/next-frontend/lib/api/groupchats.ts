@@ -45,7 +45,7 @@ export async function createGroupchat(
       credentials: 'include',
       body: JSON.stringify({
         name: CreateGroupchatRequest.name,
-        users: CreateGroupchatRequest.users,
+        user_ids: CreateGroupchatRequest.user_ids,
       }),
     });
 

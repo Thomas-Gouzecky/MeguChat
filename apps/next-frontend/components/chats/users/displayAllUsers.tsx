@@ -29,7 +29,7 @@ export function DisplayAllUsers() {
   return (
     <>
       {users?.map((user) => (
-        <UserEntry key={user.user_id} user={user} />
+        <UserEntry className="mb-4" key={user.user_id} user={user} />
       ))}
     </>
   );

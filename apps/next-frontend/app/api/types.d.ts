@@ -6,7 +6,7 @@ type Groupchat = {
 
 type CreateGroupchatRequest = {
   name: string;
-  users: string[];
+  user_ids: string[];
 };
 
 type User = {

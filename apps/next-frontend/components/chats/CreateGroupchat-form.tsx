@@ -38,7 +38,7 @@ export function CreateGroupchatForm({
 
     const response = await createGroupchat({
       name: groupchatName,
-      users: selectedUsers,
+      user_ids: selectedUsers,
     });
 
     // would be an error
@@ -72,13 +72,12 @@ export function CreateGroupchatForm({
             />
           </Field>
           <Field>
-            <div className="flex items-center">
-              <Label htmlFor="users">Users</Label>
-              <ScrollArea className="h-32 w-full">
-                <ScrollBar orientation="vertical" />
+            <Label htmlFor="users">Users</Label>
+            <ScrollArea className="h-32 w-full">
+              <div className="pr-4 pt-2">
                 <DisplayAllUsers />
-              </ScrollArea>
-            </div>
+              </div>
+            </ScrollArea>
           </Field>
           <Field>
             <Button type="submit">Create Group Chat</Button>

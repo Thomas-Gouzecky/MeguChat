@@ -8,7 +8,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@meguchat/ui/components/ui/empty';
-import { DisplayCreateGroupchatForm } from '@/lib/chats/displayCreateGroupchatForm';
+import { DisplayCreateGroupchatForm } from '@/components/chats/displayCreateGroupchatForm';
 
 export function EmptyGroupchats() {
   return (

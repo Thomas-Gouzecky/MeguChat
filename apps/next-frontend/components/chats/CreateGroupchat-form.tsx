@@ -51,49 +51,37 @@ export function CreateGroupchatForm({
   }
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Create Group Chat</CardTitle>
-          <CardDescription>
-            Enter the name of your new group chat
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            {error && (
-              <FieldDescription className="text-destructive">
-                {error.title}: {error.detail}
-              </FieldDescription>
-            )}
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="groupchat-name">
-                  Group Chat Name
-                </FieldLabel>
-                <Input
-                  id="groupchat-name"
-                  name="groupchat-name"
-                  type="text"
-                  placeholder="Your group chat name"
-                />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="users">Users</FieldLabel>
-                  <ScrollArea className="h-32 w-full">
-                    <ScrollBar orientation="vertical" />
-                    {/* Get all the users from the /api/users endpoint */}
-                    {/* Display each user in the scroll area and allow selection */}
-                  </ScrollArea>
-                </div>
-              </Field>
-              <Field>
-                <Button type="submit">Create Group Chat</Button>
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
+      <form onSubmit={handleSubmit}>
+        {error && (
+          <FieldDescription className="text-destructive">
+            {error.title}: {error.detail}
+          </FieldDescription>
+        )}
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="groupchat-name">Group Chat Name</FieldLabel>
+            <Input
+              id="groupchat-name"
+              name="groupchat-name"
+              type="text"
+              placeholder="Your group chat name"
+            />
+          </Field>
+          <Field>
+            <div className="flex items-center">
+              <FieldLabel htmlFor="users">Users</FieldLabel>
+              <ScrollArea className="h-32 w-full">
+                <ScrollBar orientation="vertical" />
+                {/* Get all the users from the /api/users endpoint */}
+                {/* Display each user in the scroll area and allow selection */}
+              </ScrollArea>
+            </div>
+          </Field>
+          <Field>
+            <Button type="submit">Create Group Chat</Button>
+          </Field>
+        </FieldGroup>
+      </form>
     </div>
   );
 }

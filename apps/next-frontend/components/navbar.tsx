@@ -1,6 +1,6 @@
 'use client';
 
-import { SignOutButton } from './signout-button';
+import { SignOutButton } from './auth/signout-button';
 import { ModeToggle } from '@meguchat/ui/components/mode-toggle';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';

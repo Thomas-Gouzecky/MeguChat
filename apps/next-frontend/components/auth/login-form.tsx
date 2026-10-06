@@ -24,7 +24,6 @@ import { cn } from '@meguchat/ui/lib/utils';
 
 import { Login } from '@/lib/api/auth';
 import validateForm from '@/lib/validateForm';
-import router from 'next/router';
 
 export function LoginForm({
   className,

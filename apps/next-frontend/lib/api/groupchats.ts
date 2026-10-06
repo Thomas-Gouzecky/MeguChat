@@ -69,3 +69,36 @@ export async function createGroupchat(
     } as ErrorResponse;
   }
 }
+
+export async function deleteGroupchat(
+  groupchatId: number,
+): Promise<Groupchat | ErrorResponse> {
+  try {
+    const response = await fetch(`/api/groupchats/${groupchatId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return (await response.json()) as ErrorResponse;
+    }
+
+    const groupchat = (await response.json()) as Groupchat;
+
+    return {
+      groupchat_id: groupchat.groupchat_id,
+      name: groupchat.name,
+      created_at: groupchat.created_at,
+    };
+  } catch (error) {
+    console.error('Error deleting group chat:', error);
+    return {
+      title: 'Server Error',
+      status: 500,
+      detail: 'An error occurred while deleting the group chat.',
+    } as ErrorResponse;
+  }
+}

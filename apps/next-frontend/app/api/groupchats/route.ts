@@ -56,31 +56,3 @@ export async function POST(request: NextRequest): Promise<Response> {
     );
   }
 }
-
-export async function DELETE(request: NextRequest): Promise<Response> {
-  try {
-    const requestBody = await request.json();
-    const response = await fetch(`${process.env.GATEWAY_URL}/api/groupchats`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        cookie: request.headers.get('cookie') ?? '',
-      },
-      body: JSON.stringify(requestBody),
-    });
-    return response;
-  } catch (error) {
-    console.error('Error deleting group chat:', error);
-    return new Response(
-      JSON.stringify({
-        title: 'Server Error',
-        status: 500,
-        detail: 'An error occurred while deleting group chat.',
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
-  }
-}

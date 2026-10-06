@@ -1,23 +1,30 @@
+'use client';
+
+import { deleteGroupchat } from '@/lib/api/groupchats';
+
 import { Button } from '@meguchat/ui/components/ui/button';
 import { Trash } from 'lucide-react';
+import { useDispatch } from 'react-redux';
 
 export default function DeleteGroupchatButton({
   groupchatId,
 }: {
   groupchatId: number;
 }) {
-  const handleDelete = async () => {
-    try {
-      const response = await fetch(`/api/groupchats/${groupchatId}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete group chat');
-      }
-    } catch (error) {
-      console.error('Error deleting group chat:', error);
+  const dispatch = useDispatch();
+  async function handleDelete(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+
+    // Deletes from the database
+    const response = await deleteGroupchat(groupchatId);
+
+    if ('status' in response && response.status >= 400) {
+      alert('Failed to delete group chat');
+      return;
     }
-  };
+
+    // Deletes from the store -> should automatically update the UI
+  }
 
   return (
     <Button

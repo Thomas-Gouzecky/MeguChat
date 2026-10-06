@@ -10,14 +10,33 @@ export async function getAllUsers(): Promise<User[] | ErrorResponse> {
       credentials: 'include',
     });
 
-    if (!response.ok) {
-      return (await response.json()) as ErrorResponse;
+    const body = await response.text();
+
+    if (!body.trim()) {
+      if (!response.ok) {
+        return {
+          title: 'Unable to fetch users',
+          status: response.status,
+          detail: 'The users endpoint returned an empty response.',
+        };
+      }
+
+      return [];
     }
 
-    const users = (await response.json()) as User[];
+    const payload: unknown = JSON.parse(body);
+
+    if (!response.ok) {
+      return payload as ErrorResponse;
+    }
+
+    const users = payload as Array<{
+      id: string;
+      username: string;
+    }>;
 
     return users.map((user) => ({
-      user_id: user.user_id,
+      user_id: Number(user.id),
       username: user.username,
     }));
   } catch (error) {

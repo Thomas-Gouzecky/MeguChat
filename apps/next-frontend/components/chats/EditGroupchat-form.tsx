@@ -13,7 +13,6 @@ import { cn } from '@meguchat/ui/lib/utils';
 import { useState } from 'react';
 import { ScrollArea, ScrollBar } from '@meguchat/ui/components/ui/scroll-area';
 
-import { useRouter } from 'next/navigation';
 import { editGroupchat } from '@/lib/api/groupchats';
 import { updateGroupchat } from '@/store/slices/groupchatSlice';
 import { AppDispatch } from '@/store/store';

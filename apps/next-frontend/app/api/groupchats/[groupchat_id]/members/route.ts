@@ -13,8 +13,8 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          cookie: request.headers.get('cookie') ?? '',
         },
-        credentials: 'include',
       },
     );
 

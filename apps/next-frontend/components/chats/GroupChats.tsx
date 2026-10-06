@@ -16,6 +16,7 @@ import {
 import DeleteGroupchatButton from './deleteGroupchatButton';
 import DisplayEditGroupchatForm from './displayEditGroupchatForm';
 import { useDispatch, useSelector } from 'react-redux';
+import Link from 'next/link';
 
 export default function Groupchats({ className }: { className?: string }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -55,21 +56,26 @@ export default function Groupchats({ className }: { className?: string }) {
   return (
     <div className={cn('space-y-3 p-4', className)}>
       {groupchats.map((groupchat) => (
-        <Card key={groupchat.groupchat_id}>
-          <CardHeader>
-            <CardTitle>{groupchat.name}</CardTitle>
-            <CardDescription>
-              Group chat ID: {groupchat.groupchat_id}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <CardDescription>
-              Created at: {groupchat.created_at ?? 'Unknown'}
-            </CardDescription>
-            <DisplayEditGroupchatForm groupchat={groupchat} />
-            <DeleteGroupchatButton groupchatId={groupchat.groupchat_id} />
-          </CardContent>
-        </Card>
+        <Link
+          key={groupchat.groupchat_id}
+          href={`/chats/${groupchat.groupchat_id}`}
+        >
+          <Card key={groupchat.groupchat_id}>
+            <CardHeader>
+              <CardTitle>{groupchat.name}</CardTitle>
+              <CardDescription>
+                Group chat ID: {groupchat.groupchat_id}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Created at: {groupchat.created_at ?? 'Unknown'}
+              </CardDescription>
+              <DisplayEditGroupchatForm groupchat={groupchat} />
+              <DeleteGroupchatButton groupchatId={groupchat.groupchat_id} />
+            </CardContent>
+          </Card>
+        </Link>
       ))}
     </div>
   );

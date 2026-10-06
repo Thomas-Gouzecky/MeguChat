@@ -1,3 +1,5 @@
+import { EmptyGroupchats } from '@/components/chats/EmptyGroupchats';
+
 export default function Groupchats() {
-  return <div>Group Chats</div>;
+  return <EmptyGroupchats />;
 }

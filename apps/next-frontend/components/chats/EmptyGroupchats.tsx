@@ -9,6 +9,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@meguchat/ui/components/ui/empty';
+import { DisplayCreateGroupchatForm } from '@/lib/chats/displayCreateGroupchatForm';
 
 export function EmptyGroupchats() {
   return (
@@ -24,10 +25,7 @@ export function EmptyGroupchats() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button variant="outline">
-          <MessageCirclePlus data-icon="inline-start" />
-          Create Group Chat
-        </Button>
+        <DisplayCreateGroupchatForm />
       </EmptyContent>
     </Empty>
   );

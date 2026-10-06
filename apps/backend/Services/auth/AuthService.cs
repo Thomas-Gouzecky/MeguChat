@@ -32,7 +32,7 @@ public sealed class AuthService : IAuthService
             lockoutOnFailure: false);
 
         return result.Succeeded
-            ? AuthResult.Success()
+            ? AuthResult.Success(user.Id, user.UserName ?? username)
             : AuthResult.Failure(new[]
             {
                 new AuthError("InvalidCredentials", "Invalid Credentials", "password")

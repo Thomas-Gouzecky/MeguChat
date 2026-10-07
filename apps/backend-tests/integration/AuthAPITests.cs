@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 
 namespace backend.Tests;
 
@@ -30,6 +31,8 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
         var result = await response.Content.ReadFromJsonAsync<AuthResult>();
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
+        Assert.False(string.IsNullOrWhiteSpace(result.UserId));
+        Assert.Equal("testuser", result.Username);
     }
 
     [Fact]
@@ -214,6 +217,7 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
         var result = await meResponse.Content.ReadFromJsonAsync<CurrentUserResponse>();
         Assert.NotNull(result);
         Assert.Equal("testuser", result.Username);
+        Assert.False(string.IsNullOrWhiteSpace(result.UserId));
     }
 
     [Fact]
@@ -253,5 +257,7 @@ public class AuthAPITests : IClassFixture<TestWebApplicationFactory>
         Assert.Equal(System.Net.HttpStatusCode.Unauthorized, meResponse.StatusCode);
     }
 
-    private sealed record CurrentUserResponse(string Username);
+    private sealed record CurrentUserResponse(
+        [property: JsonPropertyName("user_id")] string UserId,
+        string Username);
 }

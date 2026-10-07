@@ -2,11 +2,12 @@
 
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setUser, clearUser } from '@/store/authSlice';
+import { setUser, clearUser } from '@/store/slices/authSlice';
 
 interface AuthInitializerProps {
   user: {
-    userName: string;
+    username: string;
+    user_id: string;
   } | null;
 }
 

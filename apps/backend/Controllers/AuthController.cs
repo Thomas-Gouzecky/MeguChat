@@ -59,6 +59,6 @@ public class AuthController : ControllerBase
             return NotFound();
         }
 
-        return Ok(new { Username = user.UserName });
+        return Ok(new { user_id = user.Id, username = user.UserName });
     }
 }

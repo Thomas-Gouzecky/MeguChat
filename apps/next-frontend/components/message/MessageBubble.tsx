@@ -17,6 +17,7 @@ import {
 } from '@meguchat/ui/components/ui/message';
 import { useSelector } from 'react-redux';
 import { JSX } from 'react/jsx-runtime';
+import { MessageDropDownMenu } from './MessageDropDown';
 
 export function MessageBubble({
   messageGroup,
@@ -56,9 +57,22 @@ export function MessageBubble({
       <MessageContent>
         <BubbleGroup>
           {messageGroup.map((message) => (
-            <Bubble key={message.id}>
-              <BubbleContent>{message.content}</BubbleContent>
-            </Bubble>
+            <div
+              key={message.id}
+              className={`group/message-row flex items-center gap-2 ${
+                alignment === 'end' ? 'flex-row-reverse' : ''
+              }`}
+            >
+              <Bubble>
+                <BubbleContent>{message.content}</BubbleContent>
+              </Bubble>
+              <div className="pointer-events-none opacity-0 transition-opacity group-hover/message-row:pointer-events-auto group-hover/message-row:opacity-100 group-focus-within/message-row:pointer-events-auto group-focus-within/message-row:opacity-100">
+                <MessageDropDownMenu
+                  message_id={message.id.toString()}
+                  groupchat_id={message.group_chat_id.toString()}
+                />
+              </div>
+            </div>
           ))}
           <MessageFooter className="gap-2">
             {messageResponses[status]}

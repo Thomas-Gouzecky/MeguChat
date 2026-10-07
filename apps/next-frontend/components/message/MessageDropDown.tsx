@@ -1,6 +1,6 @@
 'use client';
 
-import { PencilIcon, ShareIcon, TrashIcon } from 'lucide-react';
+import { EllipsisVertical, PencilIcon, ShareIcon } from 'lucide-react';
 
 import { Button } from '@meguchat/ui/components/ui/button';
 import {
@@ -23,7 +23,11 @@ export function MessageDropDownMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="outline">Actions</Button>}
+        render={
+          <Button variant="outline" size="icon">
+            <EllipsisVertical />
+          </Button>
+        }
       />
       <DropdownMenuContent>
         <DropdownMenuGroup>

@@ -13,8 +13,10 @@ import {
   Message,
   MessageAvatar,
   MessageContent,
+  MessageFooter,
 } from '@meguchat/ui/components/ui/message';
 import { useSelector } from 'react-redux';
+import { JSX } from 'react/jsx-runtime';
 
 export function MessageBubble({
   messageGroup,
@@ -29,6 +31,18 @@ export function MessageBubble({
   }
 
   const alignment = firstMessage.user_id === user_id ? 'end' : 'start';
+  const lastMessage = messageGroup.at(-1) ?? firstMessage;
+  const status = lastMessage.status ?? 'sent';
+
+  const messageResponses: Record<'sending' | 'sent' | 'error', JSX.Element> = {
+    sending: <span className="font-normal">Sending...</span>,
+    sent: <span className="font-normal">Sent</span>,
+    error: (
+      <span className="font-normal text-destructive">
+        Failed to send message
+      </span>
+    ),
+  };
   return (
     <Message align={alignment}>
       <MessageAvatar>
@@ -46,6 +60,9 @@ export function MessageBubble({
               <BubbleContent>{message.content}</BubbleContent>
             </Bubble>
           ))}
+          <MessageFooter className="gap-2">
+            {messageResponses[status]}
+          </MessageFooter>
         </BubbleGroup>
       </MessageContent>
     </Message>

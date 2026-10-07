@@ -3,35 +3,72 @@
 import { ArrowUp } from 'lucide-react';
 
 import { createNewMessage } from '@/lib/api/messages';
-import { addMessage } from '@/store/slices/messagesSlice';
-import { AppDispatch } from '@/store/store';
+import {
+  addMessage,
+  editMessage,
+  replaceMessage,
+} from '@/store/slices/messagesSlice';
+import { AppDispatch, RootState } from '@/store/store';
 import { Input } from '@meguchat/ui/components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
 } from '@meguchat/ui/components/ui/input-group';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function MessageForm({ groupchatId }: { groupchatId: string }) {
   const dispatch = useDispatch<AppDispatch>();
+  const userId = useSelector((state: RootState) => state.auth.user?.user_id);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const messageContent = formData.get('message') as string;
-    const response = await createNewMessage(groupchatId, messageContent);
+    const temporaryId = Date.now();
+    const temporaryMessage: MessageType = {
+      id: temporaryId,
+      content: messageContent,
+      user_id: userId ?? 'temp-user',
+      group_chat_id: Number(groupchatId),
+      created_at: new Date().toISOString(),
+      modified_at: new Date().toISOString(),
+      status: 'sending',
+    };
 
-    if ('status' in response && response.status >= 400) {
-      console.error('Error creating message:', response);
-      return;
-    }
+    dispatch(
+      addMessage({
+        groupchat_id: groupchatId,
+        message: temporaryMessage,
+      }),
+    );
+    event.currentTarget.reset();
 
-    if ('id' in response) {
+    try {
+      const response = await createNewMessage(groupchatId, messageContent);
+
+      if (!('id' in response)) {
+        dispatch(
+          editMessage({
+            groupchat_id: groupchatId,
+            message: { ...temporaryMessage, status: 'error' },
+          }),
+        );
+        return;
+      }
+
       dispatch(
-        addMessage({
+        replaceMessage({
           groupchat_id: groupchatId,
-          message: response,
+          message_id: temporaryId,
+          message: { ...response, status: 'sent' },
+        }),
+      );
+    } catch {
+      dispatch(
+        editMessage({
+          groupchat_id: groupchatId,
+          message: { ...temporaryMessage, status: 'error' },
         }),
       );
     }

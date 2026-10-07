@@ -44,6 +44,7 @@ import { MessageBubble } from './MessageBubble';
 import { Input } from '@meguchat/ui/components/ui/input';
 import { useEffect } from 'react';
 import { fetchMessagesByGroupchatId } from '@/store/thunks/messagesThunk';
+import { fetchGroupchatById } from '@/store/thunks/groupchatThunk';
 
 export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -62,7 +63,7 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
   useEffect(() => {
     // Fetch messages for the groupchat when the component mounts
     dispatch(fetchMessagesByGroupchatId(Number(groupchatId)));
-    dispatch(fetchGroupchatById(Number(groupchatId))); // Fetch groupchat details
+    dispatch(fetchGroupchatById(groupchatId)); // Fetch groupchat details
   }, [dispatch, groupchatId]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

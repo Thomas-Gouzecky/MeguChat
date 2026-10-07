@@ -69,9 +69,7 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const messageContent = formData.get('message') as string;
-    const response = await createNewMessage(groupchatId, {
-      content: messageContent,
-    });
+    const response = await createNewMessage(groupchatId, messageContent);
   }
 
   return (

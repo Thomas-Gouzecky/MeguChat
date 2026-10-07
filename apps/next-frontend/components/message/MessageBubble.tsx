@@ -37,7 +37,15 @@ export function MessageBubble({
 
   const messageResponses: Record<'sending' | 'sent' | 'error', JSX.Element> = {
     sending: <span className="font-normal">Sending...</span>,
-    sent: <span className="font-normal">Sent</span>,
+    sent: (
+      <span className="font-normal">
+        Sent{' '}
+        {new Date(lastMessage.created_at).toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+        })}
+      </span>
+    ),
     error: (
       <span className="font-normal text-destructive">
         Failed to send message

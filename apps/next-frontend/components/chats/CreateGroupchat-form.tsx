@@ -38,7 +38,7 @@ export function CreateGroupchatForm({
 
     const response = await createGroupchat({
       name: groupchatName,
-      user_ids: selectedUsers,
+      users: selectedUsers,
     });
 
     // would be an error

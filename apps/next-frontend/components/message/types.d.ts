@@ -1,0 +1,8 @@
+type MessageType = {
+  id: number;
+  content: string;
+  user_id: string;
+  group_chat_id: number;
+  created_at: string;
+  modified_at: string;
+};

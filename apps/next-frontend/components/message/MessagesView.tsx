@@ -38,7 +38,7 @@ export default function MessagesView({ groupchatId }: { groupchatId: string }) {
   }, [dispatch, groupchatId]);
 
   useEffect(() => {
-    scrollToEnd();
+    scrollToEnd({ behavior: 'smooth' });
   }, [messages.length, scrollToEnd]);
 
   return (

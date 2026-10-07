@@ -12,11 +12,13 @@ export async function getGroupchatMembers(
       credentials: 'include',
     });
 
+    const payload = await response.json();
+
     if (!response.ok) {
-      return (await response.json()) as ErrorResponse;
+      return payload as ErrorResponse;
     }
 
-    const groupchatMembers = (await response.json()) as GroupchatMember[];
+    const groupchatMembers = payload as GroupchatMember[];
 
     return groupchatMembers;
   } catch (error) {

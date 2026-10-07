@@ -12,11 +12,13 @@ export async function getUsersGroupchats(): Promise<
       credentials: 'include',
     });
 
+    const payload = await response.json();
+
     if (!response.ok) {
-      return (await response.json()) as ErrorResponse;
+      return payload as ErrorResponse;
     }
 
-    const groupchats = (await response.json()) as Groupchat[];
+    const groupchats = payload as Groupchat[];
 
     return groupchats.map((groupchat) => ({
       groupchat_id: groupchat.groupchat_id,
@@ -49,11 +51,13 @@ export async function createGroupchat(
       }),
     });
 
+    const payload = await response.json();
+
     if (!response.ok) {
-      return (await response.json()) as ErrorResponse;
+      return payload as ErrorResponse;
     }
 
-    const groupchat = (await response.json()) as Groupchat;
+    const groupchat = payload as Groupchat;
 
     return {
       groupchat_id: groupchat.groupchat_id,
@@ -82,11 +86,13 @@ export async function deleteGroupchat(
       credentials: 'include',
     });
 
+    const payload = await response.json();
+
     if (!response.ok) {
-      return (await response.json()) as ErrorResponse;
+      return payload as ErrorResponse;
     }
 
-    const groupchat = (await response.json()) as Groupchat;
+    const groupchat = payload as Groupchat;
 
     return {
       groupchat_id: groupchat.groupchat_id,
@@ -117,11 +123,13 @@ export async function editGroupchat(
       body: JSON.stringify(updatedGroupchat),
     });
 
+    const payload = await response.json();
+
     if (!response.ok) {
-      return (await response.json()) as ErrorResponse;
+      return payload as ErrorResponse;
     }
 
-    const groupchat = (await response.json()) as Groupchat;
+    const groupchat = payload as Groupchat;
 
     return {
       groupchat_id: groupchat.groupchat_id,

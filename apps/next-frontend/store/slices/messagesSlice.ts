@@ -62,16 +62,6 @@ const messagesSlice = createSlice({
           msg.id === message_id ? message : msg,
         ) ?? [];
     },
-    deleteMessage: (
-      state,
-      action: PayloadAction<{ groupchat_id: string; message_id: number }>,
-    ) => {
-      const { groupchat_id, message_id } = action.payload;
-      state.messagesByGroupchatId[groupchat_id] =
-        state.messagesByGroupchatId[groupchat_id]?.filter(
-          (message) => message.id !== message_id,
-        ) ?? [];
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -90,11 +80,6 @@ const messagesSlice = createSlice({
   },
 });
 
-export const {
-  addMessage,
-  removeMessage,
-  editMessage,
-  replaceMessage,
-  deleteMessage,
-} = messagesSlice.actions;
+export const { addMessage, removeMessage, editMessage, replaceMessage } =
+  messagesSlice.actions;
 export default messagesSlice.reducer;

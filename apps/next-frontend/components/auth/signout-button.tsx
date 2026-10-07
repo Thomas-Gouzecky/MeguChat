@@ -28,16 +28,16 @@ export function SignOutButton({
   }
 
   return (
-    <div className={cn('flex flex-col gap-6', className)}>
+    <div className={cn(className)}>
       <Button
         type="button"
+        size="icon"
         variant="ghost"
         onClick={handleSignOut}
-        className={cn('w-full justify-start', className)}
+        className="transition-none active:translate-y-0!"
         {...props}
       >
         <LogOut className="h-4 w-4" />
-        Sign Out
       </Button>
     </div>
   );

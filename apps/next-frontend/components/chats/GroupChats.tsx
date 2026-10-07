@@ -9,7 +9,6 @@ import { cn } from '@meguchat/ui/lib/utils';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@meguchat/ui/components/ui/card';

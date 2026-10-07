@@ -4,7 +4,11 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@meguchat/ui/components/ui/avatar';
-import { Bubble, BubbleContent } from '@meguchat/ui/components/ui/bubble';
+import {
+  Bubble,
+  BubbleContent,
+  BubbleGroup,
+} from '@meguchat/ui/components/ui/bubble';
 import {
   Message,
   MessageAvatar,
@@ -13,26 +17,36 @@ import {
 import { useSelector } from 'react-redux';
 
 export function MessageBubble({
-  MessageObject,
+  messageGroup,
 }: {
-  MessageObject: MessageType;
+  messageGroup: MessageType[];
 }) {
   const user_id = useSelector((state: RootState) => state.auth.user?.user_id);
-  const alignment = MessageObject.user_id === user_id ? 'end' : 'start';
+  const firstMessage = messageGroup[0];
+
+  if (!firstMessage) {
+    return null;
+  }
+
+  const alignment = firstMessage.user_id === user_id ? 'end' : 'start';
   return (
     <Message align={alignment}>
       <MessageAvatar>
         <Avatar>
           <AvatarImage src="/avatars/10.png" alt="@me" />
           <AvatarFallback>
-            {MessageObject.user_id?.substring(0, 2).toUpperCase() || 'ME'}
+            {firstMessage.user_id?.substring(0, 2).toUpperCase() || 'ME'}
           </AvatarFallback>
         </Avatar>
       </MessageAvatar>
       <MessageContent>
-        <Bubble>
-          <BubbleContent>{MessageObject.content}</BubbleContent>
-        </Bubble>
+        <BubbleGroup>
+          {messageGroup.map((message) => (
+            <Bubble key={message.id}>
+              <BubbleContent>{message.content}</BubbleContent>
+            </Bubble>
+          ))}
+        </BubbleGroup>
       </MessageContent>
     </Message>
   );

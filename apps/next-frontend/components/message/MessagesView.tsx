@@ -18,6 +18,17 @@ export default function MessagesView({ groupchatId }: { groupchatId: string }) {
   const messages = messagesByGroupchatId[Number(groupchatId)] ?? [];
   const isLoading = loadingByGroupchatId[Number(groupchatId)] ?? false;
   const error = errorByGroupchatId[Number(groupchatId)] ?? null;
+  const messageGroups = messages.reduce<MessageType[][]>((groups, message) => {
+    const previousGroup = groups.at(-1);
+
+    if (previousGroup?.[0]?.user_id === message.user_id) {
+      previousGroup.push(message);
+    } else {
+      groups.push([message]);
+    }
+
+    return groups;
+  }, []);
 
   useEffect(() => {
     dispatch(fetchMessagesByGroupchatId(Number(groupchatId)));
@@ -26,8 +37,11 @@ export default function MessagesView({ groupchatId }: { groupchatId: string }) {
     <MessageScroller>
       <MessageScrollerViewport>
         <MessageScrollerContent className="p-(--card-spacing)">
-          {messages.map((message) => (
-            <MessageBubble key={message.id} MessageObject={message} />
+          {messageGroups.map((messageGroup) => (
+            <MessageBubble
+              key={messageGroup[0].id}
+              messageGroup={messageGroup}
+            />
           ))}
         </MessageScrollerContent>
       </MessageScrollerViewport>

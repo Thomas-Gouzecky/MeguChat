@@ -9,38 +9,41 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@meguchat/ui/components/ui/dialog';
 import { Trash } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 
 export default function DeleteMessageButton({
-  groupchat_id,
-  message_id,
+  message,
+  open,
+  onOpenChange,
 }: {
-  groupchat_id: string;
-  message_id: string;
+  message: MessageType;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
   const dispatch = useDispatch<AppDispatch>();
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const response = await deleteMessage(groupchat_id, message_id);
+    const response = await deleteMessage(
+      message.group_chat_id.toString(),
+      message.id.toString(),
+    );
 
     if ('detail' in response && response.status >= 400) {
       return;
     }
-    dispatch(removeMessage({ groupchat_id, message_id }));
+    dispatch(
+      removeMessage({
+        groupchat_id: message.group_chat_id.toString(),
+        message_id: message.id.toString(),
+      }),
+    );
+    onOpenChange(false);
   }
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <form onSubmit={handleSubmit}>
-        <DialogTrigger
-          render={
-            <Button variant="destructive" size="icon">
-              <Trash />
-            </Button>
-          }
-        />
         <DialogContent showCloseButton={false}>
           <DialogHeader>
             <DialogTitle>Delete Message</DialogTitle>

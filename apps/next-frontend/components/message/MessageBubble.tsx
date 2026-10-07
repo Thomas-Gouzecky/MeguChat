@@ -67,10 +67,7 @@ export function MessageBubble({
                 <BubbleContent>{message.content}</BubbleContent>
               </Bubble>
               <div className="pointer-events-none opacity-0 transition-opacity group-hover/message-row:pointer-events-auto group-hover/message-row:opacity-100 group-focus-within/message-row:pointer-events-auto group-focus-within/message-row:opacity-100">
-                <MessageDropDownMenu
-                  message_id={message.id.toString()}
-                  groupchat_id={message.group_chat_id.toString()}
-                />
+                <MessageDropDownMenu message={message} />
               </div>
             </div>
           ))}

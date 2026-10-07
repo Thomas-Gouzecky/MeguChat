@@ -1,6 +1,6 @@
 'use client';
 
-import { EllipsisVertical, PencilIcon, ShareIcon } from 'lucide-react';
+import { EllipsisVertical, PencilIcon, ShareIcon, Trash } from 'lucide-react';
 
 import { Button } from '@meguchat/ui/components/ui/button';
 import {
@@ -11,45 +11,50 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@meguchat/ui/components/ui/dropdown-menu';
+import { useState } from 'react';
 import DeleteMessageButton from './deleteMessage';
 
-export function MessageDropDownMenu({
-  groupchat_id,
-  message_id,
-}: {
-  groupchat_id: string;
-  message_id: string;
-}) {
+export function MessageDropDownMenu({ message }: { message: MessageType }) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button variant="outline" size="icon">
-            <EllipsisVertical />
-          </Button>
-        }
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="outline" size="icon">
+              <EllipsisVertical />
+            </Button>
+          }
+        />
+        <DropdownMenuContent>
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <PencilIcon />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <ShareIcon />
+              Share
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              <Trash />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DeleteMessageButton
+        message={message}
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
       />
-      <DropdownMenuContent>
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <PencilIcon />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <ShareIcon />
-            Share
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive">
-            <DeleteMessageButton
-              groupchat_id={groupchat_id}
-              message_id={message_id}
-            />
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    </>
   );
 }

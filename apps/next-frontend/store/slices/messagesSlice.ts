@@ -27,12 +27,12 @@ const messagesSlice = createSlice({
     },
     removeMessage: (
       state,
-      action: PayloadAction<{ groupchat_id: string; message_id: number }>,
+      action: PayloadAction<{ groupchat_id: string; message_id: string }>,
     ) => {
       const { groupchat_id, message_id } = action.payload;
       state.messagesByGroupchatId[groupchat_id] =
         state.messagesByGroupchatId[groupchat_id]?.filter(
-          (message) => message.id !== message_id,
+          (message) => message.id.toString() !== message_id,
         ) ?? [];
     },
     editMessage: (

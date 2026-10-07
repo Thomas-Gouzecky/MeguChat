@@ -2,43 +2,52 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchGroupchatMembers } from '../thunks/groupchatMembersThunk';
 
 interface GroupchatMembersState {
-  groupchatMembers: GroupchatMember[];
-  loading: boolean;
-  error: ErrorResponse | null;
+  membersByGroupchatId: Record<string, GroupchatMember[]>;
+  loadingByGroupchatId: Record<string, boolean>;
+  errorByGroupchatId: Record<string, ErrorResponse | null>;
 }
 
 const initialState: GroupchatMembersState = {
-  groupchatMembers: [],
-  loading: false,
-  error: null,
+  membersByGroupchatId: {},
+  loadingByGroupchatId: {},
+  errorByGroupchatId: {},
 };
 
 const groupchatMembersSlice = createSlice({
   name: 'groupchatMembers',
   initialState,
   reducers: {
-    addMember: (state, action: PayloadAction<GroupchatMember>) => {
-      state.groupchatMembers.push(action.payload);
-    },
-    removeMember: (state, action: PayloadAction<number>) => {
-      state.groupchatMembers = state.groupchatMembers.filter(
-        (member) => member.id !== action.payload,
+    addMember: (
+      state,
+      action: PayloadAction<{ groupchat_id: string; member: GroupchatMember }>,
+    ) => {
+      state.membersByGroupchatId[action.payload.groupchat_id].push(
+        action.payload.member,
       );
+    },
+    removeMember: (
+      state,
+      action: PayloadAction<{ groupchat_id: string; member_id: number }>,
+    ) => {
+      state.membersByGroupchatId[action.payload.groupchat_id] =
+        state.membersByGroupchatId[action.payload.groupchat_id]?.filter(
+          (member) => member.id !== action.payload.member_id,
+        ) ?? [];
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGroupchatMembers.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(fetchGroupchatMembers.pending, (state, action) => {
+        state.loadingByGroupchatId[action.meta.arg] = true;
+        state.errorByGroupchatId[action.meta.arg] = null;
       })
       .addCase(fetchGroupchatMembers.fulfilled, (state, action) => {
-        state.loading = false;
-        state.groupchatMembers = action.payload;
+        state.loadingByGroupchatId[action.meta.arg] = false;
+        state.membersByGroupchatId[action.meta.arg] = action.payload;
       })
       .addCase(fetchGroupchatMembers.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload ?? null;
+        state.loadingByGroupchatId[action.meta.arg] = false;
+        state.errorByGroupchatId[action.meta.arg] = action.payload ?? null;
       });
   },
 });

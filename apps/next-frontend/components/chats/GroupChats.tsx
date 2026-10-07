@@ -17,6 +17,7 @@ import DeleteGroupchatButton from './deleteGroupchatButton';
 import DisplayEditGroupchatForm from './editForm/displayEditGroupchatForm';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
+import { DisplayGroupChatMembersAvatars } from './chatmembersAvatars/DisplayGroupChatMembersAvatars';
 
 export default function Groupchats({ className }: { className?: string }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -63,17 +64,12 @@ export default function Groupchats({ className }: { className?: string }) {
             className="absolute inset-0 z-10 cursor-pointer"
           />
           <div className="flex flex-row justify-between">
-            <div className="pointer-events-none relative z-20">
-              <CardHeader>
+            <div className="pointer-events-none relative z-20 w-full">
+              <CardHeader className="w-full">
                 <CardTitle>{groupchat.name}</CardTitle>
-                <CardDescription>
-                  Group chat ID: {groupchat.groupchat_id}
-                </CardDescription>
               </CardHeader>
               <CardContent>
-                <CardDescription>
-                  Created at: {groupchat.created_at ?? 'Unknown'}
-                </CardDescription>
+                <DisplayGroupChatMembersAvatars groupchat={groupchat} />
               </CardContent>
             </div>
             <div className="pointer-events-none z-20 flex flex-row gap-2 absolute right-2 top-2">

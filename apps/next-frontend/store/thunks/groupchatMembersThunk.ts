@@ -7,7 +7,7 @@ export const fetchGroupchatMembers = createAsyncThunk<
   { rejectValue: ErrorResponse }
 >(
   'groupchats/fetchGroupchatMembers',
-  async (groupchatId, { rejectWithValue }) => {
+  async (groupchatId: number, { rejectWithValue }) => {
     const response = await getGroupchatMembers(groupchatId);
 
     if ('status' in response && response.status >= 400) {

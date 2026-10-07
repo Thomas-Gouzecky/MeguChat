@@ -62,6 +62,7 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
   useEffect(() => {
     // Fetch messages for the groupchat when the component mounts
     dispatch(fetchMessagesByGroupchatId(Number(groupchatId)));
+    dispatch(fetchGroupchatById(Number(groupchatId))); // Fetch groupchat details
   }, [dispatch, groupchatId]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

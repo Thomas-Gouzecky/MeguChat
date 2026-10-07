@@ -1,3 +1,5 @@
+import { MessagingInterface } from '@/components/message/Groupchat-Messages';
+
 export default async function GroupchatViewPage({
   params,
 }: {
@@ -7,7 +9,7 @@ export default async function GroupchatViewPage({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background">
-      <h1 className="text-2xl font-bold">Groupchat ID: {groupchat_id}</h1>
+      <MessagingInterface groupchatId={groupchat_id} />
     </div>
   );
 }

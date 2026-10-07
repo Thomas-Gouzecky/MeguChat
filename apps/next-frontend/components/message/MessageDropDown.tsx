@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  EllipsisVertical,
-  PencilIcon,
-  ShareIcon,
-  Trash,
-} from 'lucide-react';
+import { EllipsisVertical, PencilIcon, ShareIcon, Trash } from 'lucide-react';
 
 import { Button } from '@meguchat/ui/components/ui/button';
 import {
@@ -18,11 +13,15 @@ import {
 } from '@meguchat/ui/components/ui/dropdown-menu';
 import { useState } from 'react';
 import DeleteMessageButton from './deleteMessage';
-import { EditableMessageBox } from './editMessage';
 
-export function MessageDropDownMenu({ message }: { message: MessageType }) {
+export function MessageDropDownMenu({
+  message,
+  onEdit,
+}: {
+  message: MessageType;
+  onEdit: () => void;
+}) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [editableMessageBox, setEditableMessageBox] = useState(false);
 
   return (
     <>
@@ -36,11 +35,7 @@ export function MessageDropDownMenu({ message }: { message: MessageType }) {
         />
         <DropdownMenuContent>
           <DropdownMenuGroup>
-            <DropdownMenuItem
-              onClick={() => {
-                setEditableMessageBox(true);
-              }}
-            >
+            <DropdownMenuItem onClick={onEdit}>
               <PencilIcon />
               Edit
             </DropdownMenuItem>
@@ -65,11 +60,6 @@ export function MessageDropDownMenu({ message }: { message: MessageType }) {
         message={message}
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-      />
-      <EditableMessageBox
-        message={message}
-        open={editableMessageBox}
-        onOpenChange={setEditableMessageBox}
       />
     </>
   );

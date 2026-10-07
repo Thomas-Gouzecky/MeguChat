@@ -17,7 +17,9 @@ import {
 } from '@meguchat/ui/components/ui/message';
 import { useSelector } from 'react-redux';
 import { JSX } from 'react/jsx-runtime';
+import { useState } from 'react';
 import { MessageDropDownMenu } from './MessageDropDown';
+import { EditableMessageBox } from './editMessage';
 
 export function MessageBubble({
   messageGroup,
@@ -25,6 +27,7 @@ export function MessageBubble({
   messageGroup: MessageType[];
 }) {
   const user_id = useSelector((state: RootState) => state.auth.user?.user_id);
+  const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const firstMessage = messageGroup[0];
 
   if (!firstMessage) {
@@ -71,11 +74,26 @@ export function MessageBubble({
                 alignment === 'end' ? 'flex-row-reverse' : ''
               }`}
             >
-              <Bubble>
-                <BubbleContent>{message.content}</BubbleContent>
-              </Bubble>
+              {editingMessageId === message.id ? (
+                <EditableMessageBox
+                  message={message}
+                  open
+                  onOpenChange={(open) => {
+                    if (!open) {
+                      setEditingMessageId(null);
+                    }
+                  }}
+                />
+              ) : (
+                <Bubble>
+                  <BubbleContent>{message.content}</BubbleContent>
+                </Bubble>
+              )}
               <div className="pointer-events-none opacity-0 transition-opacity group-hover/message-row:pointer-events-auto group-hover/message-row:opacity-100 group-focus-within/message-row:pointer-events-auto group-focus-within/message-row:opacity-100">
-                <MessageDropDownMenu message={message} />
+                <MessageDropDownMenu
+                  message={message}
+                  onEdit={() => setEditingMessageId(message.id)}
+                />
               </div>
             </div>
           ))}

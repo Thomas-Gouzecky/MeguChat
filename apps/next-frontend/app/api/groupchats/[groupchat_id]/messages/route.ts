@@ -11,7 +11,7 @@ export async function GET(
   try {
     const { groupchat_id } = await params;
     const response = await fetch(
-      `${process.env.GATEWAY_URL}/api/groupchats/${groupchat_id}`,
+      `${process.env.GATEWAY_URL}/api/groupchats/${groupchat_id}/messages`,
       {
         method: 'GET',
         headers: {
@@ -23,67 +23,34 @@ export async function GET(
 
     return response;
   } catch (error) {
-    console.error('Error fetching group chat:', error);
+    console.error('Error fetching messages:', error);
     return new Response(
       JSON.stringify({
         title: 'Server Error',
         status: 500,
-        detail: 'An error occurred while fetching group chat.',
+        detail: 'An error occurred while fetching messages.',
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteContext,
-): Promise<Response> {
-  try {
-    const { groupchat_id } = await params;
-    const response = await fetch(
-      `${process.env.GATEWAY_URL}/api/groupchats/${groupchat_id}`,
-      {
-        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          cookie: request.headers.get('cookie') ?? '',
         },
       },
     );
-
-    return response;
-  } catch (error) {
-    console.error('Error deleting group chat:', error);
-    return new Response(
-      JSON.stringify({
-        title: 'Server Error',
-        status: 500,
-        detail: 'An error occurred while deleting group chat.',
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
   }
 }
 
-export async function PUT(
+export async function POST(
   request: NextRequest,
   { params }: RouteContext,
 ): Promise<Response> {
   try {
     const { groupchat_id } = await params;
-
     const requestBody = await request.json();
     const response = await fetch(
-      `${process.env.GATEWAY_URL}/api/groupchats/${groupchat_id}`,
+      `${process.env.GATEWAY_URL}/api/groupchats/${groupchat_id}/messages`,
       {
-        method: 'PUT',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           cookie: request.headers.get('cookie') ?? '',
@@ -93,16 +60,18 @@ export async function PUT(
     );
     return response;
   } catch (error) {
-    console.error('Error editing group chat:', error);
+    console.error('Error creating message:', error);
     return new Response(
       JSON.stringify({
         title: 'Server Error',
         status: 500,
-        detail: 'An error occurred while editing group chat.',
+        detail: 'An error occurred while creating a message.',
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
     );
   }

@@ -4,7 +4,9 @@ import {
   MessageScroller,
   MessageScrollerButton,
   MessageScrollerContent,
+  MessageScrollerItem,
   MessageScrollerViewport,
+  useMessageScroller,
 } from '@meguchat/ui/components/ui/message-scroller';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +18,7 @@ export default function MessagesView({ groupchatId }: { groupchatId: string }) {
     useSelector((state: RootState) => state.messages);
 
   const messages = messagesByGroupchatId[Number(groupchatId)] ?? [];
+  const { scrollToEnd } = useMessageScroller();
   const isLoading = loadingByGroupchatId[Number(groupchatId)] ?? false;
   const error = errorByGroupchatId[Number(groupchatId)] ?? null;
   const messageGroups = messages.reduce<MessageType[][]>((groups, message) => {
@@ -33,15 +36,23 @@ export default function MessagesView({ groupchatId }: { groupchatId: string }) {
   useEffect(() => {
     dispatch(fetchMessagesByGroupchatId(Number(groupchatId)));
   }, [dispatch, groupchatId]);
+
+  useEffect(() => {
+    scrollToEnd();
+  }, [messages.length, scrollToEnd]);
+
   return (
     <MessageScroller>
       <MessageScrollerViewport>
         <MessageScrollerContent className="p-(--card-spacing)">
-          {messageGroups.map((messageGroup) => (
-            <MessageBubble
+          {messageGroups.map((messageGroup, index) => (
+            <MessageScrollerItem
               key={messageGroup[0].id}
-              messageGroup={messageGroup}
-            />
+              messageId={messageGroup[0].id.toString()}
+              scrollAnchor={index === messageGroups.length - 1}
+            >
+              <MessageBubble messageGroup={messageGroup} />
+            </MessageScrollerItem>
           ))}
         </MessageScrollerContent>
       </MessageScrollerViewport>

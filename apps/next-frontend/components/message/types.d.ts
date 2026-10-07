@@ -6,3 +6,7 @@ type MessageType = {
   created_at: string;
   modified_at: string;
 };
+
+type MessageRequest = {
+  content: string;
+};

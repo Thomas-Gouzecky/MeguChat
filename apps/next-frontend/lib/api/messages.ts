@@ -28,3 +28,34 @@ export async function getMessagesByGroupchatId(
     } as ErrorResponse;
   }
 }
+
+export async function createNewMessage(
+  groupchat_id: string,
+  content: string,
+): Promise<MessageType | ErrorResponse> {
+  try {
+    const response = await fetch(`/api/groupchats/${groupchat_id}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ content }),
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok) {
+      return payload as ErrorResponse;
+    }
+
+    return payload as MessageType;
+  } catch (error) {
+    console.error('Error creating new message:', error);
+    return {
+      title: 'Server Error',
+      status: 500,
+      detail: 'An error occurred while creating a new message.',
+    } as ErrorResponse;
+  }
+}

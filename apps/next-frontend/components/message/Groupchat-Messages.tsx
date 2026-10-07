@@ -45,6 +45,7 @@ import { Input } from '@meguchat/ui/components/ui/input';
 import { useEffect } from 'react';
 import { fetchMessagesByGroupchatId } from '@/store/thunks/messagesThunk';
 import { fetchGroupchatById } from '@/store/thunks/groupchatThunk';
+import { createNewMessage } from '@/lib/api/messages';
 
 export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -68,27 +69,9 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const messageContent = formData.get('message') as string;
-    // Here you would typically dispatch an action to send the message
-    console.log('Sending message:', messageContent);
-  }
-
-  if (isLoading) {
-    return (
-      <div className="p-4 text-sm text-muted-foreground">
-        Loading messages...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-4 text-sm text-destructive flex justify-center items-center flex-col gap-2">
-        <div>
-          Error {error.status}: {error.title}
-        </div>
-        <div>{error.detail}</div>
-      </div>
-    );
+    const response = await createNewMessage(groupchatId, {
+      content: messageContent,
+    });
   }
 
   return (

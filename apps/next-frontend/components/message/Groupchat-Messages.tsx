@@ -52,16 +52,16 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
       (chat) => chat.groupchat_id.toString() === groupchatId,
     ),
   );
-  const messages = useSelector(
-    (state: RootState) =>
-      state.messages.messagesByGroupchatId[groupchatId] || [],
-  );
+  const { messagesByGroupchatId, loadingByGroupchatId, errorByGroupchatId } =
+    useSelector((state: RootState) => state.messages);
+
+  const messages = messagesByGroupchatId[Number(groupchatId)] ?? [];
+  const isLoading = loadingByGroupchatId[Number(groupchatId)] ?? false;
+  const error = errorByGroupchatId[Number(groupchatId)] ?? null;
 
   useEffect(() => {
     // Fetch messages for the groupchat when the component mounts
-    if (Number(groupchatId)) {
-      dispatch(fetchMessagesByGroupchatId(Number(groupchatId)));
-    }
+    dispatch(fetchMessagesByGroupchatId(Number(groupchatId)));
   }, [dispatch, groupchatId]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -71,6 +71,26 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
     // Here you would typically dispatch an action to send the message
     console.log('Sending message:', messageContent);
   }
+
+  if (isLoading) {
+    return (
+      <div className="p-4 text-sm text-muted-foreground">
+        Loading messages...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-sm text-destructive flex justify-center items-center flex-col gap-2">
+        <div>
+          Error {error.status}: {error.title}
+        </div>
+        <div>{error.detail}</div>
+      </div>
+    );
+  }
+
   return (
     <MessageScrollerProvider>
       <div className="relative flex flex-col gap-4">

@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@meguchat/ui/components/ui/dialog';
-import { Trash } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 
 export default function DeleteMessageButton({
@@ -23,14 +22,14 @@ export default function DeleteMessageButton({
   onOpenChange: (open: boolean) => void;
 }) {
   const dispatch = useDispatch<AppDispatch>();
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit() {
     const response = await deleteMessage(
       message.group_chat_id.toString(),
       message.id.toString(),
     );
 
     if ('detail' in response && response.status >= 400) {
+      console.error('Failed to delete message:', response.detail);
       return;
     }
     dispatch(
@@ -43,22 +42,19 @@ export default function DeleteMessageButton({
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <form onSubmit={handleSubmit}>
-        <DialogContent showCloseButton={false}>
-          <DialogHeader>
-            <DialogTitle>Delete Message</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this message? This action cannot
-              be undone.
-            </DialogDescription>
-            <DialogClose render={<Button variant="outline">No</Button>} />
-            <Button variant="destructive" type="submit">
-              <Trash />
-              Yes
-            </Button>
-          </DialogHeader>
-        </DialogContent>
-      </form>
+      <DialogContent showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>Delete Message</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete this message? This action cannot be
+            undone.
+          </DialogDescription>
+          <Button onClick={handleSubmit} variant="destructive" type="submit">
+            Delete
+          </Button>
+          <DialogClose render={<Button variant="outline">Cancel</Button>} />
+        </DialogHeader>
+      </DialogContent>
     </Dialog>
   );
 }

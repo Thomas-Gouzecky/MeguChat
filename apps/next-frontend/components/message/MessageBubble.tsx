@@ -1,4 +1,4 @@
-import { AppDispatch, RootState } from '@/store/store';
+import { RootState } from '@/store/store';
 import {
   Avatar,
   AvatarFallback,
@@ -25,7 +25,7 @@ export function MessageBubble({
         <Avatar>
           <AvatarImage src="/avatars/10.png" alt="@me" />
           <AvatarFallback>
-            {user_id?.substring(0, 2).toUpperCase() || 'ME'}
+            {MessageObject.user_id?.substring(0, 2).toUpperCase() || 'ME'}
           </AvatarFallback>
         </Avatar>
       </MessageAvatar>

@@ -1,20 +1,7 @@
 'use client';
 
-import { useChat } from '@ai-sdk/react';
-import {
-  ArrowUpIcon,
-  GlobeIcon,
-  ImageIcon,
-  MessageCircleDashedIcon,
-  PaperclipIcon,
-  PlusIcon,
-  RotateCwIcon,
-  TelescopeIcon,
-} from 'lucide-react';
-
-import { createChat, getMessageText } from '@/lib/ai';
-import { MessageAnimated } from '@/components/message-animated';
-import { Button } from '@/components/ui/button';
+// import { MessageAnimated } from '@meguchat/ui/components/message-animated';
+import { Button } from '@meguchat/ui/components/ui/button';
 import {
   Card,
   CardAction,
@@ -23,7 +10,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@meguchat/ui/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,8 +37,23 @@ import {
   MessageScrollerProvider,
   MessageScrollerViewport,
 } from '@meguchat/ui/components/ui/message-scroller';
+import { RootState } from '@/store/store';
+import { useSelector } from 'react-redux';
+import { MessageBubble } from './MessageBubble';
 
-export function MessageScrollerDemo() {
+export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
+  const messages = useSelector(
+    (state: RootState) =>
+      state.messages.messagesByGroupchatId[groupchatId] || [],
+  );
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const messageContent = formData.get('message') as string;
+    // Here you would typically dispatch an action to send the message
+    console.log('Sending message:', messageContent);
+  }
   return (
     <MessageScrollerProvider>
       <div className="relative flex flex-col gap-4">
@@ -61,63 +63,41 @@ export function MessageScrollerDemo() {
             <CardDescription>How can I help you today?</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden p-0">
-            {messages.length === 0 ? (
-              <Empty className="h-full">
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <MessageCircleDashedIcon />
-                  </EmptyMedia>
-                  <EmptyTitle>Morning, shadcn!</EmptyTitle>
-                  <EmptyDescription>
-                    What are we working on today? Press send to start a new
-                    conversation
-                  </EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            ) : (
-              <MessageScroller>
-                <MessageScrollerViewport>
-                  <MessageScrollerContent
-                    aria-busy={isBusy}
-                    className="p-(--card-spacing)"
-                  >
-                    {messages.map((message) => (
-                      <MessageAnimated
-                        key={message.id}
-                        message={message}
-                        scrollAnchor={message.role === 'user'}
-                      />
-                    ))}
-                  </MessageScrollerContent>
-                </MessageScrollerViewport>
-                <MessageScrollerButton />
-              </MessageScroller>
-            )}
+            {/* {messages.length === 0 ? (
+                    <Empty className="h-full">
+                        <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                            <MessageCircleDashedIcon />
+                        </EmptyMedia>
+                        <EmptyTitle>Morning, shadcn!</EmptyTitle>
+                        <EmptyDescription>
+                            What are we working on today? Press send to start a new
+                            conversation
+                        </EmptyDescription>
+                        </EmptyHeader>
+                    </Empty>
+                    ) : ( */}
+            <MessageScroller>
+              <MessageScrollerViewport>
+                <MessageScrollerContent className="p-(--card-spacing)">
+                  {messages.map((message) => (
+                    <MessageBubble key={message.id} MessageObject={message} />
+                  ))}
+                </MessageScrollerContent>
+              </MessageScrollerViewport>
+              {/* <MessageScrollerButton /> */}
+            </MessageScroller>
+            {/* )} */}
           </CardContent>
           <CardFooter className="flex-col gap-2">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!nextMessage || isBusy) {
-                  return;
-                }
-                void sendMessage(nextMessage);
-              }}
-              className="w-full"
-            >
+            <form onSubmit={handleSubmit} className="w-full">
               <InputGroup>
                 <div className="h-14 w-full px-3 py-2.5">
                   <span
                     className="line-clamp-2 opacity-60 data-[status=ready]:opacity-100"
                     data-status={status}
                   >
-                    {nextMessage ? (
-                      getMessageText(nextMessage)
-                    ) : (
-                      <span className="text-muted-foreground">
-                        No messages queued. Reset the conversation.
-                      </span>
-                    )}
+                    {status === 'ready' ? 'Type a message...' : 'Processing...'}
                   </span>
                 </div>
               </InputGroup>

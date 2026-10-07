@@ -45,11 +45,10 @@ export default function MessagesView({ groupchatId }: { groupchatId: string }) {
     <MessageScroller>
       <MessageScrollerViewport>
         <MessageScrollerContent className="p-(--card-spacing)">
-          {messageGroups.map((messageGroup, index) => (
+          {messageGroups.map((messageGroup) => (
             <MessageScrollerItem
               key={messageGroup[0].id}
               messageId={messageGroup[0].id.toString()}
-              scrollAnchor={index === messageGroups.length - 1}
             >
               <MessageBubble messageGroup={messageGroup} />
             </MessageScrollerItem>

@@ -28,7 +28,7 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
   }, [dispatch, groupchatId]);
 
   return (
-    <MessageScrollerProvider>
+    <MessageScrollerProvider defaultScrollPosition="end">
       <div className="relative flex flex-col gap-4">
         <Card className="mx-auto h-140 w-full max-w-sm gap-0">
           <CardHeader className="gap-1 border-b">

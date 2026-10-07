@@ -17,6 +17,8 @@ import { editGroupchat } from '@/lib/api/groupchats';
 import { updateGroupchat } from '@/store/slices/groupchatSlice';
 import { AppDispatch } from '@/store/store';
 import { useDispatch } from 'react-redux';
+import { Label } from '@meguchat/ui/components/ui/label';
+import { DisplayAllUsers } from './users/displayAllUsers';
 
 export function EditGroupchatForm({
   groupchat,
@@ -89,14 +91,12 @@ export function EditGroupchatForm({
             />
           </Field>
           <Field>
-            <div className="flex items-center">
-              <FieldLabel htmlFor="users">Users</FieldLabel>
-              <ScrollArea className="h-32 w-full">
-                <ScrollBar orientation="vertical" />
-                {/* Get all the users from the /api/users endpoint */}
-                {/* Display each user in the scroll area and allow selection */}
-              </ScrollArea>
-            </div>
+            <Label htmlFor="users">Users</Label>
+            <ScrollArea className="h-32 w-full">
+              <div className="pr-4 pt-2">
+                <DisplayAllUsers />
+              </div>
+            </ScrollArea>
           </Field>
           <Field>
             <Button type="submit">Edit Group Chat</Button>

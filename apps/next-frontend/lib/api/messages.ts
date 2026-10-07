@@ -94,3 +94,34 @@ export async function updateMessage(
     } as ErrorResponse;
   }
 }
+
+export async function deleteMessage(
+  groupchat_id: string,
+  message_id: string,
+): Promise<MessageType | ErrorResponse> {
+  try {
+    const response = await fetch(
+      `/api/groupchats/${groupchat_id}/messages/${message_id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      },
+    );
+    const payload = await response.json();
+
+    if (!response.ok) {
+      return payload as ErrorResponse;
+    }
+    return payload as MessageType;
+  } catch (error) {
+    console.error('Error deleting message:', error);
+    return {
+      title: 'Server Error',
+      status: 500,
+      detail: 'An error occurred while deleting the message.',
+    } as ErrorResponse;
+  }
+}

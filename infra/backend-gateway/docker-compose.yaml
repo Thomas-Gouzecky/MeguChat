@@ -1,7 +1,7 @@
 services:
   megu-chat-backend:
     container_name: megu-chat-backend
-    image: tomcheese/megu-chat-backend:0.3.1
+    image: tomcheese/megu-chat-backend:0.3.2
     pull_policy: always
     build:
       context: ../../apps/backend

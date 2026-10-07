@@ -35,6 +35,14 @@ public class GroupChatCreationTests : IClassFixture<TestWebApplicationFactory>
         Assert.NotNull(groupChatResponse);
         Assert.Equal(newGroupChatRequest.Name, groupChatResponse.Name);
         Assert.True(groupChatResponse.Id > 0);
+
+        var membersResponse = await _client.GetAsync($"/api/groupchats/{groupChatResponse.Id}/members");
+        membersResponse.EnsureSuccessStatusCode();
+        var members = await membersResponse.Content.ReadFromJsonAsync<List<MemberResponseDto>>();
+
+        Assert.NotNull(members);
+        Assert.Contains(members, member => member.UserId == "user1");
+        Assert.Contains(members, member => member.UserId == "user2");
     }
 
     [Fact]

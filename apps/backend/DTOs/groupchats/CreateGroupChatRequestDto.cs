@@ -4,6 +4,6 @@ public class CreateGroupChatRequestDto : IGroupChatRequest
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
-    [JsonPropertyName("user_ids")]
+    [JsonPropertyName("users")]
     public List<string>? UserIds { get; set; }
 }

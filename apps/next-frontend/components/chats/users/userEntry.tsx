@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback } from '@meguchat/ui/components/ui/avatar';
+import { Checkbox } from '@meguchat/ui/components/ui/checkbox';
 import {
   Item,
   ItemActions,
@@ -33,13 +34,7 @@ export function UserEntry({
         <ItemTitle>{user.username}</ItemTitle>
       </ItemContent>
       <ItemActions>
-        <input
-          type="checkbox"
-          checked={selected}
-          name="users"
-          value={user.user_id}
-          onChange={() => setSelected(!selected)}
-        />
+        <Checkbox checked={selected} name="users" value={user.user_id} />
       </ItemActions>
     </Item>
   );

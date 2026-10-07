@@ -38,12 +38,15 @@ import {
   MessageScrollerProvider,
   MessageScrollerViewport,
 } from '@meguchat/ui/components/ui/message-scroller';
-import { RootState } from '@/store/store';
-import { useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store/store';
+import { useDispatch, useSelector } from 'react-redux';
 import { MessageBubble } from './MessageBubble';
 import { Input } from '@meguchat/ui/components/ui/input';
+import { useEffect } from 'react';
+import { fetchMessagesByGroupchatId } from '@/store/thunks/messagesThunk';
 
 export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
+  const dispatch = useDispatch<AppDispatch>();
   const groupchat = useSelector((state: RootState) =>
     state.groupchats.groupchats.find(
       (chat) => chat.groupchat_id.toString() === groupchatId,
@@ -53,6 +56,13 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
     (state: RootState) =>
       state.messages.messagesByGroupchatId[groupchatId] || [],
   );
+
+  useEffect(() => {
+    // Fetch messages for the groupchat when the component mounts
+    if (Number(groupchatId)) {
+      dispatch(fetchMessagesByGroupchatId(Number(groupchatId)));
+    }
+  }, [dispatch, groupchatId]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

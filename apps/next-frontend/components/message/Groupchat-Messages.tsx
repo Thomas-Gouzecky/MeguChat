@@ -2,6 +2,7 @@
 
 // import { MessageAnimated } from '@meguchat/ui/components/message-animated';
 import { Button } from '@meguchat/ui/components/ui/button';
+import { ArrowUp } from 'lucide-react';
 import {
   Card,
   CardAction,
@@ -40,8 +41,14 @@ import {
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
 import { MessageBubble } from './MessageBubble';
+import { Input } from '@meguchat/ui/components/ui/input';
 
 export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
+  const groupchat = useSelector((state: RootState) =>
+    state.groupchats.groupchats.find(
+      (chat) => chat.groupchat_id.toString() === groupchatId,
+    ),
+  );
   const messages = useSelector(
     (state: RootState) =>
       state.messages.messagesByGroupchatId[groupchatId] || [],
@@ -59,8 +66,7 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
       <div className="relative flex flex-col gap-4">
         <Card className="mx-auto h-140 w-full max-w-sm gap-0">
           <CardHeader className="gap-1 border-b">
-            <CardTitle>New Chat</CardTitle>
-            <CardDescription>How can I help you today?</CardDescription>
+            <CardTitle>{groupchat?.name || 'New Chat'}</CardTitle>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden p-0">
             {/* {messages.length === 0 ? (
@@ -85,28 +91,34 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
                   ))}
                 </MessageScrollerContent>
               </MessageScrollerViewport>
-              {/* <MessageScrollerButton /> */}
+              <MessageScrollerButton />
             </MessageScroller>
             {/* )} */}
           </CardContent>
           <CardFooter className="flex-col gap-2">
             <form onSubmit={handleSubmit} className="w-full">
               <InputGroup>
-                <div className="h-14 w-full px-3 py-2.5">
-                  <span
-                    className="line-clamp-2 opacity-60 data-[status=ready]:opacity-100"
-                    data-status={status}
+                <InputGroupAddon>
+                  <Input
+                    id="message"
+                    name="message"
+                    type="text"
+                    placeholder="Type a message..."
+                  />
+                  <InputGroupButton
+                    type="submit"
+                    variant="default"
+                    size="icon-sm"
+                    className="ml-auto"
                   >
-                    {status === 'ready' ? 'Type a message...' : 'Processing...'}
-                  </span>
-                </div>
+                    <ArrowUp />
+                    <span className="sr-only">Send</span>
+                  </InputGroupButton>
+                </InputGroupAddon>
               </InputGroup>
             </form>
           </CardFooter>
         </Card>
-        <div className="px-0.5 text-center text-xs text-muted-foreground">
-          Demo is read only. Press send to send messages.
-        </div>
       </div>
     </MessageScrollerProvider>
   );

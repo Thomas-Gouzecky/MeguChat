@@ -9,11 +9,11 @@ import {
   replaceMessage,
 } from '@/store/slices/messagesSlice';
 import { AppDispatch, RootState } from '@/store/store';
-import { Input } from '@meguchat/ui/components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
+  InputGroupTextarea,
 } from '@meguchat/ui/components/ui/input-group';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -43,6 +43,11 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
       }),
     );
     event.currentTarget.reset();
+    const textarea = event.currentTarget.elements.namedItem(
+      'message',
+    ) as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    textarea.style.overflowY = 'hidden';
 
     try {
       const response = await createNewMessage(groupchatId, messageContent);
@@ -75,13 +80,21 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
   }
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <InputGroup>
-        <InputGroupAddon>
-          <Input
+      <InputGroup className="h-auto min-h-8 items-center">
+        <InputGroupAddon className="w-full min-w-0 items-end">
+          <InputGroupTextarea
             id="message"
             name="message"
-            type="text"
             placeholder="Type a message..."
+            rows={1}
+            className="min-h-8 min-w-0 basis-0 resize-none overflow-y-hidden field-sizing-fixed text-primary"
+            onInput={(event) => {
+              const textarea = event.currentTarget;
+              textarea.style.height = 'auto';
+              textarea.style.height = `${Math.min(textarea.scrollHeight, 128)}px`;
+              textarea.style.overflowY =
+                textarea.scrollHeight > 128 ? 'auto' : 'hidden';
+            }}
           />
           <InputGroupButton
             type="submit"

@@ -90,14 +90,7 @@ export function EditGroupchatForm({
               }
             />
           </Field>
-          <Field>
-            <Label htmlFor="users">Users</Label>
-            <ScrollArea className="h-32 w-full">
-              <div className="pr-4 pt-2">
-                <DisplayAllUsers />
-              </div>
-            </ScrollArea>
-          </Field>
+
           <Field>
             <Button type="submit">Edit Group Chat</Button>
           </Field>

@@ -1,4 +1,5 @@
 import { getUsersGroupchats } from '@/lib/api/groupchats';
+import { getGroupchatById } from '@/lib/api/groupchatsById';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const fetchGroupchats = createAsyncThunk<

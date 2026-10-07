@@ -17,7 +17,7 @@ import { AppDispatch } from '@/store/store';
 
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
-import { DisplayAllUsers } from './users/displayAllUsers';
+import { DisplayAllUsers } from '../users/displayAllUsers';
 import { Label } from '@meguchat/ui/components/ui/label';
 
 export function CreateGroupchatForm({

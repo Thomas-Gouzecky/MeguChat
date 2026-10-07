@@ -1,5 +1,5 @@
 import Groupchats from '@/components/chats/Groupchats';
-import { DisplayCreateGroupchatForm } from '@/components/chats/displayCreateGroupchatForm';
+import { DisplayCreateGroupchatForm } from '@/components/chats/createForm/displayCreateGroupchatForm';
 
 export default function GroupChatsPage() {
   return (

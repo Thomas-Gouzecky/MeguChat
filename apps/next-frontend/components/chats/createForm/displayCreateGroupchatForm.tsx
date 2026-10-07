@@ -1,6 +1,6 @@
 'use client';
 
-import { CreateGroupchatForm } from '@/components/chats/CreateGroupchat-form';
+import { CreateGroupchatForm } from '@/components/chats/createForm/CreateGroupchat-form';
 import { Button } from '@meguchat/ui/components/ui/button';
 import {
   Drawer,

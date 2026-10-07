@@ -18,7 +18,7 @@ import { updateGroupchat } from '@/store/slices/groupchatSlice';
 import { AppDispatch } from '@/store/store';
 import { useDispatch } from 'react-redux';
 import { Label } from '@meguchat/ui/components/ui/label';
-import { DisplayAllUsers } from './users/displayAllUsers';
+import { DisplayAllUsers } from '../users/displayAllUsers';
 
 export function EditGroupchatForm({
   groupchat,

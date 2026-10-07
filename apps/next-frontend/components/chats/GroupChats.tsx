@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from '@meguchat/ui/components/ui/card';
 import DeleteGroupchatButton from './deleteGroupchatButton';
-import DisplayEditGroupchatForm from './displayEditGroupchatForm';
+import DisplayEditGroupchatForm from './editForm/displayEditGroupchatForm';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 

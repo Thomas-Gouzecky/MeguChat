@@ -17,8 +17,6 @@ export function MessageBubble({
 }: {
   MessageObject: MessageType;
 }) {
-  // get the user id and then get the user object from the store
-  // const user = getUserById(MessageObject.user_id);
   const user_id = useSelector((state: RootState) => state.auth.user?.user_id);
   const alignment = MessageObject.user_id === user_id ? 'end' : 'start';
   return (

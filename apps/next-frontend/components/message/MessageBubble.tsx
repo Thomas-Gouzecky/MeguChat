@@ -63,7 +63,7 @@ export function MessageBubble({
         </Avatar>
       </MessageAvatar>
       <MessageContent>
-        <BubbleGroup>
+        <BubbleGroup className="w-full">
           {messageGroup.map((message) => (
             <div
               key={message.id}

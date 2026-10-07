@@ -46,6 +46,7 @@ import { useEffect } from 'react';
 import { fetchMessagesByGroupchatId } from '@/store/thunks/messagesThunk';
 import { fetchGroupchatById } from '@/store/thunks/groupchatThunk';
 import { createNewMessage } from '@/lib/api/messages';
+import { addMessage } from '@/store/slices/messagesSlice';
 
 export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -70,6 +71,20 @@ export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
     const formData = new FormData(event.currentTarget);
     const messageContent = formData.get('message') as string;
     const response = await createNewMessage(groupchatId, messageContent);
+
+    if ('status' in response && response.status >= 400) {
+      console.error('Error creating message:', response);
+      return;
+    }
+
+    if ('id' in response) {
+      dispatch(
+        addMessage({
+          groupchat_id: groupchatId,
+          message: response,
+        }),
+      );
+    }
   }
 
   return (

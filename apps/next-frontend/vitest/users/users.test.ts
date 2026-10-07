@@ -59,9 +59,12 @@ describe('Users API', () => {
 
   it('normalizes gateway user IDs for the frontend user shape', async () => {
     vi.mocked(fetch).mockResolvedValue(
-      new Response(JSON.stringify([{ id: 'identity-user-1', username: 'alice' }]), {
-        status: 200,
-      }),
+      new Response(
+        JSON.stringify([{ id: 'identity-user-1', username: 'alice' }]),
+        {
+          status: 200,
+        },
+      ),
     );
 
     await expect(getAllUsers()).resolves.toEqual([

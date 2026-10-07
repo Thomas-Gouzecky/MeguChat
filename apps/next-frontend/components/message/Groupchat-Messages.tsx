@@ -48,22 +48,20 @@ import { fetchGroupchatById } from '@/store/thunks/groupchatThunk';
 
 export function MessagingInterface({ groupchatId }: { groupchatId: string }) {
   const dispatch = useDispatch<AppDispatch>();
-  const groupchat = useSelector((state: RootState) =>
-    state.groupchats.groupchats.find(
-      (chat) => chat.groupchat_id.toString() === groupchatId,
-    ),
+  const { groupchatsByGroupchatId: groupchatById } = useSelector(
+    (state: RootState) => state.groupchatById,
   );
   const { messagesByGroupchatId, loadingByGroupchatId, errorByGroupchatId } =
     useSelector((state: RootState) => state.messages);
 
+  const groupchat = groupchatById[groupchatId];
   const messages = messagesByGroupchatId[Number(groupchatId)] ?? [];
   const isLoading = loadingByGroupchatId[Number(groupchatId)] ?? false;
   const error = errorByGroupchatId[Number(groupchatId)] ?? null;
 
   useEffect(() => {
-    // Fetch messages for the groupchat when the component mounts
     dispatch(fetchMessagesByGroupchatId(Number(groupchatId)));
-    dispatch(fetchGroupchatById(groupchatId)); // Fetch groupchat details
+    dispatch(fetchGroupchatById(groupchatId));
   }, [dispatch, groupchatId]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

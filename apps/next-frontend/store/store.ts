@@ -3,6 +3,7 @@ import usersReducer from './slices/usersSlice';
 import groupchatReducer from './slices/groupchatSlice';
 import groupchatMembersReducer from './slices/groupchatMembersSlice';
 import messagesReducer from './slices/messagesSlice';
+import groupchatByIdReducer from './slices/groupchatByIdSlice';
 import { configureStore } from '@reduxjs/toolkit';
 
 export const store = configureStore({
@@ -10,6 +11,7 @@ export const store = configureStore({
     auth: authReducer,
     users: usersReducer,
     groupchats: groupchatReducer,
+    groupchatById: groupchatByIdReducer,
     groupchatMembers: groupchatMembersReducer,
     messages: messagesReducer,
   },

@@ -1,3 +1,4 @@
+import { getMessagesByGroupchatId } from '@/lib/api/messages';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const fetchMessagesByGroupchatId = createAsyncThunk<

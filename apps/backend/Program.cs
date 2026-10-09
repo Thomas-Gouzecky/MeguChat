@@ -30,6 +30,12 @@ if (!isMigration)
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IGroupChatService, GroupChatService>();
     builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
+    builder.Services.AddScoped<IMembersService, MembersService>();
+    builder.Services.AddScoped<IMembersClient, MembersClient>();
+    builder.Services.AddScoped<IUserValidation, UserValidation>();
+    builder.Services.AddScoped<IMessagesClient, MessagesClient>();
+    builder.Services.AddScoped<IMessagesService, MessagesService>();
+    builder.Services.AddScoped<IUsersService, UserService>();
 
     builder.Services.AddControllers();
     builder.Services.AddExceptionHandler<DbApiExceptionHandler>();
@@ -50,13 +56,6 @@ if (!isMigration)
 
     builder.Services.AddSignalR().AddStackExchangeRedis(redisConnectionString);
 
-    builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
-    builder.Services.AddScoped<IMembersService, MembersService>();
-    builder.Services.AddScoped<IMembersClient, MembersClient>();
-    builder.Services.AddScoped<IUserValidation, UserValidation>();
-    builder.Services.AddScoped<IMessagesClient, MessagesClient>();
-    builder.Services.AddScoped<IMessagesService, MessagesService>();
-    builder.Services.AddScoped<IUsersService, UserService>();
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();

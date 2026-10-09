@@ -45,7 +45,7 @@ builder.Services.AddHttpClient("dbApi", options =>
     options.BaseAddress = new Uri(databaseApi);
 });
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
+builder.Services.AddSignalR().AddStackExchangeRedis(redisConnectionString);
 
 builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
 builder.Services.AddScoped<IMembersService, MembersService>();

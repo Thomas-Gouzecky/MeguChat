@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,11 +37,15 @@ builder.Services.AddHttpClient();
 
 var databaseApi = builder.Configuration["ApiSettings:DatabaseApi"]
     ?? throw new InvalidOperationException("Database API URL is missing");
+var redisConnectionString = builder.Configuration["ApiSettings:Redis"]
+    ?? throw new InvalidOperationException("Redis connection string is missing");
 
 builder.Services.AddHttpClient("dbApi", options =>
 {
     options.BaseAddress = new Uri(databaseApi);
 });
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
 
 builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
 builder.Services.AddScoped<IMembersService, MembersService>();

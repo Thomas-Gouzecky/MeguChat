@@ -3,60 +3,64 @@ using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+var isMigration = args.Contains("--migrate", StringComparer.OrdinalIgnoreCase);
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager();
-builder.Services.ConfigureApplicationCookie(options =>
+if (!isMigration)
 {
-    options.Events.OnRedirectToLogin = context =>
+    builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddSignInManager();
+    builder.Services.ConfigureApplicationCookie(options =>
     {
-        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        return Task.CompletedTask;
-    };
-    options.Events.OnRedirectToAccessDenied = context =>
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        };
+    });
+    builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IGroupChatService, GroupChatService>();
+    builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
+
+    builder.Services.AddControllers();
+    builder.Services.AddExceptionHandler<DbApiExceptionHandler>();
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.Services.AddProblemDetails();
+
+    builder.Services.AddHttpClient();
+
+    var databaseApi = builder.Configuration["ApiSettings:DatabaseApi"]
+        ?? throw new InvalidOperationException("Database API URL is missing");
+    var redisConnectionString = builder.Configuration["ApiSettings:Redis"]
+        ?? throw new InvalidOperationException("Redis connection string is missing");
+
+    builder.Services.AddHttpClient("dbApi", options =>
     {
-        context.Response.StatusCode = StatusCodes.Status403Forbidden;
-        return Task.CompletedTask;
-    };
-});
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IGroupChatService, GroupChatService>();
-builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
+        options.BaseAddress = new Uri(databaseApi);
+    });
 
-builder.Services.AddControllers();
-builder.Services.AddExceptionHandler<DbApiExceptionHandler>();
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+    builder.Services.AddSignalR().AddStackExchangeRedis(redisConnectionString);
 
-builder.Services.AddHttpClient();
+    builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
+    builder.Services.AddScoped<IMembersService, MembersService>();
+    builder.Services.AddScoped<IMembersClient, MembersClient>();
+    builder.Services.AddScoped<IUserValidation, UserValidation>();
+    builder.Services.AddScoped<IMessagesClient, MessagesClient>();
+    builder.Services.AddScoped<IMessagesService, MessagesService>();
+    builder.Services.AddScoped<IUsersService, UserService>();
 
-var databaseApi = builder.Configuration["ApiSettings:DatabaseApi"]
-    ?? throw new InvalidOperationException("Database API URL is missing");
-var redisConnectionString = builder.Configuration["ApiSettings:Redis"]
-    ?? throw new InvalidOperationException("Redis connection string is missing");
-
-builder.Services.AddHttpClient("dbApi", options =>
-{
-    options.BaseAddress = new Uri(databaseApi);
-});
-
-builder.Services.AddSignalR().AddStackExchangeRedis(redisConnectionString);
-
-builder.Services.AddScoped<IGroupChatClient, GroupChatClient>();
-builder.Services.AddScoped<IMembersService, MembersService>();
-builder.Services.AddScoped<IMembersClient, MembersClient>();
-builder.Services.AddScoped<IUserValidation, UserValidation>();
-builder.Services.AddScoped<IMessagesClient, MessagesClient>();
-builder.Services.AddScoped<IMessagesService, MessagesService>();
-builder.Services.AddScoped<IUsersService, UserService>();
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
 
 var app = builder.Build();
 
@@ -70,7 +74,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-if (args.Contains("--migrate", StringComparer.OrdinalIgnoreCase))
+if (isMigration)
 {
     return;
 }

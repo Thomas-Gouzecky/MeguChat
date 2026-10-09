@@ -15,8 +15,6 @@ services:
       - meguchat-network
     volumes:
       - redis-data:/data
-    depends_on:
-      - megu-chat-backend
 
 volumes:
   redis-data:

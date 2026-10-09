@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 
-[Authorize]
+// [Authorize]
 public class ChatHub : Hub
 {
     public async Task JoinGroupChat(string groupchatId)
@@ -12,5 +12,10 @@ public class ChatHub : Hub
     public async Task LeaveGroupChat(string groupchatId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"groupchat:{groupchatId}");
+    }
+
+    public async Task SendMessage(string groupchatId, string message)
+    {
+        await Clients.Group($"groupchat:{groupchatId}").SendAsync("ReceiveMessage", message);
     }
 }

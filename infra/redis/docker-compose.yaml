@@ -1,0 +1,26 @@
+services:
+  redis:
+    image: redis:8.10
+    pull_policy: if_not_present
+    container_name: redis
+    ports:
+      - '6379:6379'
+    command: ['redis-server', '--appendonly', 'yes']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      timeout: 5s
+      retries: 15
+    networks:
+      - meguchat-network
+    volumes:
+      - redis-data:/data
+    depends_on:
+      - megu-chat-backend
+
+volumes:
+  redis-data:
+
+networks:
+  meguchat-network:
+    external: true

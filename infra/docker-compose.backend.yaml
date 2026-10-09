@@ -1,5 +1,6 @@
 include:
   - backend-gateway/docker-compose.yaml
+  - redis/docker-compose.yaml
 
 networks:
   meguchat-network:

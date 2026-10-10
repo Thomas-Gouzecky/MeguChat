@@ -35,6 +35,17 @@ if (!loginResponse.IsSuccessStatusCode)
 
 Console.WriteLine("Login succeeded.");
 
+using var currentUserResponse = await http.GetAsync("auth/me");
+if (!currentUserResponse.IsSuccessStatusCode)
+{
+    var error = await currentUserResponse.Content.ReadAsStringAsync();
+    Console.WriteLine($"Cookie authentication check failed ({(int)currentUserResponse.StatusCode}): {error}");
+    return;
+}
+
+var currentUser = await currentUserResponse.Content.ReadFromJsonAsync<CurrentUserDto>();
+Console.WriteLine($"Authenticated as {currentUser?.Username ?? "unknown user"}.");
+
 var connection = new HubConnectionBuilder()
     .WithUrl(hubUrl, options => options.Cookies = cookieContainer)
     .WithAutomaticReconnect()
@@ -109,3 +120,5 @@ finally
     await connection.StopAsync();
     await connection.DisposeAsync();
 }
+
+public sealed record CurrentUserDto(string UserId, string Username);

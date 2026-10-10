@@ -41,7 +41,7 @@ var connection = new HubConnectionBuilder()
     .Build();
 
 // Register the handler before connecting.
-connection.On<string>("ReceiveMessage", message =>
+connection.On<MessageDto>("ReceiveMessage", message =>
 {
     Console.WriteLine($"Received: {message}");
 });
@@ -73,15 +73,19 @@ try
         {
             switch (parts[0])
             {
-                case "join" when parts.Length >= 2:
+                case "join" when parts.Length >= 2 && int.TryParse(parts[1], out var groupchatId):
                     await connection.InvokeAsync(
-                        "JoinGroupChat", parts[1]);
+                        "JoinGroupChat", groupchatId);
                     Console.WriteLine("Join requested.");
                     break;
 
-                case "send" when parts.Length == 3:
+                case "send" when parts.Length == 3 && int.TryParse(parts[1], out var groupchatId):
+                    MessageCreationRequestDto messageRequest = new MessageCreationRequestDto
+                    {
+                        Content = parts[2]
+                    };
                     await connection.InvokeAsync(
-                        "SendMessage", parts[1], parts[2]);
+                        "SendMessage", groupchatId, messageRequest);
                     Console.WriteLine("Send requested.");
                     break;
 

@@ -9,12 +9,12 @@ public class ChatHub : Hub
     {
         _messagesService = messagesService;
     }
-    public async Task JoinGroupChat(string groupchatId)
+    public async Task JoinGroupChat(int groupchatId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, $"groupchat:{groupchatId}");
     }
 
-    public async Task LeaveGroupChat(string groupchatId)
+    public async Task LeaveGroupChat(int groupchatId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"groupchat:{groupchatId}");
     }

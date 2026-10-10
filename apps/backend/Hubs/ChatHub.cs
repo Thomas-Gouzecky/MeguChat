@@ -55,4 +55,27 @@ public class ChatHub : Hub
             throw new HubException(exception.Message);
         }
     }
+
+    public async Task DeleteMessage(int groupchatId, int messageId)
+    {
+        try
+        {
+            var deletedMessage = await _messagesService.DeleteMessageByIdAsync(groupchatId, messageId, Context.ConnectionAborted);
+            if (deletedMessage is null)
+            {
+                throw new HubException($"Message with ID {messageId} not found in group chat {groupchatId}.");
+            }
+            await Clients.Group($"groupchat:{groupchatId}").SendAsync("MessageDeleted", deletedMessage, Context.ConnectionAborted);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(
+                exception,
+                "Failed to delete message {MessageId} from group chat {GroupChatId} for user {UserId}",
+                messageId,
+                groupchatId,
+                Context.UserIdentifier ?? Context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "unknown");
+            throw new HubException(exception.Message);
+        }
+    }
 }

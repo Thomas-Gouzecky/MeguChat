@@ -1,0 +1,6 @@
+include:
+  - redis/docker-compose.yaml
+
+networks:
+  meguchat-network:
+    driver: bridge

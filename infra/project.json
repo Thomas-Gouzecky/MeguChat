@@ -3,6 +3,20 @@
   "sourceRoot": "infra",
   "projectType": "application",
   "targets": {
+    "docker-run-redis": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.redis.yaml up --build -d",
+        "cwd": "infra"
+      }
+    },
+    "docker-stop-redis": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.redis.yaml down",
+        "cwd": "infra"
+      }
+    },
     "docker-run-backend": {
       "executor": "nx:run-commands",
       "options": {
@@ -34,21 +48,21 @@
     "docker-run-all": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml up -d",
+        "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml -f docker-compose.redis.yaml up -d",
         "cwd": "infra"
       }
     },
     "docker-build-run-all": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml up --build -d",
+        "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml -f docker-compose.redis.yaml up --build -d",
         "cwd": "infra"
       }
     },
     "docker-stop-all": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml down",
+        "command": "docker compose -f docker-compose.db.yaml -f docker-compose.backend.yaml -f docker-compose.redis.yaml down",
         "cwd": "infra"
       }
     }

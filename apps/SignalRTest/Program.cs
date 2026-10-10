@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using System.Net;
 
@@ -49,6 +50,7 @@ Console.WriteLine($"Authenticated as {currentUser?.Username ?? "unknown user"}."
 var connection = new HubConnectionBuilder()
     .WithUrl(hubUrl, options => options.Cookies = cookieContainer)
     .WithAutomaticReconnect()
+    .ConfigureLogging(logging => logging.SetMinimumLevel(LogLevel.Trace))
     .Build();
 
 // Register the handler before connecting.
@@ -107,7 +109,7 @@ try
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Hub invocation failed: {ex.Message}");
+            Console.WriteLine($"Hub invocation failed: {ex}");
         }
     }
 }

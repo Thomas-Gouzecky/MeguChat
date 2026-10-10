@@ -101,4 +101,9 @@ public class ChatHub : Hub
             throw new HubException(exception.Message);
         }
     }
+
+    public async Task SendTypingNotification(int groupchatId)
+    {
+        await Clients.Group($"groupchat:{groupchatId}").SendAsync("UserTyping", Context.UserIdentifier, Context.ConnectionAborted);
+    }
 }

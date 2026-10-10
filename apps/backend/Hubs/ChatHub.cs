@@ -25,11 +25,13 @@ public class ChatHub : Hub
     public async Task JoinGroupChat(int groupchatId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, $"groupchat:{groupchatId}");
+        await Clients.Group($"groupchat:{groupchatId}").SendAsync("JoinGroupChat", Context.UserIdentifier, Context.ConnectionAborted);
     }
 
     public async Task LeaveGroupChat(int groupchatId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"groupchat:{groupchatId}");
+        await Clients.Group($"groupchat:{groupchatId}").SendAsync("LeaveGroupChat", Context.UserIdentifier, Context.ConnectionAborted);
     }
 
     public async Task SendMessage(int groupchatId, MessageCreationRequestDto request)
@@ -105,5 +107,10 @@ public class ChatHub : Hub
     public async Task SendTypingNotification(int groupchatId)
     {
         await Clients.Group($"groupchat:{groupchatId}").SendAsync("UserTyping", Context.UserIdentifier, Context.ConnectionAborted);
+    }
+
+    public async Task SendStopTypingNotification(int groupchatId)
+    {
+        await Clients.Group($"groupchat:{groupchatId}").SendAsync("UserStoppedTyping", Context.UserIdentifier, Context.ConnectionAborted);
     }
 }

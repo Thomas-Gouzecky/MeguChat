@@ -1,11 +1,42 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using System.Net.Http.Json;
+using System.Net;
 
 var hubUrl = "http://localhost:5192/hubs/chat";
+const string apiBaseUrl = "http://localhost:5192/api/";
+
+var cookieContainer = new CookieContainer();
+var handler = new HttpClientHandler
+{
+    CookieContainer = cookieContainer,
+    UseCookies = true
+};
+
+using var http = new HttpClient(handler) { BaseAddress = new Uri(apiBaseUrl) };
+
+Console.Write("Username: ");
+var username = Console.ReadLine() ?? string.Empty;
+
+Console.Write("Password: ");
+var password = Authentication.ReadPassword();
+
+using var loginResponse = await http.PostAsJsonAsync("auth/login", new
+{
+    Username = username,
+    Password = password
+});
+
+if (!loginResponse.IsSuccessStatusCode)
+{
+    var error = await loginResponse.Content.ReadAsStringAsync();
+    Console.WriteLine($"Login failed ({(int)loginResponse.StatusCode}): {error}");
+    return;
+}
+
+Console.WriteLine("Login succeeded.");
 
 var connection = new HubConnectionBuilder()
-    .WithUrl(hubUrl)
+    .WithUrl(hubUrl, options => options.Cookies = cookieContainer)
     .WithAutomaticReconnect()
     .Build();
 

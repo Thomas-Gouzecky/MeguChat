@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 
-// [Authorize]
+[Authorize]
 public class ChatHub : Hub
 {
     private readonly IMessagesService _messagesService;

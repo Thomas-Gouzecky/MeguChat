@@ -59,6 +59,36 @@ connection.On<MessageDto>("ReceiveMessage", message =>
     Console.WriteLine($"Received: {message}");
 });
 
+connection.On<string>("UserTyping", userId =>
+{
+    Console.WriteLine($"User {userId} is typing...");
+});
+
+connection.On<string>("UserStoppedTyping", userId =>
+{
+    Console.WriteLine($"User {userId} stopped typing.");
+});
+
+connection.On<MessageDto>("MessageUpdated", message =>
+{
+    Console.WriteLine($"Message updated: {message}");
+});
+
+connection.On<MessageDto>("MessageDeleted", message =>
+{
+    Console.WriteLine($"Message deleted: {message}");
+});
+
+connection.On<string>("JoinGroupChat", userId =>
+{
+    Console.WriteLine($"User {userId} joined the group chat.");
+});
+
+connection.On<string>("LeaveGroupChat", userId =>
+{
+    Console.WriteLine($"User {userId} left the group chat.");
+});
+
 try
 {
     await connection.StartAsync();
@@ -66,6 +96,11 @@ try
 
     Console.WriteLine("Commands:");
     Console.WriteLine("  join <groupchatId>");
+    Console.WriteLine("  leave <groupchatId>");
+    Console.WriteLine("  edit <groupchatId> <messageId> <newContent>");
+    Console.WriteLine("  delete <groupchatId> <messageId>");
+    Console.WriteLine("  type <groupchatId>");
+    Console.WriteLine("  stoptype <groupchatId>");
     Console.WriteLine("  send <groupchatId> <message>");
     Console.WriteLine("  exit");
 
@@ -80,7 +115,7 @@ try
         if (input == "exit")
             break;
 
-        var parts = input.Split(' ', 3);
+        var parts = input.Split(' ', 4);
 
         try
         {
@@ -100,6 +135,40 @@ try
                     await connection.InvokeAsync(
                         "SendMessage", groupchatId, messageRequest);
                     Console.WriteLine("Send requested.");
+                    break;
+
+                case "leave" when parts.Length >= 2 && int.TryParse(parts[1], out var groupchatId):
+                    await connection.InvokeAsync(
+                        "LeaveGroupChat", groupchatId);
+                    Console.WriteLine("Leave requested.");
+                    break;
+
+                case "edit" when parts.Length >= 4 && int.TryParse(parts[1], out var groupchatId) && int.TryParse(parts[2], out var messageId):
+                    MessageUpdateRequestDto updateRequest = new MessageUpdateRequestDto
+                    {
+                        Content = string.Join(" ", parts, 3, parts.Length - 3)
+                    };
+                    await connection.InvokeAsync(
+                        "UpdateMessage", groupchatId, messageId, updateRequest);
+                    Console.WriteLine("Edit requested.");
+                    break;
+
+                case "delete" when parts.Length >= 3 && int.TryParse(parts[1], out var groupchatId) && int.TryParse(parts[2], out var messageId):
+                    await connection.InvokeAsync(
+                        "DeleteMessage", groupchatId, messageId);
+                    Console.WriteLine("Delete requested.");
+                    break;
+
+                case "type" when parts.Length >= 2 && int.TryParse(parts[1], out var groupchatId):
+                    await connection.InvokeAsync(
+                        "SendTypingNotification", groupchatId);
+                    Console.WriteLine("Typing notification sent.");
+                    break;
+
+                case "stoptype" when parts.Length >= 2 && int.TryParse(parts[1], out var groupchatId):
+                    await connection.InvokeAsync(
+                        "SendStopTypingNotification", groupchatId);
+                    Console.WriteLine("Stop typing notification sent.");
                     break;
 
                 default:

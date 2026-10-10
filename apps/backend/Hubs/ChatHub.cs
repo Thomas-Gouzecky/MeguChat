@@ -78,4 +78,27 @@ public class ChatHub : Hub
             throw new HubException(exception.Message);
         }
     }
+
+    public async Task UpdateMessage(int groupchatId, int messageId, MessageUpdateRequestDto request)
+    {
+        try
+        {
+            var updatedMessage = await _messagesService.UpdateMessageByIdAsync(groupchatId, messageId, request, Context.ConnectionAborted);
+            if (updatedMessage is null)
+            {
+                throw new HubException($"Message with ID {messageId} not found in group chat {groupchatId}.");
+            }
+            await Clients.Group($"groupchat:{groupchatId}").SendAsync("MessageUpdated", updatedMessage, Context.ConnectionAborted);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(
+                exception,
+                "Failed to update message {MessageId} in group chat {GroupChatId} for user {UserId}",
+                messageId,
+                groupchatId,
+                Context.UserIdentifier ?? Context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "unknown");
+            throw new HubException(exception.Message);
+        }
+    }
 }

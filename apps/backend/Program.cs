@@ -54,8 +54,10 @@ if (!isMigration)
         options.BaseAddress = new Uri(databaseApi);
     });
 
-    builder.Services.AddSignalR().AddStackExchangeRedis(redisConnectionString);
-
+    builder.Services.AddSignalR(options =>
+    {
+        options.EnableDetailedErrors = true;
+    }).AddStackExchangeRedis(redisConnectionString);
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();

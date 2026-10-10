@@ -32,7 +32,7 @@ public class ChatHub : Hub
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"groupchat:{groupchatId}");
     }
 
-    public async Task SendMessage(int groupchatId, MessageCreationRequestDto request, CancellationToken cancellationToken = default)
+    public async Task SendMessage(int groupchatId, MessageCreationRequestDto request)
     {
         _logger.LogInformation(
             "ChatHub SendMessage entered: ConnectionId={ConnectionId}, GroupChatId={GroupChatId}, UserId={UserId}",
@@ -42,8 +42,8 @@ public class ChatHub : Hub
 
         try
         {
-            var createdMessage = await _messagesService.SendMessageToGroupChatAsync(groupchatId, request, cancellationToken);
-            await Clients.Group($"groupchat:{groupchatId}").SendAsync("ReceiveMessage", createdMessage, cancellationToken);
+            var createdMessage = await _messagesService.SendMessageToGroupChatAsync(groupchatId, request, Context.ConnectionAborted);
+            await Clients.Group($"groupchat:{groupchatId}").SendAsync("ReceiveMessage", createdMessage, Context.ConnectionAborted);
         }
         catch (Exception exception)
         {
@@ -52,7 +52,7 @@ public class ChatHub : Hub
                 "Failed to send message to group chat {GroupChatId} for user {UserId}",
                 groupchatId,
                 Context.UserIdentifier ?? Context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "unknown");
-            throw;
+            throw new HubException(exception.Message);
         }
     }
 }

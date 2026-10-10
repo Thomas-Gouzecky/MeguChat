@@ -26,16 +26,20 @@ public class ChatHub : Hub
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, $"groupchat:{groupchatId}");
         await Clients.Group($"groupchat:{groupchatId}").SendAsync("JoinGroupChat", Context.UserIdentifier, Context.ConnectionAborted);
+        Context.Items[$"groupchat:{groupchatId}"] = true;
     }
 
     public async Task LeaveGroupChat(int groupchatId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"groupchat:{groupchatId}");
         await Clients.Group($"groupchat:{groupchatId}").SendAsync("LeaveGroupChat", Context.UserIdentifier, Context.ConnectionAborted);
+        Context.Items.Remove($"groupchat:{groupchatId}");
     }
 
     public async Task SendMessage(int groupchatId, MessageCreationRequestDto request)
     {
+        RequireJoinedGroupChat(groupchatId);
+
         _logger.LogInformation(
             "ChatHub SendMessage entered: ConnectionId={ConnectionId}, GroupChatId={GroupChatId}, UserId={UserId}",
             Context.ConnectionId,
@@ -60,6 +64,7 @@ public class ChatHub : Hub
 
     public async Task DeleteMessage(int groupchatId, int messageId)
     {
+        RequireJoinedGroupChat(groupchatId);
         try
         {
             var deletedMessage = await _messagesService.DeleteMessageByIdAsync(groupchatId, messageId, Context.ConnectionAborted);
@@ -83,6 +88,7 @@ public class ChatHub : Hub
 
     public async Task UpdateMessage(int groupchatId, int messageId, MessageUpdateRequestDto request)
     {
+        RequireJoinedGroupChat(groupchatId);
         try
         {
             var updatedMessage = await _messagesService.UpdateMessageByIdAsync(groupchatId, messageId, request, Context.ConnectionAborted);
@@ -106,11 +112,27 @@ public class ChatHub : Hub
 
     public async Task SendTypingNotification(int groupchatId)
     {
+        RequireJoinedGroupChat(groupchatId);
         await Clients.Group($"groupchat:{groupchatId}").SendAsync("UserTyping", Context.UserIdentifier, Context.ConnectionAborted);
     }
 
     public async Task SendStopTypingNotification(int groupchatId)
     {
+        RequireJoinedGroupChat(groupchatId);
         await Clients.Group($"groupchat:{groupchatId}").SendAsync("UserStoppedTyping", Context.UserIdentifier, Context.ConnectionAborted);
+    }
+
+    private bool HasJoinedGroupChat(int groupchatId)
+    {
+        return Context.Items.ContainsKey($"groupchat:{groupchatId}");
+    }
+
+    private void RequireJoinedGroupChat(int groupchatId)
+    {
+        if (!HasJoinedGroupChat(groupchatId))
+        {
+            throw new HubException(
+                "You must join the group chat before performing this action.");
+        }
     }
 }

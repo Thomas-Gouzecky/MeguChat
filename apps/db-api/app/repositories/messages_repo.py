@@ -4,7 +4,7 @@ from app.utils.user_permissions import validate_user_is_member_of_groupchat
 
 
 def get_messages_for_groupchat(
-    groupchat_id: int, session: Session, current_user: str
+    groupchat_id: int, session: Session, current_user: str, limit: int
 ) -> list[Messages]:
     group_chats_table = SQLModel.metadata.tables[GroupChats.__tablename__]
     messages_table = SQLModel.metadata.tables[Messages.__tablename__]
@@ -22,6 +22,7 @@ def get_messages_for_groupchat(
         )
         .where(group_chats_table.c.id == groupchat_id)
         .order_by(messages_table.c.created_at.asc())
+        .limit(limit)
     )
     messages = list(session.exec(statement).all())
 

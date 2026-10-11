@@ -11,13 +11,14 @@ def get_messages_for_groupchat(
     groupchat_id: int,
     session: Session,
     current_user: str,
+    limit: int = 50,
 ) -> list[MessageDto]:
     from app.repositories.messages_repo import (
         get_messages_for_groupchat as get_messages_for_groupchat_in_repository,
     )
 
     get_messages: list[Messages] = get_messages_for_groupchat_in_repository(
-        groupchat_id, session, current_user
+        groupchat_id, session, current_user, limit
     )
 
     return [

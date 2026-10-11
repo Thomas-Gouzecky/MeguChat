@@ -16,9 +16,9 @@ public class MessagesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<MessageResponseDto>>> GetMessagesOfGroupChat(int groupChatId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<IEnumerable<MessageResponseDto>>> GetMessagesOfGroupChat(int groupChatId, CancellationToken cancellationToken = default, [FromQuery] int limit = 50, [FromQuery] DateTime? before_created_at = null)
     {
-        var messages = await _messagesService.GetMessagesOfGroupChatAsync(groupChatId, cancellationToken);
+        var messages = await _messagesService.GetMessagesOfGroupChatAsync(groupChatId, limit, before_created_at, cancellationToken);
         return Ok(messages);
     }
 

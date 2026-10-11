@@ -367,7 +367,5 @@ def test_messages_fetched_before_date_in_descending_creation_order(create_groupc
         "Message 3.",
         "Message 2.",
     ]
-    assert all(
-        message["created_at"] < before_created_at for message in messages
-    )
+    assert all(message["created_at"] < before_created_at for message in messages)
     assert messages[0]["created_at"] > messages[1]["created_at"]

@@ -342,6 +342,7 @@ def test_messages_fetched_before_date_in_chronological_order(create_groupchat):
         {"content": "Message 2."},
         {"content": "Message 3."},
         {"content": "Message 4."},
+        {"content": "Message 5."},
     ]
 
     added_messages = []
@@ -355,7 +356,7 @@ def test_messages_fetched_before_date_in_chronological_order(create_groupchat):
         added_messages.append(response.json())
 
     # Retrieve messages for the groupchat with a limit of 2
-    before_created_at = added_messages[3]["created_at"]
+    before_created_at = added_messages[4]["created_at"]
     get_response = client.get(
         f"/api/groupchats/{groupchat_id}/messages?limit=2&before_created_at={before_created_at}",
         headers={"X-User-ID": "user1"},
@@ -366,8 +367,25 @@ def test_messages_fetched_before_date_in_chronological_order(create_groupchat):
     assert isinstance(messages, list)
     assert len(messages) == 2
     assert [message["content"] for message in messages] == [
-        "Message 2.",
         "Message 3.",
+        "Message 4.",
+    ]
+    assert all(message["created_at"] < before_created_at for message in messages)
+    assert messages[0]["created_at"] < messages[1]["created_at"]
+
+    # get the new set of messages with a limit of 2 and before_created_at set to the created_at of the last message retrieved
+    before_created_at = messages[0]["created_at"]
+    get_response = client.get(
+        f"/api/groupchats/{groupchat_id}/messages?limit=2&before_created_at={before_created_at}",
+        headers={"X-User-ID": "user1"},
+    )
+    assert get_response.status_code == 200
+    messages = get_response.json()
+    assert isinstance(messages, list)
+    assert len(messages) == 2
+    assert [message["content"] for message in messages] == [
+        "Message 1.",
+        "Message 2.",
     ]
     assert all(message["created_at"] < before_created_at for message in messages)
     assert messages[0]["created_at"] < messages[1]["created_at"]

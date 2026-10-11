@@ -219,3 +219,173 @@ def test_users_not_in_groupchat_cannot_add_messages(create_groupchat):
     )
 
     assert response.status_code == 403
+
+
+def test_messages_returned_in_chronological_order(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Message Order")
+    # Add multiple messages to the groupchat
+    messages_to_add = [
+        {"content": "First message."},
+        {"content": "Second message."},
+        {"content": "Third message."},
+    ]
+
+    for message in messages_to_add:
+        response = client.post(
+            f"/api/groupchats/{groupchat_id}/messages",
+            json=message,
+            headers={"X-User-ID": "user1"},
+        )
+        assert response.status_code == 201
+
+    # Retrieve messages for the groupchat
+    get_response = client.get(
+        f"/api/groupchats/{groupchat_id}/messages", headers={"X-User-ID": "user1"}
+    )
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    assert isinstance(messages, list)
+    assert len(messages) == len(messages_to_add)
+
+    assert [message["content"] for message in messages] == [
+        "First message.",
+        "Second message.",
+        "Third message.",
+    ]
+
+
+def test_editing_message_still_returns_in_chronological_order(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Editing Message Order")
+    # Add multiple messages to the groupchat
+    messages_to_add = [
+        {"content": "First message."},
+        {"content": "Second message."},
+        {"content": "Third message."},
+    ]
+
+    message_ids = []
+    for message in messages_to_add:
+        response = client.post(
+            f"/api/groupchats/{groupchat_id}/messages",
+            json=message,
+            headers={"X-User-ID": "user1"},
+        )
+        assert response.status_code == 201
+        message_ids.append(response.json()["id"])
+
+    # Edit the second message
+    update_request_body = {"content": "Updated second message."}
+    update_response = client.put(
+        f"/api/groupchats/{groupchat_id}/messages/{message_ids[1]}",
+        json=update_request_body,
+        headers={"X-User-ID": "user1"},
+    )
+    assert update_response.status_code == 200
+
+    # Retrieve messages for the groupchat
+    get_response = client.get(
+        f"/api/groupchats/{groupchat_id}/messages", headers={"X-User-ID": "user1"}
+    )
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    assert isinstance(messages, list)
+    assert len(messages) == len(messages_to_add)
+
+    # Editing a message must not change its creation-time position.
+    expected_contents = [
+        "First message.",
+        "Updated second message.",
+        "Third message.",
+    ]
+    for i, message in enumerate(messages):
+        assert message["content"] == expected_contents[i]
+
+
+def test_messages_are_limited_by_query_parameter(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Message Limit")
+    # Add multiple messages to the groupchat
+    messages_to_add = [
+        {"content": "Message 1."},
+        {"content": "Message 2."},
+        {"content": "Message 3."},
+        {"content": "Message 4."},
+        {"content": "Message 5."},
+    ]
+
+    for message in messages_to_add:
+        response = client.post(
+            f"/api/groupchats/{groupchat_id}/messages",
+            json=message,
+            headers={"X-User-ID": "user1"},
+        )
+        assert response.status_code == 201
+
+    # Retrieve messages for the groupchat with a limit of 3
+    get_response = client.get(
+        f"/api/groupchats/{groupchat_id}/messages?limit=3",
+        headers={"X-User-ID": "user1"},
+    )
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    assert isinstance(messages, list)
+    assert len(messages) == 3
+
+
+def test_messages_fetched_before_date_in_chronological_order(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Fetching Messages Before Date")
+    # Add multiple messages to the groupchat
+    messages_to_add = [
+        {"content": "Message 1."},
+        {"content": "Message 2."},
+        {"content": "Message 3."},
+        {"content": "Message 4."},
+        {"content": "Message 5."},
+    ]
+
+    added_messages = []
+    for message in messages_to_add:
+        response = client.post(
+            f"/api/groupchats/{groupchat_id}/messages",
+            json=message,
+            headers={"X-User-ID": "user1"},
+        )
+        assert response.status_code == 201
+        added_messages.append(response.json())
+
+    # Retrieve messages for the groupchat with a limit of 2
+    before_created_at = added_messages[4]["created_at"]
+    get_response = client.get(
+        f"/api/groupchats/{groupchat_id}/messages?limit=2&before_created_at={before_created_at}",
+        headers={"X-User-ID": "user1"},
+    )
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    assert isinstance(messages, list)
+    assert len(messages) == 2
+    assert [message["content"] for message in messages] == [
+        "Message 3.",
+        "Message 4.",
+    ]
+    assert all(message["created_at"] < before_created_at for message in messages)
+    assert messages[0]["created_at"] < messages[1]["created_at"]
+
+    # get the new set of messages with a limit of 2 and before_created_at set to the created_at of the last message retrieved
+    before_created_at = messages[0]["created_at"]
+    get_response = client.get(
+        f"/api/groupchats/{groupchat_id}/messages?limit=2&before_created_at={before_created_at}",
+        headers={"X-User-ID": "user1"},
+    )
+    assert get_response.status_code == 200
+    messages = get_response.json()
+    assert isinstance(messages, list)
+    assert len(messages) == 2
+    assert [message["content"] for message in messages] == [
+        "Message 1.",
+        "Message 2.",
+    ]
+    assert all(message["created_at"] < before_created_at for message in messages)
+    assert messages[0]["created_at"] < messages[1]["created_at"]

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, status, Query
 from app.auth import get_current_user
 from app.services import messages_service
 from app.sql import SessionDep
@@ -14,11 +16,16 @@ router = APIRouter(prefix="/api/groupchats/{groupchat_id}/messages", tags=["mess
 def get_messages_for_groupchat(
     groupchat_id: int,
     session: SessionDep,
+    limit: int = Query(50, ge=1, le=100),
+    before_created_at: datetime | None = Query(
+        default=None,
+        description="Optional ISO 8601 timestamp to filter messages created before this time",
+    ),
     current_user: str = Depends(get_current_user),
 ) -> list[MessageDto]:
 
     messages: list[MessageDto] = messages_service.get_messages_for_groupchat(
-        groupchat_id, session, current_user
+        groupchat_id, session, current_user, limit, before_created_at
     )
 
     return messages

@@ -56,6 +56,7 @@ def find_groupchats_for_user(user_id: str, session: Session) -> list[GroupChats]
             group_chats_table.c.id == group_chat_members_table.c.group_chat_id,
         )
         .where(group_chat_members_table.c.user_id == user_id)
+        .order_by(group_chats_table.c.created_at.desc())
     )
     groupchats = list(session.exec(statement).all())
 

@@ -175,3 +175,74 @@ def test_ensure_messages_are_groupchat_specific():
 
     # Ensure that messages for one groupchat do not appear in the other
     assert all(msg not in messages2 for msg in messages1)
+
+
+def test_groupchats_returned_are_ordered_by_creation_time_desc():
+    # Create 3 new groupchats with a slight delay to ensure different creation times
+    import time
+
+    groupchat_ids = []
+    for i in range(3):
+        request_body = {"name": f"Group Chat {i + 1}"}
+        create_response = client.post(
+            "/api/groupchats", json=request_body, headers={"X-User-ID": "user1"}
+        )
+        assert create_response.status_code == 201
+        groupchat_ids.append(create_response.json()["groupchat_id"])
+        time.sleep(0.1)  # Sleep for 100ms to ensure different timestamps
+
+    # Get groupchats for the current user
+    get_groupchats_response = client.get(
+        "/api/groupchats/user/user1", headers={"X-User-ID": "user1"}
+    )
+    assert get_groupchats_response.status_code == 200
+    groupchats = get_groupchats_response.json()
+
+    returned_groupchats = [
+        gc for gc in groupchats if gc["groupchat_id"] in groupchat_ids
+    ]
+
+    assert [gc["groupchat_id"] for gc in returned_groupchats] == groupchat_ids[::-1]
+    assert [gc["created_at"] for gc in returned_groupchats] == sorted(
+        (gc["created_at"] for gc in returned_groupchats), reverse=True
+    )
+
+
+def test_editing_groupchat_still_returns_groupchats_ordered_by_creation_time():
+    # Create 3 new groupchats with a slight delay to ensure different creation times
+    import time
+
+    groupchat_ids = []
+    for i in range(3):
+        request_body = {"name": f"Group Chat {i + 1}"}
+        create_response = client.post(
+            "/api/groupchats", json=request_body, headers={"X-User-ID": "user1"}
+        )
+        assert create_response.status_code == 201
+        groupchat_ids.append(create_response.json()["groupchat_id"])
+        time.sleep(0.1)  # Sleep for 100ms to ensure different timestamps
+
+    # Edit the first groupchat name
+    update_request_body = {"name": "Edited Group Chat Name"}
+    update_response = client.put(
+        f"/api/groupchats/{groupchat_ids[0]}",
+        json=update_request_body,
+        headers={"X-User-ID": "user1"},
+    )
+    assert update_response.status_code == 200
+
+    # Get groupchats for the current user
+    get_groupchats_response = client.get(
+        "/api/groupchats/user/user1", headers={"X-User-ID": "user1"}
+    )
+    assert get_groupchats_response.status_code == 200
+    groupchats = get_groupchats_response.json()
+
+    returned_groupchats = [
+        gc for gc in groupchats if gc["groupchat_id"] in groupchat_ids
+    ]
+
+    assert [gc["groupchat_id"] for gc in returned_groupchats] == groupchat_ids[::-1]
+    assert [gc["created_at"] for gc in returned_groupchats] == sorted(
+        (gc["created_at"] for gc in returned_groupchats), reverse=True
+    )

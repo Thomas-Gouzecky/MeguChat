@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 
 public class MessagesClient : DatabaseClient, IMessagesClient
 {
@@ -7,12 +8,20 @@ public class MessagesClient : DatabaseClient, IMessagesClient
     {
     }
 
-    public async Task<IEnumerable<MessageResponseDto>> GetMessagesOfGroupChatAsync(int groupChatId, string userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<MessageResponseDto>> GetMessagesOfGroupChatAsync(int groupChatId, string userId, int limit, DateTime? before_created_at, CancellationToken cancellationToken = default)
     {
+        var url = QueryHelpers.AddQueryString(
+            $"/api/groupchats/{groupChatId}/messages",
+            new Dictionary<string, string?>
+            {
+                { "limit", limit.ToString() },
+                { "before_created_at", before_created_at?.ToString("o") }
+            }
+        );
 
         using var httpRequest = new HttpRequestMessage(
             HttpMethod.Get,
-            $"/api/groupchats/{groupChatId}/messages"
+            url
         );
 
         httpRequest.Headers.Add("X-User-ID", userId);

@@ -133,12 +133,25 @@ public sealed class TestDataStore
         return new MemberResponseDto();
     }
 
-    public IEnumerable<MessageResponseDto> GetMessages(int groupChatId, string userId)
+    public IEnumerable<MessageResponseDto> GetMessages(
+        int groupChatId,
+        string userId,
+        int limit,
+        DateTime? beforeCreatedAt)
     {
         EnsureMember(groupChatId, userId);
-        return _messagesByGroupChat.TryGetValue(groupChatId, out var messages)
-            ? messages.AsEnumerable()
-            : Enumerable.Empty<MessageResponseDto>();
+
+        if (!_messagesByGroupChat.TryGetValue(groupChatId, out var messages))
+        {
+            return Enumerable.Empty<MessageResponseDto>();
+        }
+
+        var filteredMessages = messages
+            .Where(message => beforeCreatedAt is null || message.CreatedAt < beforeCreatedAt)
+            .TakeLast(limit)
+            .ToList();
+
+        return filteredMessages;
     }
 
     public MessageResponseDto AddMessage(int groupChatId, string content, string userId)

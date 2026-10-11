@@ -10,9 +10,11 @@ public sealed class FakeMessagesClient : IMessagesClient
     public Task<IEnumerable<MessageResponseDto>> GetMessagesOfGroupChatAsync(
         int groupChatId,
         string userId,
+        int limit,
+        DateTime? before_created_at,
         CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(_store.GetMessages(groupChatId, userId));
+        return Task.FromResult(_store.GetMessages(groupChatId, userId, limit, before_created_at));
     }
 
     public Task<MessageResponseDto> SendMessageToGroupChatAsync(

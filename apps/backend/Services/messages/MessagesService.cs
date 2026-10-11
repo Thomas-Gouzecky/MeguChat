@@ -9,11 +9,11 @@ public class MessagesService : IMessagesService
         _userValidation = userValidation;
     }
 
-    public async Task<IEnumerable<MessageResponseDto>> GetMessagesOfGroupChatAsync(int groupChatId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<MessageResponseDto>> GetMessagesOfGroupChatAsync(int groupChatId, int limit, DateTime? before_created_at, CancellationToken cancellationToken = default)
     {
         var user = await _userValidation.ValidateUser();
-
-        var messages = await _messagesClient.GetMessagesOfGroupChatAsync(groupChatId, user.Id, cancellationToken);
+        limit = Math.Clamp(limit, 1, 100);
+        var messages = await _messagesClient.GetMessagesOfGroupChatAsync(groupChatId, user.Id, limit, before_created_at, cancellationToken);
         return messages;
     }
 

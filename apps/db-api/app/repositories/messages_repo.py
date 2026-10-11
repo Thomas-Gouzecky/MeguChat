@@ -21,6 +21,7 @@ def get_messages_for_groupchat(
             messages_table.c.group_chat_id == group_chats_table.c.id,
         )
         .where(group_chats_table.c.id == groupchat_id)
+        .order_by(messages_table.c.created_at.asc())
     )
     messages = list(session.exec(statement).all())
 

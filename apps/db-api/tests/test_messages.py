@@ -299,3 +299,34 @@ def test_editing_message_still_returns_in_creation_order(create_groupchat):
     ]
     for i, message in enumerate(messages):
         assert message["content"] == expected_contents[i]
+
+
+def test_messages_are_limited_by_query_parameter(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Message Limit")
+    # Add multiple messages to the groupchat
+    messages_to_add = [
+        {"content": "Message 1."},
+        {"content": "Message 2."},
+        {"content": "Message 3."},
+        {"content": "Message 4."},
+        {"content": "Message 5."},
+    ]
+
+    for message in messages_to_add:
+        response = client.post(
+            f"/api/groupchats/{groupchat_id}/messages",
+            json=message,
+            headers={"X-User-ID": "user1"},
+        )
+        assert response.status_code == 201
+
+    # Retrieve messages for the groupchat with a limit of 3
+    get_response = client.get(
+        f"/api/groupchats/{groupchat_id}/messages?limit=3",
+        headers={"X-User-ID": "user1"},
+    )
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    assert isinstance(messages, list)
+    assert len(messages) == 3

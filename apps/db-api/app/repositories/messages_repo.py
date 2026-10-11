@@ -1,10 +1,16 @@
+from datetime import datetime
+
 from sqlmodel import Session, SQLModel, select
 from app.models import GroupChats, Messages
 from app.utils.user_permissions import validate_user_is_member_of_groupchat
 
 
 def get_messages_for_groupchat(
-    groupchat_id: int, session: Session, current_user: str, limit: int
+    groupchat_id: int,
+    session: Session,
+    current_user: str,
+    limit: int = 50,
+    before_created_at: datetime | None = None,
 ) -> list[Messages]:
     group_chats_table = SQLModel.metadata.tables[GroupChats.__tablename__]
     messages_table = SQLModel.metadata.tables[Messages.__tablename__]
@@ -21,10 +27,15 @@ def get_messages_for_groupchat(
             messages_table.c.group_chat_id == group_chats_table.c.id,
         )
         .where(group_chats_table.c.id == groupchat_id)
-        .order_by(messages_table.c.created_at.asc())
+        .order_by(messages_table.c.created_at.desc())
         .limit(limit)
     )
+
+    if before_created_at:
+        statement = statement.where(messages_table.c.created_at < before_created_at)
+
     messages = list(session.exec(statement).all())
+    messages.reverse()
 
     return messages
 

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlmodel import Session
 
 from app.models import Messages
@@ -12,13 +14,14 @@ def get_messages_for_groupchat(
     session: Session,
     current_user: str,
     limit: int = 50,
+    before_created_at: datetime | None = None,
 ) -> list[MessageDto]:
     from app.repositories.messages_repo import (
         get_messages_for_groupchat as get_messages_for_groupchat_in_repository,
     )
 
     get_messages: list[Messages] = get_messages_for_groupchat_in_repository(
-        groupchat_id, session, current_user, limit
+        groupchat_id, session, current_user, limit, before_created_at
     )
 
     return [
@@ -101,7 +104,7 @@ def update_message_in_groupchat(
 
     if not new_content.content:
         raise ValueError("New content cannot be empty")
-    
+
     updated_message: Messages = update_message_in_groupchat_in_repository(
         groupchat_id, message_id, new_content.content, user_id, session
     )

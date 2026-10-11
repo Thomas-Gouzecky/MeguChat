@@ -332,7 +332,7 @@ def test_messages_are_limited_by_query_parameter(create_groupchat):
     assert len(messages) == 3
 
 
-def test_messages_fetched_before_date(create_groupchat):
+def test_messages_fetched_before_date_in_descending_creation_order(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Fetching Messages Before Date")
     # Add multiple messages to the groupchat
     messages_to_add = [
@@ -353,8 +353,9 @@ def test_messages_fetched_before_date(create_groupchat):
         added_messages.append(response.json())
 
     # Retrieve messages for the groupchat with a limit of 2
+    before_created_at = added_messages[3]["created_at"]
     get_response = client.get(
-        f"/api/groupchats/{groupchat_id}/messages?limit=2&before_created_at={added_messages[1]['created_at']}",
+        f"/api/groupchats/{groupchat_id}/messages?limit=2&before_created_at={before_created_at}",
         headers={"X-User-ID": "user1"},
     )
     assert get_response.status_code == 200
@@ -362,5 +363,11 @@ def test_messages_fetched_before_date(create_groupchat):
 
     assert isinstance(messages, list)
     assert len(messages) == 2
-    assert messages[0]["content"] == "Message 2."
-    assert messages[1]["content"] == "Message 3."
+    assert [message["content"] for message in messages] == [
+        "Message 3.",
+        "Message 2.",
+    ]
+    assert all(
+        message["created_at"] < before_created_at for message in messages
+    )
+    assert messages[0]["created_at"] > messages[1]["created_at"]

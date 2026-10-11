@@ -40,6 +40,52 @@ public class GETMessagesTests : IClassFixture<TestWebApplicationFactory>
     }
 
     [Fact]
+    public async Task GetMessages_ReturnsLatestMessages_WhenLimitIsSpecified()
+    {
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "TestPassword1!"
+        };
+        await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+
+        var response = await _client.GetAsync("/api/groupchats/1/messages?limit=1");
+
+        response.EnsureSuccessStatusCode();
+        var messages = await response.Content.ReadFromJsonAsync<List<MessageResponseDto>>();
+
+        Assert.NotNull(messages);
+        var message = Assert.Single(messages);
+        Assert.Equal("Hello Again!", message.Content);
+    }
+
+    [Fact]
+    public async Task GetMessages_ReturnsMessagesBeforeCursor_WhenBeforeCreatedAtIsSpecified()
+    {
+        var loginRequest = new
+        {
+            username = "testuser",
+            password = "TestPassword1!"
+        };
+        await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+
+        var allMessagesResponse = await _client.GetAsync("/api/groupchats/1/messages");
+        allMessagesResponse.EnsureSuccessStatusCode();
+        var allMessages = await allMessagesResponse.Content.ReadFromJsonAsync<List<MessageResponseDto>>();
+        Assert.NotNull(allMessages);
+
+        var cursor = allMessages[1].CreatedAt.ToString("O");
+        var response = await _client.GetAsync($"/api/groupchats/1/messages?before_created_at={Uri.EscapeDataString(cursor)}");
+
+        response.EnsureSuccessStatusCode();
+        var messages = await response.Content.ReadFromJsonAsync<List<MessageResponseDto>>();
+
+        Assert.NotNull(messages);
+        var message = Assert.Single(messages);
+        Assert.Equal("Hello from testuser!", message.Content);
+    }
+
+    [Fact]
     public async Task GetMessages_ReturnsMessages_WhenNonSenderViewsMessages()
     {
         // Login

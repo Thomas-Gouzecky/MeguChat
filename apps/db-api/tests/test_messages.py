@@ -330,3 +330,37 @@ def test_messages_are_limited_by_query_parameter(create_groupchat):
 
     assert isinstance(messages, list)
     assert len(messages) == 3
+
+
+def test_messages_fetched_before_date(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Fetching Messages Before Date")
+    # Add multiple messages to the groupchat
+    messages_to_add = [
+        {"content": "Message 1."},
+        {"content": "Message 2."},
+        {"content": "Message 3."},
+        {"content": "Message 4."},
+    ]
+
+    added_messages = []
+    for message in messages_to_add:
+        response = client.post(
+            f"/api/groupchats/{groupchat_id}/messages",
+            json=message,
+            headers={"X-User-ID": "user1"},
+        )
+        assert response.status_code == 201
+        added_messages.append(response.json())
+
+    # Retrieve messages for the groupchat with a limit of 2
+    get_response = client.get(
+        f"/api/groupchats/{groupchat_id}/messages?limit=2&before_created_at={added_messages[1]['created_at']}",
+        headers={"X-User-ID": "user1"},
+    )
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    assert isinstance(messages, list)
+    assert len(messages) == 2
+    assert messages[0]["content"] == "Message 2."
+    assert messages[1]["content"] == "Message 3."

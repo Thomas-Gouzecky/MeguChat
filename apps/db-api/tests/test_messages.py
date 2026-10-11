@@ -221,7 +221,7 @@ def test_users_not_in_groupchat_cannot_add_messages(create_groupchat):
     assert response.status_code == 403
 
 
-def test_messages_returned_in_creation_order(create_groupchat):
+def test_messages_returned_in_chronological_order(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Message Order")
     # Add multiple messages to the groupchat
     messages_to_add = [
@@ -248,12 +248,14 @@ def test_messages_returned_in_creation_order(create_groupchat):
     assert isinstance(messages, list)
     assert len(messages) == len(messages_to_add)
 
-    # Check that messages are returned in the order they were created
-    for i, message in enumerate(messages):
-        assert message["content"] == messages_to_add[i]["content"]
+    assert [message["content"] for message in messages] == [
+        "First message.",
+        "Second message.",
+        "Third message.",
+    ]
 
 
-def test_editing_message_still_returns_in_creation_order(create_groupchat):
+def test_editing_message_still_returns_in_chronological_order(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Editing Message Order")
     # Add multiple messages to the groupchat
     messages_to_add = [
@@ -291,7 +293,7 @@ def test_editing_message_still_returns_in_creation_order(create_groupchat):
     assert isinstance(messages, list)
     assert len(messages) == len(messages_to_add)
 
-    # Check that messages are still returned in the order they were created
+    # Editing a message must not change its creation-time position.
     expected_contents = [
         "First message.",
         "Updated second message.",
@@ -332,7 +334,7 @@ def test_messages_are_limited_by_query_parameter(create_groupchat):
     assert len(messages) == 3
 
 
-def test_messages_fetched_before_date_in_descending_creation_order(create_groupchat):
+def test_messages_fetched_before_date_in_chronological_order(create_groupchat):
     groupchat_id = create_groupchat("Test Group for Fetching Messages Before Date")
     # Add multiple messages to the groupchat
     messages_to_add = [
@@ -364,8 +366,8 @@ def test_messages_fetched_before_date_in_descending_creation_order(create_groupc
     assert isinstance(messages, list)
     assert len(messages) == 2
     assert [message["content"] for message in messages] == [
-        "Message 3.",
         "Message 2.",
+        "Message 3.",
     ]
     assert all(message["created_at"] < before_created_at for message in messages)
-    assert messages[0]["created_at"] > messages[1]["created_at"]
+    assert messages[0]["created_at"] < messages[1]["created_at"]

@@ -219,3 +219,83 @@ def test_users_not_in_groupchat_cannot_add_messages(create_groupchat):
     )
 
     assert response.status_code == 403
+
+
+def test_messages_returned_in_creation_order(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Message Order")
+    # Add multiple messages to the groupchat
+    messages_to_add = [
+        {"content": "First message."},
+        {"content": "Second message."},
+        {"content": "Third message."},
+    ]
+
+    for message in messages_to_add:
+        response = client.post(
+            f"/api/groupchats/{groupchat_id}/messages",
+            json=message,
+            headers={"X-User-ID": "user1"},
+        )
+        assert response.status_code == 201
+
+    # Retrieve messages for the groupchat
+    get_response = client.get(
+        f"/api/groupchats/{groupchat_id}/messages", headers={"X-User-ID": "user1"}
+    )
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    assert isinstance(messages, list)
+    assert len(messages) == len(messages_to_add)
+
+    # Check that messages are returned in the order they were created
+    for i, message in enumerate(messages):
+        assert message["content"] == messages_to_add[i]["content"]
+
+
+def test_editing_message_still_returns_in_creation_order(create_groupchat):
+    groupchat_id = create_groupchat("Test Group for Editing Message Order")
+    # Add multiple messages to the groupchat
+    messages_to_add = [
+        {"content": "First message."},
+        {"content": "Second message."},
+        {"content": "Third message."},
+    ]
+
+    message_ids = []
+    for message in messages_to_add:
+        response = client.post(
+            f"/api/groupchats/{groupchat_id}/messages",
+            json=message,
+            headers={"X-User-ID": "user1"},
+        )
+        assert response.status_code == 201
+        message_ids.append(response.json()["id"])
+
+    # Edit the second message
+    update_request_body = {"content": "Updated second message."}
+    update_response = client.put(
+        f"/api/groupchats/{groupchat_id}/messages/{message_ids[1]}",
+        json=update_request_body,
+        headers={"X-User-ID": "user1"},
+    )
+    assert update_response.status_code == 200
+
+    # Retrieve messages for the groupchat
+    get_response = client.get(
+        f"/api/groupchats/{groupchat_id}/messages", headers={"X-User-ID": "user1"}
+    )
+    assert get_response.status_code == 200
+    messages = get_response.json()
+
+    assert isinstance(messages, list)
+    assert len(messages) == len(messages_to_add)
+
+    # Check that messages are still returned in the order they were created
+    expected_contents = [
+        "First message.",
+        "Updated second message.",
+        "Third message.",
+    ]
+    for i, message in enumerate(messages):
+        assert message["content"] == expected_contents[i]

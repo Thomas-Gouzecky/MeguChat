@@ -37,12 +37,12 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
       status: 'sending',
     };
 
-    dispatch(
-      addMessage({
-        groupchat_id: groupchatId,
-        message: temporaryMessage,
-      }),
-    );
+    // dispatch(
+    //   addMessage({
+    //     groupchat_id: groupchatId,
+    //     message: temporaryMessage,
+    //   }),
+    // );
     event.currentTarget.reset();
     const textarea = event.currentTarget.elements.namedItem(
       'message',
@@ -51,36 +51,35 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
     textarea.style.overflowY = 'hidden';
 
     try {
-      const response = await connection.invoke(
-        'SendMessage',
-        Number(groupchatId),
-        { content: messageContent },
-      );
+      await connection?.invoke('SendMessage', Number(groupchatId), {
+        content: messageContent,
+      });
 
-      if (!('id' in response)) {
-        dispatch(
-          editMessage({
-            groupchat_id: groupchatId,
-            message: { ...temporaryMessage, status: 'error' },
-          }),
-        );
-        return;
-      }
+      // if (!('id' in response)) {
+      //   dispatch(
+      //     editMessage({
+      //       groupchat_id: groupchatId,
+      //       message: { ...temporaryMessage, status: 'error' },
+      //     }),
+      //   );
+      //   return;
+      // }
 
-      dispatch(
-        replaceMessage({
-          groupchat_id: groupchatId,
-          message_id: temporaryId,
-          message: { ...response, status: 'sent' },
-        }),
-      );
-    } catch {
-      dispatch(
-        editMessage({
-          groupchat_id: groupchatId,
-          message: { ...temporaryMessage, status: 'error' },
-        }),
-      );
+      // dispatch(
+      //   replaceMessage({
+      //     groupchat_id: groupchatId,
+      //     message_id: temporaryId,
+      //     message: { ...response, status: 'sent' },
+      //   }),
+      // );
+    } catch (error) {
+      // dispatch(
+      //   editMessage({
+      //     groupchat_id: groupchatId,
+      //     message: { ...temporaryMessage, status: 'error' },
+      //   }),
+      // );
+      console.error('Error sending message: ', error);
     }
   }
   return (

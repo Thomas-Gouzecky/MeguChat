@@ -24,7 +24,11 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
     const formData = new FormData(event.currentTarget);
     const messageContent = (formData.get('message') as string | null)?.trim();
 
-    if (!messageContent || !connection || connection.state !== HubConnectionState.Connected) {
+    if (
+      !messageContent ||
+      !connection ||
+      connection.state !== HubConnectionState.Connected
+    ) {
       return;
     }
 

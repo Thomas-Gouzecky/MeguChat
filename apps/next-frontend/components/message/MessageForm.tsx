@@ -2,23 +2,17 @@
 
 import { ArrowUp } from 'lucide-react';
 
-import {
-  addMessage,
-  editMessage,
-  replaceMessage,
-} from '@/store/slices/messagesSlice';
-import { AppDispatch, RootState } from '@/store/store';
+import { RootState } from '@/store/store';
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupTextarea,
 } from '@meguchat/ui/components/ui/input-group';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useSignalR } from '../signalr/SignalRContext';
 
 export default function MessageForm({ groupchatId }: { groupchatId: string }) {
-  const dispatch = useDispatch<AppDispatch>();
   const { connection } = useSignalR();
   const userId = useSelector((state: RootState) => state.auth.user?.user_id);
 
@@ -37,12 +31,6 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
       status: 'sending',
     };
 
-    // dispatch(
-    //   addMessage({
-    //     groupchat_id: groupchatId,
-    //     message: temporaryMessage,
-    //   }),
-    // );
     event.currentTarget.reset();
     const textarea = event.currentTarget.elements.namedItem(
       'message',
@@ -54,31 +42,7 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
       await connection?.invoke('SendMessage', Number(groupchatId), {
         content: messageContent,
       });
-
-      // if (!('id' in response)) {
-      //   dispatch(
-      //     editMessage({
-      //       groupchat_id: groupchatId,
-      //       message: { ...temporaryMessage, status: 'error' },
-      //     }),
-      //   );
-      //   return;
-      // }
-
-      // dispatch(
-      //   replaceMessage({
-      //     groupchat_id: groupchatId,
-      //     message_id: temporaryId,
-      //     message: { ...response, status: 'sent' },
-      //   }),
-      // );
     } catch (error) {
-      // dispatch(
-      //   editMessage({
-      //     groupchat_id: groupchatId,
-      //     message: { ...temporaryMessage, status: 'error' },
-      //   }),
-      // );
       console.error('Error sending message: ', error);
     }
   }

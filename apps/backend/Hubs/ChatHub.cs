@@ -36,7 +36,7 @@ public class ChatHub : Hub
         Context.Items.Remove($"groupchat:{groupchatId}");
     }
 
-    public async Task SendMessage(int groupchatId, MessageCreationRequestDto request)
+    public async Task<MessageResponseDto> SendMessage(int groupchatId, MessageCreationRequestDto request)
     {
         RequireJoinedGroupChat(groupchatId);
 
@@ -50,6 +50,7 @@ public class ChatHub : Hub
         {
             var createdMessage = await _messagesService.SendMessageToGroupChatAsync(groupchatId, request, Context.ConnectionAborted);
             await Clients.Group($"groupchat:{groupchatId}").SendAsync("ReceiveMessage", createdMessage, Context.ConnectionAborted);
+            return createdMessage;
         }
         catch (Exception exception)
         {
@@ -62,7 +63,7 @@ public class ChatHub : Hub
         }
     }
 
-    public async Task DeleteMessage(int groupchatId, int messageId)
+    public async Task<MessageResponseDto> DeleteMessage(int groupchatId, int messageId)
     {
         RequireJoinedGroupChat(groupchatId);
         try
@@ -73,6 +74,7 @@ public class ChatHub : Hub
                 throw new HubException($"Message with ID {messageId} not found in group chat {groupchatId}.");
             }
             await Clients.Group($"groupchat:{groupchatId}").SendAsync("MessageDeleted", deletedMessage, Context.ConnectionAborted);
+            return deletedMessage;
         }
         catch (Exception exception)
         {
@@ -86,7 +88,7 @@ public class ChatHub : Hub
         }
     }
 
-    public async Task UpdateMessage(int groupchatId, int messageId, MessageUpdateRequestDto request)
+    public async Task<MessageResponseDto> UpdateMessage(int groupchatId, int messageId, MessageUpdateRequestDto request)
     {
         RequireJoinedGroupChat(groupchatId);
         try
@@ -97,6 +99,7 @@ public class ChatHub : Hub
                 throw new HubException($"Message with ID {messageId} not found in group chat {groupchatId}.");
             }
             await Clients.Group($"groupchat:{groupchatId}").SendAsync("MessageUpdated", updatedMessage, Context.ConnectionAborted);
+            return updatedMessage;
         }
         catch (Exception exception)
         {

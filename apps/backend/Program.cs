@@ -61,6 +61,26 @@ if (!isMigration)
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("NextFrontendDevelopmentCorsPolicy", policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+
+        options.AddPolicy("NextFrontendProductionCorsPolicy", policy =>
+        {
+            // subject to change
+            policy.WithOrigins("https://meguchat.vercel.app")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+    });
 }
 
 var app = builder.Build();

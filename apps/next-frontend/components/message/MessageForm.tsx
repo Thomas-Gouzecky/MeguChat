@@ -2,7 +2,6 @@
 
 import { ArrowUp } from 'lucide-react';
 
-import { createNewMessage } from '@/lib/api/messages';
 import {
   addMessage,
   editMessage,
@@ -16,9 +15,11 @@ import {
   InputGroupTextarea,
 } from '@meguchat/ui/components/ui/input-group';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSignalR } from '../signalr/SignalRContext';
 
 export default function MessageForm({ groupchatId }: { groupchatId: string }) {
   const dispatch = useDispatch<AppDispatch>();
+  const { connection } = useSignalR();
   const userId = useSelector((state: RootState) => state.auth.user?.user_id);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -50,7 +51,11 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
     textarea.style.overflowY = 'hidden';
 
     try {
-      const response = await createNewMessage(groupchatId, messageContent);
+      const response = await connection.invoke(
+        'SendMessage',
+        Number(groupchatId),
+        { content: messageContent },
+      );
 
       if (!('id' in response)) {
         dispatch(

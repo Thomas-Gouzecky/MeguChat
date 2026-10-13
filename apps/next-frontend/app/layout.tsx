@@ -6,6 +6,7 @@ import Navbar from '@/components/navbar';
 import { getCurrentUser } from '@/lib/auth/auth';
 import StoreProvider from '@/store/storeProvider';
 import AuthInitializer from '@/components/AuthInitializer';
+import { SignalRProvider } from '@/components/signalr/SignalRContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,16 +34,18 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
       <head />
       <body>
         <StoreProvider>
-          <AuthInitializer user={user} />
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Navbar />
-            {children}
-          </ThemeProvider>
+          <SignalRProvider serverUrl={process.env.SIGNALR_URL ?? ''}>
+            <AuthInitializer user={user} />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Navbar />
+              {children}
+            </ThemeProvider>
+          </SignalRProvider>
         </StoreProvider>
       </body>
     </html>

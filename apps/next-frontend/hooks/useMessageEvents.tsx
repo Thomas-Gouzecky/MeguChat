@@ -9,14 +9,6 @@ import {
 
 export function useMessageEvents() {
   const dispatch = useDispatch<AppDispatch>();
-  useListen<[MessageType]>('SendMessage', (message) => {
-    dispatch(
-      addMessage({
-        groupchat_id: message.group_chat_id.toString(),
-        message,
-      }),
-    );
-  });
 
   useListen<[MessageType]>('ReceiveMessage', (message) => {
     dispatch(

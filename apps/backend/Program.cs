@@ -106,6 +106,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors(app.Environment.IsDevelopment() ? "NextFrontendDevelopmentCorsPolicy" : "NextFrontendProductionCorsPolicy");
 
 app.UseExceptionHandler();
 app.UseHttpsRedirection();

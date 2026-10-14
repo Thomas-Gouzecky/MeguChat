@@ -75,7 +75,8 @@ if (!isMigration)
         options.AddPolicy("NextFrontendProductionCorsPolicy", policy =>
         {
             // subject to change
-            policy.WithOrigins("https://meguchat.vercel.app")
+            // localhost:3000 is for testing the production build locally, but in production this should be the actual domain of the frontend
+            policy.WithOrigins("https://meguchat.vercel.app", "http://localhost:3000")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();

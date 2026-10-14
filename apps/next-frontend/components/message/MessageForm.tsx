@@ -13,11 +13,38 @@ import { useSignalR } from '../signalr/SignalRContext';
 import { addMessage, replaceMessage } from '@/store/slices/messagesSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
+import { useEffect, useState } from 'react';
 
 export default function MessageForm({ groupchatId }: { groupchatId: string }) {
   const { connection } = useSignalR();
+  const [isTyping, setIsTyping] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const userId = useSelector((state: RootState) => state.auth.user?.user_id);
+
+  useEffect(() => {
+    async function invokeTypingStatus() {
+      if (!connection || connection.state !== HubConnectionState.Connected) {
+        return;
+      }
+      try {
+        if (isTyping) {
+          await connection.invoke(
+            'SendTypingNotification',
+            Number(groupchatId),
+          );
+        } else {
+          await connection.invoke(
+            'SendStopTypingNotification',
+            Number(groupchatId),
+          );
+        }
+      } catch (error) {
+        console.error('Error invoking SignalR method: ', error);
+      }
+    }
+
+    invokeTypingStatus();
+  }, [isTyping, connection, groupchatId]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -84,6 +111,9 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
           message: { ...response, status: 'sent' },
         }),
       );
+
+      // reset the typing status after sending the message
+      setIsTyping(false);
     } catch (error) {
       console.error('Error sending message: ', error);
       // update the temporary message status to 'error' to indicate that the message failed to send
@@ -106,8 +136,15 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
             placeholder="Type a message..."
             rows={1}
             className="min-h-8 min-w-0 basis-0 resize-none overflow-y-hidden field-sizing-fixed text-primary"
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                event.currentTarget.form?.requestSubmit();
+              }
+            }}
             onInput={(event) => {
               const textarea = event.currentTarget;
+              setIsTyping(textarea.value.trim().length > 0);
               textarea.style.height = 'auto';
               textarea.style.height = `${Math.min(textarea.scrollHeight, 128)}px`;
               textarea.style.overflowY =

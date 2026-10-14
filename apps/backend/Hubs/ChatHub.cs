@@ -116,13 +116,25 @@ public class ChatHub : Hub
     public async Task SendTypingNotification(int groupchatId)
     {
         RequireJoinedGroupChat(groupchatId);
-        await Clients.Group($"groupchat:{groupchatId}").SendAsync("UserTyping", Context.UserIdentifier, Context.ConnectionAborted);
+        if (Context.UserIdentifier is null)
+        {
+            throw new HubException("User identifier is null. Cannot send typing notification.");
+        }
+
+        UserTypingEventDto response = new UserTypingEventDto { GroupchatId = groupchatId, UserId = Context.UserIdentifier };
+        await Clients.Group($"groupchat:{groupchatId}").SendAsync("UserTyping", response, Context.ConnectionAborted);
     }
 
     public async Task SendStopTypingNotification(int groupchatId)
     {
         RequireJoinedGroupChat(groupchatId);
-        await Clients.Group($"groupchat:{groupchatId}").SendAsync("UserStoppedTyping", Context.UserIdentifier, Context.ConnectionAborted);
+        if (Context.UserIdentifier is null)
+        {
+            throw new HubException("User identifier is null. Cannot send stop typing notification.");
+        }
+
+        UserTypingEventDto response = new UserTypingEventDto { GroupchatId = groupchatId, UserId = Context.UserIdentifier };
+        await Clients.Group($"groupchat:{groupchatId}").SendAsync("UserStoppedTyping", response, Context.ConnectionAborted);
     }
 
     private bool HasJoinedGroupChat(int groupchatId)

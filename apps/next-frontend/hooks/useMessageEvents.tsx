@@ -36,12 +36,4 @@ export function useMessageEvents() {
       }),
     );
   });
-
-  useListen<[string]>('UserTyping', (userId) => {
-    console.log(`User ${userId} is typing...`);
-  });
-
-  useListen<[string]>('UserStoppedTyping', (userId) => {
-    console.log(`User ${userId} stopped typing.`);
-  });
 }

@@ -11,12 +11,17 @@ import {
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { MessageBubble } from './MessageBubble';
+import { Marker, MarkerContent } from '@meguchat/ui/components/ui/marker';
 
 export default function MessagesView({ groupchatId }: { groupchatId: string }) {
   const dispatch = useDispatch<AppDispatch>();
   const { messagesByGroupchatId } = useSelector(
     (state: RootState) => state.messages,
   );
+  const { typingUsersByGroupchatId } = useSelector(
+    (state: RootState) => state.groupchatById,
+  );
+  const usersTyping = typingUsersByGroupchatId[groupchatId] ?? [];
 
   const messages = messagesByGroupchatId[Number(groupchatId)] ?? [];
   const { scrollToEnd } = useMessageScroller();
@@ -52,6 +57,16 @@ export default function MessagesView({ groupchatId }: { groupchatId: string }) {
               <MessageBubble messageGroup={messageGroup} />
             </MessageScrollerItem>
           ))}
+          <Marker role="status">
+            <MarkerContent className="shimmer">
+              {usersTyping.length > 0 && (
+                <span className="font-medium">
+                  {usersTyping.join(', ')}{' '}
+                  {usersTyping.length === 1 ? 'is' : 'are'} typing...
+                </span>
+              )}
+            </MarkerContent>
+          </Marker>
         </MessageScrollerContent>
       </MessageScrollerViewport>
       <MessageScrollerButton />

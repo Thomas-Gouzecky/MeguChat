@@ -37,23 +37,23 @@ const groupchatByIdSlice = createSlice({
     },
     addTypingUser: (
       state,
-      action: PayloadAction<{ groupchat_id: string; user_name: string }>,
+      action: PayloadAction<{ groupchat_id: string; user_id: string }>,
     ) => {
-      const { groupchat_id, user_name } = action.payload;
+      const { groupchat_id, user_id } = action.payload;
       state.typingUsersByGroupchatId[groupchat_id] ??= [];
-      if (!state.typingUsersByGroupchatId[groupchat_id].includes(user_name)) {
-        state.typingUsersByGroupchatId[groupchat_id].push(user_name);
+      if (!state.typingUsersByGroupchatId[groupchat_id].includes(user_id)) {
+        state.typingUsersByGroupchatId[groupchat_id].push(user_id);
       }
     },
     removeTypingUser: (
       state,
-      action: PayloadAction<{ groupchat_id: string; user_name: string }>,
+      action: PayloadAction<{ groupchat_id: string; user_id: string }>,
     ) => {
-      const { groupchat_id, user_name } = action.payload;
+      const { groupchat_id, user_id } = action.payload;
       state.typingUsersByGroupchatId[groupchat_id] ??= [];
       state.typingUsersByGroupchatId[groupchat_id] =
         state.typingUsersByGroupchatId[groupchat_id].filter(
-          (name) => name !== user_name,
+          (id) => id !== user_id,
         );
     },
   },

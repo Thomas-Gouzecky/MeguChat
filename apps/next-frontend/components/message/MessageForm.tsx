@@ -24,11 +24,7 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
     const formData = new FormData(event.currentTarget);
     const messageContent = (formData.get('message') as string | null)?.trim();
 
-    if (
-      !messageContent ||
-      !connection ||
-      connection.state !== HubConnectionState.Connected
-    ) {
+    if (!messageContent) {
       return;
     }
 
@@ -58,6 +54,18 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
         message: temporaryMessage,
       }),
     );
+
+    // updates the message status to 'error' if the connection is not established
+    if (!connection || connection.state !== HubConnectionState.Connected) {
+      dispatch(
+        replaceMessage({
+          groupchat_id: groupchatId,
+          message_id: temporaryId,
+          message: { ...temporaryMessage, status: 'error' },
+        }),
+      );
+      return;
+    }
 
     try {
       const response = await connection.invoke<MessageType>(

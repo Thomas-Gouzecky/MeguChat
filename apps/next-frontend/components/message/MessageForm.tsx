@@ -111,6 +111,9 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
           message: { ...response, status: 'sent' },
         }),
       );
+
+      // reset the typing status after sending the message
+      setIsTyping(false);
     } catch (error) {
       console.error('Error sending message: ', error);
       // update the temporary message status to 'error' to indicate that the message failed to send

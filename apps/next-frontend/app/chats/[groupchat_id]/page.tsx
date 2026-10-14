@@ -39,6 +39,12 @@ export default function GroupchatViewPage({
       cancelled = true;
 
       if (connection && connection.state === HubConnectionState.Connected) {
+        // send the stop typing notification before leaving the group chat
+        void connection
+          .invoke('SendStopTypingNotification', Number(groupchat_id))
+          .catch((error) => {
+            console.error('Failed to send stop typing notification:', error);
+          });
         void connection
           .invoke('LeaveGroupchat', Number(groupchat_id))
           .catch((error) => {

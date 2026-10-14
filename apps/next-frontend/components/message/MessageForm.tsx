@@ -28,9 +28,15 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
       }
       try {
         if (isTyping) {
-          await connection.invoke('UserTyping', Number(groupchatId));
+          await connection.invoke(
+            'SendTypingNotification',
+            Number(groupchatId),
+          );
         } else {
-          await connection.invoke('UserStoppedTyping', Number(groupchatId));
+          await connection.invoke(
+            'SendStopTypingNotification',
+            Number(groupchatId),
+          );
         }
       } catch (error) {
         console.error('Error invoking SignalR method: ', error);
@@ -38,12 +44,6 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
     }
 
     invokeTypingStatus();
-
-    return () => {
-      if (connection && connection.state === HubConnectionState.Connected) {
-        connection.invoke('UserStoppedTyping', Number(groupchatId));
-      }
-    };
   }, [isTyping, connection, groupchatId]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -134,8 +134,8 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
             rows={1}
             className="min-h-8 min-w-0 basis-0 resize-none overflow-y-hidden field-sizing-fixed text-primary"
             onInput={(event) => {
-              setIsTyping(event.currentTarget.value.trim().length > 0);
               const textarea = event.currentTarget;
+              setIsTyping(textarea.value.trim().length > 0);
               textarea.style.height = 'auto';
               textarea.style.height = `${Math.min(textarea.scrollHeight, 128)}px`;
               textarea.style.overflowY =

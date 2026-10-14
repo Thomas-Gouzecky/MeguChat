@@ -9,7 +9,10 @@ type SignalRContextValue = {
 };
 
 // Context to provide SignalR connection and status to components
-export const SignalRContext = createContext<SignalRContextValue | null>(null);
+export const SignalRContext = createContext<SignalRContextValue>({
+  connection: null,
+  status: 'Disconnected',
+});
 
 type SignalRProviderProps = {
   children: React.ReactNode;

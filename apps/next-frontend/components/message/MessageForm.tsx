@@ -13,11 +13,38 @@ import { useSignalR } from '../signalr/SignalRContext';
 import { addMessage, replaceMessage } from '@/store/slices/messagesSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
+import { useEffect, useState } from 'react';
 
 export default function MessageForm({ groupchatId }: { groupchatId: string }) {
   const { connection } = useSignalR();
+  const [isTyping, setIsTyping] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const userId = useSelector((state: RootState) => state.auth.user?.user_id);
+
+  useEffect(() => {
+    async function invokeTypingStatus() {
+      if (!connection || connection.state !== HubConnectionState.Connected) {
+        return;
+      }
+      try {
+        if (isTyping) {
+          await connection.invoke('UserTyping', Number(groupchatId));
+        } else {
+          await connection.invoke('UserStoppedTyping', Number(groupchatId));
+        }
+      } catch (error) {
+        console.error('Error invoking SignalR method: ', error);
+      }
+    }
+
+    invokeTypingStatus();
+
+    return () => {
+      if (connection && connection.state === HubConnectionState.Connected) {
+        connection.invoke('UserStoppedTyping', Number(groupchatId));
+      }
+    };
+  }, [isTyping, connection, groupchatId]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -107,6 +134,7 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
             rows={1}
             className="min-h-8 min-w-0 basis-0 resize-none overflow-y-hidden field-sizing-fixed text-primary"
             onInput={(event) => {
+              setIsTyping(event.currentTarget.value.trim().length > 0);
               const textarea = event.currentTarget;
               textarea.style.height = 'auto';
               textarea.style.height = `${Math.min(textarea.scrollHeight, 128)}px`;

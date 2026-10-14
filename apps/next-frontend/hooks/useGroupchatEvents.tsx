@@ -3,8 +3,8 @@ import {
   addTypingUser,
   removeTypingUser,
 } from '@/store/slices/groupchatByIdSlice';
-import { AppDispatch } from '@/store/store';
-import { useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from '@/store/store';
+import { useDispatch, useSelector } from 'react-redux';
 
 type UserTypingEvent = {
   groupchat_id: string;
@@ -13,9 +13,13 @@ type UserTypingEvent = {
 
 export function useGroupchatEvents() {
   const dispatch = useDispatch<AppDispatch>();
-
+  const userId = useSelector((state: RootState) => state.auth.user?.user_id);
   useListen<[UserTypingEvent]>('UserTyping', (typingEvent) => {
     const { groupchat_id, user_id } = typingEvent;
+    if (userId === user_id) {
+      return;
+    }
+
     dispatch(
       addTypingUser({
         groupchat_id: groupchat_id,

@@ -2,6 +2,7 @@
 
 import { MessagingInterface } from '@/components/message/Groupchat-Messages';
 import { useSignalR } from '@/components/signalr/SignalRContext';
+import { HubConnectionState } from '@microsoft/signalr';
 import { useEffect } from 'react';
 import { use } from 'react';
 
@@ -37,7 +38,7 @@ export default function GroupchatViewPage({
     return () => {
       cancelled = true;
 
-      if (connection?.state === 'Connected') {
+      if (connection && connection.state === HubConnectionState.Connected) {
         void connection
           .invoke('LeaveGroupchat', Number(groupchat_id))
           .catch((error) => {

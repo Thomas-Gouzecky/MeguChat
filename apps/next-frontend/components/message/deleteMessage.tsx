@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from '@meguchat/ui/components/ui/dialog';
 import { useSignalR } from '../signalr/SignalRContext';
+import { HubConnectionState } from '@microsoft/signalr';
 
 export default function DeleteMessageButton({
   message,
@@ -20,8 +21,11 @@ export default function DeleteMessageButton({
 }) {
   const { connection } = useSignalR();
   async function handleSubmit() {
+    if (!connection || connection.state !== HubConnectionState.Connected) {
+      return;
+    }
     try {
-      await connection?.invoke(
+      await connection.invoke(
         'DeleteMessage',
         Number(message.group_chat_id),
         Number(message.id),

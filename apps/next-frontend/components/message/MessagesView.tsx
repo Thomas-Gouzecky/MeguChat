@@ -14,13 +14,12 @@ import { MessageBubble } from './MessageBubble';
 
 export default function MessagesView({ groupchatId }: { groupchatId: string }) {
   const dispatch = useDispatch<AppDispatch>();
-  const { messagesByGroupchatId, loadingByGroupchatId, errorByGroupchatId } =
-    useSelector((state: RootState) => state.messages);
+  const { messagesByGroupchatId } = useSelector(
+    (state: RootState) => state.messages,
+  );
 
   const messages = messagesByGroupchatId[Number(groupchatId)] ?? [];
   const { scrollToEnd } = useMessageScroller();
-  const isLoading = loadingByGroupchatId[Number(groupchatId)] ?? false;
-  const error = errorByGroupchatId[Number(groupchatId)] ?? null;
   const messageGroups = messages.reduce<MessageType[][]>((groups, message) => {
     const previousGroup = groups.at(-1);
 

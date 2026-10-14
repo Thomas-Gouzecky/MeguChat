@@ -1,10 +1,9 @@
-import { AppDispatch } from '@/store/store';
 import { Button } from '@meguchat/ui/components/ui/button';
 import { Textarea } from '@meguchat/ui/components/ui/textarea';
 import { Check, X } from 'lucide-react';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useSignalR } from '../signalr/SignalRContext';
+import { HubConnectionState } from '@microsoft/signalr';
 
 type EditMessageBoxProps = {
   message: MessageType;
@@ -30,7 +29,11 @@ export function EditableMessageBox({
     event.preventDefault();
     const trimmedContent = content.trim();
 
-    if (!trimmedContent) {
+    if (
+      !trimmedContent ||
+      !connection ||
+      connection.state !== HubConnectionState.Connected
+    ) {
       return;
     }
 
@@ -38,7 +41,7 @@ export function EditableMessageBox({
     setError(false);
 
     try {
-      await connection?.invoke(
+      await connection.invoke(
         'UpdateMessage',
         Number(message.group_chat_id),
         Number(message.id),

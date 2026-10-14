@@ -23,7 +23,25 @@ const messagesSlice = createSlice({
     ) => {
       const { groupchat_id, message } = action.payload;
       state.messagesByGroupchatId[groupchat_id] ??= [];
-      state.messagesByGroupchatId[groupchat_id].push(message);
+      const messages = state.messagesByGroupchatId[groupchat_id];
+
+      if (messages.some((existing) => existing.id === message.id)) {
+        return;
+      }
+
+      const pendingMessageIndex = messages.findIndex(
+        (existing) =>
+          existing.status === 'sending' &&
+          existing.user_id === message.user_id &&
+          existing.content === message.content,
+      );
+
+      if (pendingMessageIndex !== -1) {
+        messages[pendingMessageIndex] = { ...message, status: 'sent' };
+        return;
+      }
+
+      messages.push(message);
     },
     removeMessage: (
       state,

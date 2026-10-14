@@ -1,6 +1,3 @@
-import { deleteMessage } from '@/lib/api/messages';
-import { removeMessage } from '@/store/slices/messagesSlice';
-import { AppDispatch } from '@/store/store';
 import { Button } from '@meguchat/ui/components/ui/button';
 import {
   Dialog,
@@ -10,7 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@meguchat/ui/components/ui/dialog';
-import { useDispatch } from 'react-redux';
+import { useSignalR } from '../signalr/SignalRContext';
+import { HubConnectionState } from '@microsoft/signalr';
 
 export default function DeleteMessageButton({
   message,
@@ -21,24 +19,21 @@ export default function DeleteMessageButton({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const dispatch = useDispatch<AppDispatch>();
+  const { connection } = useSignalR();
   async function handleSubmit() {
-    const response = await deleteMessage(
-      message.group_chat_id.toString(),
-      message.id.toString(),
-    );
-
-    if ('detail' in response && response.status >= 400) {
-      console.error('Failed to delete message:', response.detail);
+    if (!connection || connection.state !== HubConnectionState.Connected) {
       return;
     }
-    dispatch(
-      removeMessage({
-        groupchat_id: message.group_chat_id.toString(),
-        message_id: message.id.toString(),
-      }),
-    );
-    onOpenChange(false);
+    try {
+      await connection.invoke(
+        'DeleteMessage',
+        Number(message.group_chat_id),
+        Number(message.id),
+      );
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error deleting message: ', error);
+    }
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

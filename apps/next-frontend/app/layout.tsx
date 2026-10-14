@@ -6,6 +6,9 @@ import Navbar from '@/components/navbar';
 import { getCurrentUser } from '@/lib/auth/auth';
 import StoreProvider from '@/store/storeProvider';
 import AuthInitializer from '@/components/AuthInitializer';
+import { SignalRProvider } from '@/components/signalr/SignalRContext';
+import { MessageEventListener } from '@/components/signalr/MessageEventListener';
+import { AuthenticatedSignalRProvider } from '@/components/signalr/AuthorizedSignalRProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -40,8 +43,10 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
             enableSystem
             disableTransitionOnChange
           >
-            <Navbar />
-            {children}
+            <AuthenticatedSignalRProvider>
+              <Navbar />
+              {children}
+            </AuthenticatedSignalRProvider>
           </ThemeProvider>
         </StoreProvider>
       </body>

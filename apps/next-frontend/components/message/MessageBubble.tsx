@@ -85,7 +85,9 @@ export function MessageBubble({
                   }}
                 />
               ) : (
-                <Bubble>
+                <Bubble
+                  variant={message.user_id === user_id ? 'default' : 'muted'}
+                >
                   <BubbleContent>{message.content}</BubbleContent>
                 </Bubble>
               )}

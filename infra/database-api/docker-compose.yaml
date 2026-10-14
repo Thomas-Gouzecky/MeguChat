@@ -1,7 +1,7 @@
 services:
   megu-chat-db-api:
     container_name: megu-chat-db-api
-    image: tomcheese/megu-chat-db-api:latest
+    image: tomcheese/megu-chat-db-api:0.2.0
     pull_policy: always
     build:
       context: ../../apps/db-api

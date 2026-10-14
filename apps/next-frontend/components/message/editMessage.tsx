@@ -1,11 +1,9 @@
-import { updateMessage } from '@/lib/api/messages';
-import { editMessage } from '@/store/slices/messagesSlice';
-import { AppDispatch } from '@/store/store';
 import { Button } from '@meguchat/ui/components/ui/button';
 import { Textarea } from '@meguchat/ui/components/ui/textarea';
 import { Check, X } from 'lucide-react';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useSignalR } from '../signalr/SignalRContext';
+import { HubConnectionState } from '@microsoft/signalr';
 
 type EditMessageBoxProps = {
   message: MessageType;
@@ -18,7 +16,7 @@ export function EditableMessageBox({
   open,
   onOpenChange,
 }: EditMessageBoxProps) {
-  const dispatch = useDispatch<AppDispatch>();
+  const { connection } = useSignalR();
   const [content, setContent] = useState(message.content);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(false);
@@ -31,7 +29,11 @@ export function EditableMessageBox({
     event.preventDefault();
     const trimmedContent = content.trim();
 
-    if (!trimmedContent) {
+    if (
+      !trimmedContent ||
+      !connection ||
+      connection.state !== HubConnectionState.Connected
+    ) {
       return;
     }
 
@@ -39,24 +41,16 @@ export function EditableMessageBox({
     setError(false);
 
     try {
-      const response = await updateMessage(
-        message.group_chat_id.toString(),
-        message.id.toString(),
-        trimmedContent,
-      );
-
-      if (!('id' in response)) {
-        setError(true);
-        return;
-      }
-
-      dispatch(
-        editMessage({
-          groupchat_id: message.group_chat_id.toString(),
-          message: { ...response, status: message.status ?? 'sent' },
-        }),
+      await connection.invoke(
+        'UpdateMessage',
+        Number(message.group_chat_id),
+        Number(message.id),
+        { content: trimmedContent },
       );
       onOpenChange(false);
+    } catch (error) {
+      console.error('Error updating message: ', error);
+      setError(true);
     } finally {
       setIsSaving(false);
     }

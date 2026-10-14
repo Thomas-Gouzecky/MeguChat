@@ -2,7 +2,7 @@ services:
   megu-chat-backend:
     container_name: megu-chat-backend
     image: tomcheese/megu-chat-backend:0.5.1
-    pull_policy: always
+    pull_policy: if_not_present
     build:
       context: ../../apps/backend
       dockerfile: Dockerfile.app

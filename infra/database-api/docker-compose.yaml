@@ -2,7 +2,7 @@ services:
   megu-chat-db-api:
     container_name: megu-chat-db-api
     image: tomcheese/megu-chat-db-api:0.2.0
-    pull_policy: always
+    pull_policy: if_not_present
     build:
       context: ../../apps/db-api
       dockerfile: Dockerfile

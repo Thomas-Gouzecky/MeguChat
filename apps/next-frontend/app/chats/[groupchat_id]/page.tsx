@@ -1,6 +1,7 @@
 'use client';
 
 import { MessagingInterface } from '@/components/message/Groupchat-Messages';
+import GroupchatsEventListener from '@/components/signalr/GroupchatsEventListener';
 import { useSignalR } from '@/components/signalr/SignalRContext';
 import { HubConnectionState } from '@microsoft/signalr';
 import { useEffect } from 'react';
@@ -56,6 +57,7 @@ export default function GroupchatViewPage({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background">
+      <GroupchatsEventListener />
       <MessagingInterface groupchatId={groupchat_id} />
     </div>
   );

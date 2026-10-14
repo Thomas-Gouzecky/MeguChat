@@ -3,8 +3,8 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using System.Net;
 
-var hubUrl = "http://localhost:5192/hubs/chat";
-const string apiBaseUrl = "http://localhost:5192/api/";
+var hubUrl = "http://localhost:8080/hubs/chat";
+const string apiBaseUrl = "http://localhost:8080/api/";
 
 var cookieContainer = new CookieContainer();
 var handler = new HttpClientHandler

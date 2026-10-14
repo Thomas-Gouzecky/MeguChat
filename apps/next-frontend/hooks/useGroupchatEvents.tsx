@@ -7,29 +7,29 @@ import { AppDispatch } from '@/store/store';
 import { useDispatch } from 'react-redux';
 
 type UserTypingEvent = {
-  groupchatId: string;
-  userId: string;
+  groupchat_id: string;
+  user_id: string;
 };
 
 export function useGroupchatEvents() {
   const dispatch = useDispatch<AppDispatch>();
 
   useListen<[UserTypingEvent]>('UserTyping', (typingEvent) => {
-    const { groupchatId, userId } = typingEvent;
+    const { groupchat_id, user_id } = typingEvent;
     dispatch(
       addTypingUser({
-        groupchat_id: groupchatId,
-        user_id: userId,
+        groupchat_id: groupchat_id,
+        user_id: user_id,
       }),
     );
   });
 
   useListen<[UserTypingEvent]>('UserStoppedTyping', (typingEvent) => {
-    const { groupchatId, userId } = typingEvent;
+    const { groupchat_id, user_id } = typingEvent;
     dispatch(
       removeTypingUser({
-        groupchat_id: groupchatId,
-        user_id: userId,
+        groupchat_id: groupchat_id,
+        user_id: user_id,
       }),
     );
   });

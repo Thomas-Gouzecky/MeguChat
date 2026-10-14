@@ -3,11 +3,13 @@ import { fetchGroupchatById } from '../thunks/groupchatThunk';
 
 interface GroupchatByIdState {
   groupchatsByGroupchatId: Record<string, Groupchat>;
+  typingUsersByGroupchatId: Record<string, string[]>;
   loadingByGroupchatId: Record<string, boolean>;
   errorByGroupchatId: Record<string, ErrorResponse | null>;
 }
 const initialStateById: GroupchatByIdState = {
   groupchatsByGroupchatId: {},
+  typingUsersByGroupchatId: {},
   loadingByGroupchatId: {},
   errorByGroupchatId: {},
 };
@@ -33,6 +35,27 @@ const groupchatByIdSlice = createSlice({
     removeGroupchatById: (state, action: PayloadAction<string>) => {
       delete state.groupchatsByGroupchatId[action.payload];
     },
+    addTypingUser: (
+      state,
+      action: PayloadAction<{ groupchat_id: string; user_name: string }>,
+    ) => {
+      const { groupchat_id, user_name } = action.payload;
+      state.typingUsersByGroupchatId[groupchat_id] ??= [];
+      if (!state.typingUsersByGroupchatId[groupchat_id].includes(user_name)) {
+        state.typingUsersByGroupchatId[groupchat_id].push(user_name);
+      }
+    },
+    removeTypingUser: (
+      state,
+      action: PayloadAction<{ groupchat_id: string; user_name: string }>,
+    ) => {
+      const { groupchat_id, user_name } = action.payload;
+      state.typingUsersByGroupchatId[groupchat_id] ??= [];
+      state.typingUsersByGroupchatId[groupchat_id] =
+        state.typingUsersByGroupchatId[groupchat_id].filter(
+          (name) => name !== user_name,
+        );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -51,6 +74,11 @@ const groupchatByIdSlice = createSlice({
   },
 });
 
-export const { addGroupchatById, updateGroupchatById, removeGroupchatById } =
-  groupchatByIdSlice.actions;
+export const {
+  addGroupchatById,
+  updateGroupchatById,
+  removeGroupchatById,
+  addTypingUser,
+  removeTypingUser,
+} = groupchatByIdSlice.actions;
 export default groupchatByIdSlice.reducer;

@@ -136,6 +136,12 @@ export default function MessageForm({ groupchatId }: { groupchatId: string }) {
             placeholder="Type a message..."
             rows={1}
             className="min-h-8 min-w-0 basis-0 resize-none overflow-y-hidden field-sizing-fixed text-primary"
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                event.currentTarget.form?.requestSubmit();
+              }
+            }}
             onInput={(event) => {
               const textarea = event.currentTarget;
               setIsTyping(textarea.value.trim().length > 0);

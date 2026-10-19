@@ -12,6 +12,7 @@ def get_required_setting(setting_name: str) -> str:
         )
     return value
 
+
 SERVER_NAME = get_required_setting("name")
-SERVER_VERSION = get_required_setting("SERVER_VERSION")
-SERVER_DESCRIPTION = get_required_setting("SERVER_DESCRIPTION")
+SERVER_VERSION = get_required_setting("version")
+SERVER_DESCRIPTION = get_required_setting("description")

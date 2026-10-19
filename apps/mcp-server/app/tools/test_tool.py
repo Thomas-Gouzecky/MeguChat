@@ -1,6 +1,6 @@
 from mcp_types import Icon
 from pydantic import Field
-from server import mcp
+from app.server import mcp
 from mcp.server.mcpserver.prompts import base
 
 resources = ["resource1, resource2", "resource3"]

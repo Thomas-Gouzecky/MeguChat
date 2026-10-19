@@ -17,6 +17,13 @@
         "cwd": "apps/mcp-server"
       }
     },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv run pytest tests/",
+        "cwd": "apps/mcp-server"
+      }
+    },
     "docker-build-image": {
       "executor": "nx:run-commands",
       "options": {

@@ -1,5 +1,5 @@
 from mcp.server import MCPServer
-from configs import SERVER_NAME, SERVER_VERSION, SERVER_DESCRIPTION
+from app.configs import SERVER_NAME, SERVER_VERSION, SERVER_DESCRIPTION
 
 mcp = MCPServer(
     SERVER_NAME,

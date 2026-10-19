@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(".env.local")
 
 
 def get_required_setting(name: str) -> str:
@@ -12,6 +12,7 @@ def get_required_setting(name: str) -> str:
             "Set it in the environment or apps/mcp-server/.env."
         )
     return value
+
 
 HOST = get_required_setting("MCP_HOST")
 PORT = int(get_required_setting("MCP_PORT"))

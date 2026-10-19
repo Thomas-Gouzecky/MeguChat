@@ -6,15 +6,18 @@
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "uv run app/main.py",
+        "command": "uv run -m app.main",
         "cwd": "apps/mcp-server"
       }
     },
     "dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "mcp dev app/main.py",
-        "cwd": "apps/mcp-server"
+        "command": "uv run mcp dev app/main.py",
+        "cwd": "apps/mcp-server",
+        "env": {
+          "PYTHONPATH": "."
+        }
       }
     },
     "test": {

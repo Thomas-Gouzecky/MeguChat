@@ -16,4 +16,4 @@ COPY . .
 
 EXPOSE 8023
 
-CMD ["uv", "run", "app/main.py"]
+CMD ["uv", "run", "-m", "app.main"]

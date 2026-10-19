@@ -14,6 +14,6 @@ RUN uv sync --frozen
 # Copy application code
 COPY . .
 
-EXPOSE 8000
+EXPOSE 8023
 
 CMD ["uv", "run", "app/main.py"]

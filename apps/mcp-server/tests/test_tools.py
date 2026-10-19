@@ -4,11 +4,32 @@ from mcp import Client
 from app.server import mcp
 import app.tools
 
+# ===============================================================
+# Tools
+# ===============================================================
+
 
 async def test_list_tools(client):
     result = await client.list_tools()
 
     assert any(tool.name == "test-tool" for tool in result.tools)
+
+
+async def test_test_tool(client):
+    result = await client.call_tool(
+        "test-tool",
+        {
+            "message": "Hello, world!",
+        },
+    )
+
+    assert result.content[0].type == "text"
+    assert result.content[0].text == "Echo: Hello, world!"
+
+
+# ===============================================================
+# Resources
+# ===============================================================
 
 
 async def test_list_resources(client):
@@ -21,3 +42,8 @@ async def test_list_resources(client):
     data = json.loads(content.text)
 
     assert data == ["resource1", "resource2", "resource3"]
+
+
+# ===============================================================
+# Prompts
+# ===============================================================

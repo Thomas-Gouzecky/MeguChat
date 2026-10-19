@@ -47,3 +47,19 @@ async def test_list_resources(client):
 # ===============================================================
 # Prompts
 # ===============================================================
+
+
+async def test_test_prompt(client):
+    message = "hey can u send me the report"
+
+    result = await client.get_prompt(
+        "test-prompt",
+        {"message": message},
+    )
+
+    assert result.messages[0].content.type == "text"
+    prompt_text = result.messages[0].content.text
+
+    assert message in prompt_text
+    assert "more professional for MeguChat" in prompt_text
+    assert "do not remove any information" in prompt_text

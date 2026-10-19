@@ -27,7 +27,7 @@
     "docker-run-image": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker run --rm -p 8023:8023 tomcheese/meguchat-mcp-server-repo",
+        "command": "docker run --rm --env-file .env.docker.dev --name meguchat-mcp-server -p 8023:8023 tomcheese/meguchat-mcp-server-repo",
         "cwd": "apps/mcp-server"
       }
     }

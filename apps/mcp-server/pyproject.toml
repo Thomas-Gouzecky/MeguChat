@@ -1,0 +1,18 @@
+[project]
+name = "MeguMCP-Server"
+version = "0.1.0"
+description = "This is a server for the MCP project. It is designed to handle requests for the chat application."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "mcp[cli]>=2.3.0",
+]
+
+[dependency-groups]
+dev = [
+    "anyio>=4.15.1",
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

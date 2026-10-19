@@ -1,0 +1,7 @@
+[project]
+name = "mcp-server"
+version = "0.1.0"
+description = "This is a server for the MCP project. It is designed to handle requests for the chat application."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []

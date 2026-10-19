@@ -4,6 +4,6 @@ from app.server import mcp
 
 
 @pytest.fixture
-async def client():
+async def client(anyio_backend):
     async with Client(mcp) as client:
         yield client

@@ -3,7 +3,7 @@ from pydantic import Field
 from app.server import mcp
 from mcp.server.mcpserver.prompts import base
 
-resources = ["resource1, resource2", "resource3"]
+resources = ["resource1", "resource2", "resource3"]
 
 
 @mcp.tool(

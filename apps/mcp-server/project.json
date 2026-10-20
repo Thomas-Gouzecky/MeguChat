@@ -24,7 +24,11 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/mcp-server"
+        "cwd": "apps/mcp-server",
+        "env": {
+          "MCP_HOST": "127.0.0.1",
+          "MCP_PORT": "8023"
+        }
       }
     },
     "docker-build-image": {

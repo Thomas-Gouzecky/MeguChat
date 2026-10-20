@@ -4,7 +4,7 @@ using ModelContextProtocol.Protocol;
 public class MCPClient : IMCPClient, IAsyncDisposable
 {
     private McpClient? _client;
-    private ILogger<MCPClient> _logger;
+    private readonly ILogger<MCPClient> _logger;
     public MCPClient(ILogger<MCPClient> logger)
     {
         _logger = logger;
@@ -36,8 +36,7 @@ public class MCPClient : IMCPClient, IAsyncDisposable
 
     public async ValueTask<CallToolResult> CallToolAsync(string toolName, Dictionary<string, object?> toolInputs)
     {
-        var result = await GetClient().CallToolAsync(toolName, toolInputs);
-        return result;
+        return await GetClient().CallToolAsync(toolName, toolInputs);
     }
 
     public async ValueTask DisconnectAsync()
@@ -45,7 +44,7 @@ public class MCPClient : IMCPClient, IAsyncDisposable
 
         if (_client is null)
         {
-            throw new InvalidOperationException("Client is not connected.");
+            return; // Already disconnected, no action needed.
         }
 
         _logger.LogInformation("Disconnecting from MCP server...");

@@ -49,8 +49,10 @@ public class MCPClient : IMCPClient, IAsyncDisposable
 
         _logger.LogInformation("Disconnecting from MCP server...");
 
-        await GetClient().DisposeAsync();
+        var client = _client;
         _client = null;
+
+        await client.DisposeAsync();
 
         _logger.LogInformation("Disconnected from MCP server.");
     }

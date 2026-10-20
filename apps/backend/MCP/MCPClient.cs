@@ -1,26 +1,69 @@
-public class MCPClient : IMCPClient
+using ModelContextProtocol.Client;
+using ModelContextProtocol.Protocol;
+
+public class MCPClient : IMCPClient, IAsyncDisposable
 {
-    public Task ConnectAsync(string host, int port)
+    private McpClient? _client;
+    private ILogger<MCPClient> _logger;
+    public MCPClient(ILogger<MCPClient> logger)
     {
-        // Implementation for connecting to the MCP server
-        throw new NotImplementedException();
+        _logger = logger;
+
+    }
+    public async Task ConnectAsync(string host, int port)
+    {
+
+        if (_client is not null)
+        {
+            throw new InvalidOperationException("Client is already connected.");
+        }
+
+        var transport = new HttpClientTransport(new()
+        {
+            Name = "MCPClient",
+            Endpoint = new Uri($"http://{host}:{port}/mcp"),
+            TransportMode = HttpTransportMode.StreamableHttp
+        });
+        _client = await McpClient.CreateAsync(transport);
+
+        _logger.LogInformation("Connected to MCP server at {Host}:{Port}", host, port);
     }
 
-    public Task ListToolsAsync()
+    public async ValueTask<IList<McpClientTool>> ListToolsAsync()
     {
-        // Implementation for listing available tools from the MCP server
-        throw new NotImplementedException();
+        return await GetClient().ListToolsAsync();
     }
 
-    public Task CallToolAsync(string toolName, string[] args)
+    public async ValueTask<CallToolResult> CallToolAsync(string toolName, Dictionary<string, object?> toolInputs)
     {
-        // Implementation for calling a specific tool on the MCP server
-        throw new NotImplementedException();
+        var result = await GetClient().CallToolAsync(toolName, toolInputs);
+        return result;
     }
 
-    public Task DisconnectAsync()
+    public async ValueTask DisconnectAsync()
     {
-        // Implementation for disconnecting from the MCP server
-        throw new NotImplementedException();
+
+        if (_client is null)
+        {
+            throw new InvalidOperationException("Client is not connected.");
+        }
+
+        _logger.LogInformation("Disconnecting from MCP server...");
+
+        await GetClient().DisposeAsync();
+        _client = null;
+
+        _logger.LogInformation("Disconnected from MCP server.");
+    }
+
+    private McpClient GetClient()
+    {
+        return _client
+            ?? throw new InvalidOperationException(
+                "The MCP client is not connected.");
+    }
+    public async ValueTask DisposeAsync()
+    {
+        await DisconnectAsync();
     }
 }

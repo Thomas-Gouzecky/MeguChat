@@ -5,7 +5,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNetEnv" Version="3.2.0" />
     <PackageReference Include="Microsoft.Extensions.AI" Version="10.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update=".env.local" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -13,6 +18,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>7b7e8c9e-b33e-4f0a-b8d1-58f60f68a204</UserSecretsId>
   </PropertyGroup>
 
 </Project>

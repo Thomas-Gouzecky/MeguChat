@@ -1,7 +1,14 @@
-﻿using Anthropic;
+﻿using DotNetEnv;
+using Anthropic;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+
+var envPath = Path.Combine(
+    AppContext.BaseDirectory,
+    ".env.local");
+
+Env.Load(envPath);
 
 var builder = Host.CreateApplicationBuilder(args);
 

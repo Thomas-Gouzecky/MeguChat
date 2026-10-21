@@ -20,12 +20,20 @@ public class AIOrchestrator : IAIOrchestrator
 
         var messages = new List<ChatMessage>
         {
-            new(ChatRole.Assistant, "You are a helpful assistant. Please provide a concise and informative response to the user's query."),
             new(ChatRole.User, message)
         };
 
         var options = new ChatOptions
         {
+            Instructions = $"""
+                You are MeguAI, a helpful assistant for MeguChat.
+
+                Current user ID: {userId}
+                Current session ID: {sessionId}
+
+                Be concise and informative.
+                Use available tools when appropriate.
+                """,
             Tools = [.. tools]
         };
 

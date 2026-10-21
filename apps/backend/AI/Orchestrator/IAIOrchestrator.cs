@@ -1,4 +1,6 @@
+using Microsoft.Extensions.AI;
+
 public interface IAIOrchestrator
 {
-    Task<string> ProcessMessageAsync(string message, string userId, string sessionId, CancellationToken cancellationToken);
+    Task<ChatResponse> ProcessMessageAsync(string message, string userId, string sessionId, CancellationToken cancellationToken);
 }

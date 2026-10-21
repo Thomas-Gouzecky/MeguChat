@@ -13,12 +13,19 @@ public class AIOrchestrator : IAIOrchestrator
         _chatClient = chatClient;
     }
 
-    public async Task<string> ProcessMessageAsync(string message, string userId, string sessionId, CancellationToken cancellationToken)
+    public async Task<ChatResponse> ProcessMessageAsync(string message, string userId, string sessionId, CancellationToken cancellationToken)
     {
         var mcpClient = await GetMcpClientAsync();
         var tools = await mcpClient.ListToolsAsync();
 
-        return "Processed message: " + message + " | User ID: " + userId + " | Session ID: " + sessionId;
+        var messages = new List<ChatMessage>
+        {
+            new(ChatRole.Assistant, "You are a helpful assistant. Please provide a concise and informative response to the user's query."),
+            new(ChatRole.User, message)
+        };
+
+        var response = await _chatClient.GetResponseAsync(messages, new ChatOptions { Tools = [.. tools] }, cancellationToken);
+        return response;
     }
 
     private async Task<IMCPClient> GetMcpClientAsync()

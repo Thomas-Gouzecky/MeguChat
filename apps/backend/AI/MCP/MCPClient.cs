@@ -11,7 +11,7 @@ public class MCPClient : IMCPClient, IAsyncDisposable
         _logger = logger;
 
     }
-    public async Task ConnectAsync(string host, int port)
+    public async Task ConnectAsync(string endpoint)
     {
 
         if (_client is not null)
@@ -19,15 +19,23 @@ public class MCPClient : IMCPClient, IAsyncDisposable
             throw new InvalidOperationException("Client is already connected.");
         }
 
-        var transport = new HttpClientTransport(new()
+        try
         {
-            Name = "MCPClient",
-            Endpoint = new Uri($"http://{host}:{port}/mcp"),
-            TransportMode = HttpTransportMode.StreamableHttp
-        });
-        _client = await McpClient.CreateAsync(transport);
+            var transport = new HttpClientTransport(new()
+            {
+                Name = "MCPClient",
+                Endpoint = new Uri(endpoint),
+                TransportMode = HttpTransportMode.StreamableHttp
+            });
+            _client = await McpClient.CreateAsync(transport);
 
-        _logger.LogInformation("Connected to MCP server at {Host}:{Port}", host, port);
+            _logger.LogInformation("Connected to MCP server at {Endpoint}", endpoint);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to connect to MCP server at {Endpoint}", endpoint);
+            throw;
+        }
     }
 
     public async ValueTask<IList<McpClientTool>> ListToolsAsync()

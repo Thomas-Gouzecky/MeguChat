@@ -49,20 +49,10 @@ public class AIOrchestrator : IAIOrchestrator
     {
         if (!_mcpClient.IsConnected)
         {
-            var host = _configuration["MCP_HOST"]
+            var endpoint = _configuration["MCP_ENDPOINT"]
                 ?? throw new InvalidOperationException(
-                    "MCP_HOST environment variable is missing.");
-
-            var portString = _configuration["MCP_PORT"]
-                ?? throw new InvalidOperationException(
-                    "MCP_PORT environment variable is missing.");
-
-            if (!int.TryParse(portString, out var port))
-            {
-                throw new InvalidOperationException(
-                    "MCP_PORT must be a valid integer.");
-            }
-            await _mcpClient.ConnectAsync(host, port);
+                    "MCP_ENDPOINT environment variable is missing.");
+            await _mcpClient.ConnectAsync(endpoint);
         }
 
         return _mcpClient;

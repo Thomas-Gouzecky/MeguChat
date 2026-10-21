@@ -1,5 +1,7 @@
+using Anthropic;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -82,6 +84,23 @@ if (!isMigration)
                 .AllowCredentials();
         });
     });
+
+    // AI Orchestrator and Chat Client Configuration
+
+    var mcpHost = builder.Configuration["MCP_HOST"] ?? "localhost";
+    var mcpPort = builder.Configuration["MCP_PORT"] ?? "8023";
+    var apiKey = builder.Configuration["Anthropic_API_KEY"] ?? throw new InvalidOperationException("Anthropic API key is missing");
+
+    var claudeClient = new AnthropicClient
+    {
+        ApiKey = apiKey
+    };
+
+    builder.Services.AddSingleton<IChatClient>(
+        claudeClient.AsIChatClient("claude-sonnet-5-5")
+    );
+    builder.Services.AddScoped<IMCPClient, MCPClient>();
+    builder.Services.AddScoped<IAIOrchestrator, AIOrchestrator>();
 }
 
 var app = builder.Build();

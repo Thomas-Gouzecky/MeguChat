@@ -1,8 +1,14 @@
+using DotNetEnv;
 using Anthropic;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
-using StackExchange.Redis;
+
+var envPath = Path.Combine(
+    AppContext.BaseDirectory,
+    ".env.local");
+
+Env.Load(envPath);
 
 var builder = WebApplication.CreateBuilder(args);
 var isMigration = args.Contains("--migrate", StringComparer.OrdinalIgnoreCase);
@@ -87,8 +93,6 @@ if (!isMigration)
 
     // AI Orchestrator and Chat Client Configuration
 
-    var mcpHost = builder.Configuration["MCP_HOST"] ?? "localhost";
-    var mcpPort = builder.Configuration["MCP_PORT"] ?? "8023";
     var apiKey = builder.Configuration["Anthropic_API_KEY"] ?? throw new InvalidOperationException("Anthropic API key is missing");
 
     var claudeClient = new AnthropicClient

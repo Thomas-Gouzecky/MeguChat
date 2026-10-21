@@ -97,7 +97,11 @@ if (!isMigration)
     };
 
     builder.Services.AddSingleton<IChatClient>(
-        claudeClient.AsIChatClient("claude-sonnet-5-5")
+        claudeClient
+            .AsIChatClient("claude-sonnet-5-5")
+            .AsBuilder()
+            .UseFunctionInvocation()
+            .Build()
     );
     builder.Services.AddScoped<IMCPClient, MCPClient>();
     builder.Services.AddScoped<IAIOrchestrator, AIOrchestrator>();

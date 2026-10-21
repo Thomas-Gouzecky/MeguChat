@@ -5,6 +5,7 @@ public class MCPClient : IMCPClient, IAsyncDisposable
 {
     private McpClient? _client;
     private readonly ILogger<MCPClient> _logger;
+    public bool IsConnected => _client is not null;
     public MCPClient(ILogger<MCPClient> logger)
     {
         _logger = logger;

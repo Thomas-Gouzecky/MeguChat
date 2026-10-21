@@ -24,7 +24,14 @@ public class AIOrchestrator : IAIOrchestrator
             new(ChatRole.User, message)
         };
 
-        var response = await _chatClient.GetResponseAsync(messages, new ChatOptions { Tools = [.. tools] }, cancellationToken);
+        var options = new ChatOptions
+        {
+            Tools = [.. tools]
+        };
+
+        var response = await _chatClient.GetResponseAsync(messages, options, cancellationToken);
+
+        _logger.LogInformation("AI response received.");
         return response;
     }
 

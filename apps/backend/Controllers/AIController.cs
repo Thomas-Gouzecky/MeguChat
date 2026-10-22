@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.AI;
 
@@ -12,6 +13,7 @@ public class AIController : ControllerBase
         _aiService = aiService;
     }
 
+    [Authorize]
     [HttpPost("chat")]
     public async Task<ActionResult<ChatResponse>> Chat([FromBody] AIMessageRequest request)
     {

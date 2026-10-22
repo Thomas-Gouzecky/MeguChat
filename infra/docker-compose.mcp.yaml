@@ -1,15 +1,6 @@
-services:
-  meguchat-mcp-server:
-    container_name: meguchat-mcp-server
-    image: tomcheese/meguchat-mcp-server-repo:latest
-    pull_policy: if_not_present
-    build:
-      context: ../../apps/mcp-server
-      dockerfile: Dockerfile
-      no_cache: true
-    env_file:
-      - ../../apps/mcp-server/.env.docker.dev
-    ports:
-      - '8023:8023'
-    networks:
-      - meguchat-network
+include:
+  - mcp-server/docker-compose.yaml
+
+networks:
+  meguchat-network:
+    driver: bridge

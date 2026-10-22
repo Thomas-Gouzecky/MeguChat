@@ -15,7 +15,7 @@ public class AIOrchestrator : IAIOrchestrator
         _configuration = configuration;
     }
 
-    public async Task<ChatResponse> ProcessMessageAsync(string message, string userId, string sessionId, CancellationToken cancellationToken)
+    public async Task<ChatResponse> ProcessMessageAsync(string message, AIUserContext currentUserContext, string sessionId, CancellationToken cancellationToken)
     {
         var mcpClient = await GetMcpClientAsync();
         var tools = await mcpClient.ListToolsAsync();
@@ -30,7 +30,7 @@ public class AIOrchestrator : IAIOrchestrator
             Instructions = $"""
                 You are MeguAI, a helpful assistant for MeguChat.
 
-                Current user ID: {userId}
+                Current user definition: {currentUserContext}
                 Current session ID: {sessionId}
 
                 Be concise and informative.

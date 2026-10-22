@@ -17,7 +17,8 @@ public class AIService : IAIService
     public async Task<ChatResponse> ChatAsync(AIMessageRequest request)
     {
         var user = await _userValidation.ValidateUser();
-        return await _aiOrchestrator.ProcessMessageAsync(request.Prompt, user.Id, "sessionId", CancellationToken.None);
+        var userContext = new AIUserContext(user.Id, user.UserName!, user.Email!);
+        return await _aiOrchestrator.ProcessMessageAsync(request.Prompt, userContext, "sessionId", CancellationToken.None);
     }
 
     public bool IsHealthy()

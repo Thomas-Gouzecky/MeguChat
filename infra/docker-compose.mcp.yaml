@@ -1,0 +1,6 @@
+include:
+  - mcp-server/docker-compose.yaml
+
+networks:
+  meguchat-network:
+    driver: bridge

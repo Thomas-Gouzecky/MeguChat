@@ -5,36 +5,49 @@ public class MCPClient : IMCPClient, IAsyncDisposable
 {
     private McpClient? _client;
     private readonly ILogger<MCPClient> _logger;
+    private readonly SemaphoreSlim _connectLock = new(1, 1);
     public bool IsConnected => _client is not null;
     public MCPClient(ILogger<MCPClient> logger)
     {
         _logger = logger;
 
     }
+
     public async Task ConnectAsync(string endpoint)
     {
-
-        if (_client is not null)
-        {
-            throw new InvalidOperationException("Client is already connected.");
-        }
+        await _connectLock.WaitAsync();
 
         try
         {
+            if (_client is not null)
+            {
+                return;
+            }
+
             var transport = new HttpClientTransport(new()
             {
                 Name = "MCPClient",
                 Endpoint = new Uri(endpoint),
                 TransportMode = HttpTransportMode.StreamableHttp
             });
+
             _client = await McpClient.CreateAsync(transport);
 
-            _logger.LogInformation("Connected to MCP server at {Endpoint}", endpoint);
+            _logger.LogInformation(
+                "Connected to MCP server at {Endpoint}",
+                endpoint);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to connect to MCP server at {Endpoint}", endpoint);
+            _logger.LogError(
+                ex,
+                "Failed to connect to MCP server at {Endpoint}",
+                endpoint);
             throw;
+        }
+        finally
+        {
+            _connectLock.Release();
         }
     }
 

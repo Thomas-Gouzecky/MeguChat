@@ -107,8 +107,9 @@ if (!isMigration)
             .UseFunctionInvocation()
             .Build()
     );
-    builder.Services.AddScoped<IMCPClient, MCPClient>();
-    builder.Services.AddScoped<IAIOrchestrator, AIOrchestrator>();
+    builder.Services.AddSingleton<IMCPClient, MCPClient>();
+    builder.Services.AddSingleton<IAIOrchestrator, AIOrchestrator>();
+    builder.Services.AddScoped<IAIService, AIService>();
 }
 
 var app = builder.Build();

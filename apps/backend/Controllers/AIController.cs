@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.AI;
 
 [ApiController]
 [Route("/api/ai")]
@@ -12,10 +13,10 @@ public class AIController : ControllerBase
     }
 
     [HttpPost("chat")]
-    public async Task<IActionResult> Chat([FromBody] AIMessageRequest request)
+    public async Task<ActionResult<ChatResponse>> Chat([FromBody] AIMessageRequest request)
     {
         var result = await _aiService.ChatAsync(request);
-        if (result.IsSuccess)
+        if (result != null)
         {
             return Ok(result);
         }

@@ -45,6 +45,11 @@ public class AIOrchestrator : IAIOrchestrator
         return response;
     }
 
+    public bool isHealthy()
+    {
+        return _mcpClient.IsConnected;
+    }
+
     private async Task<IMCPClient> GetMcpClientAsync()
     {
         if (!_mcpClient.IsConnected)

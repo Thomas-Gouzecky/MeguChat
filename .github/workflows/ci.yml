@@ -70,14 +70,13 @@ jobs:
       - name: Apply db-api database schema
         run: npx nx run db-api:migrate
 
-      - name: Start MCP server
-        run: npx nx run mcp-server:serve
-        env:
-          MCP_HOST: 127.0.0.1
-          MCP_PORT: 8023
+      - name: Build MCP server image
+        run: npx nx run mcp-server:docker-build-image
+
+      - name: Start MCP server container
+        run: npx nx run mcp-server:docker-run-mcp
 
       - name: Wait for MCP server to be ready
-        working-directory: infra
         run: |
           echo "Waiting for MCP server to be ready..."
           until curl -s http://localhost:8023/health | grep -q '"status":"healthy"'; do
@@ -96,3 +95,7 @@ jobs:
         working-directory: infra/postgres
         if: always()
         run: docker compose -f docker-compose.yaml down -v
+
+      - name: Stop MCP server container
+        if: always()
+        run: docker stop meguchat-mcp-server || true

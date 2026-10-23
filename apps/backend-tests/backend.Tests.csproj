@@ -25,4 +25,8 @@
     <ProjectReference Include="..\backend\backend.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update=".env.test" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

@@ -93,26 +93,35 @@ if (!isMigration)
 
     // AI Orchestrator and Chat Client Configuration
 
-    var apiKey = builder.Configuration["Anthropic_API_KEY"] ?? throw new InvalidOperationException("Anthropic API key is missing");
-
-    var claudeClient = new AnthropicClient
-    {
-        ApiKey = apiKey
-    };
-
-    builder.Services.AddSingleton<IChatClient>(
-        claudeClient
-            .AsIChatClient("claude-sonnet-5-5")
-            .AsBuilder()
-            .UseFunctionInvocation()
-            .Build()
-    );
+    var apiKey = builder.Configuration["Anthropic_API_KEY"];
     builder.Services.AddSingleton<IMCPClient, MCPClient>();
-    builder.Services.AddSingleton<IAIOrchestrator, AIOrchestrator>();
-    builder.Services.AddScoped<IAIService, AIService>();
+
+    if (!string.IsNullOrWhiteSpace(apiKey))
+    {
+        var claudeClient = new AnthropicClient
+        {
+            ApiKey = apiKey
+        };
+
+        builder.Services.AddSingleton<IChatClient>(
+            claudeClient
+                .AsIChatClient("claude-sonnet-5-5")
+                .AsBuilder()
+                .UseFunctionInvocation()
+                .Build()
+        );
+        builder.Services.AddSingleton<IAIOrchestrator, AIOrchestrator>();
+        builder.Services.AddScoped<IAIService, AIService>();
+    }
 }
 
 var app = builder.Build();
+
+if (string.IsNullOrWhiteSpace(app.Configuration["Anthropic_API_KEY"]))
+{
+    app.Logger.LogError(
+        "Anthropic API key is missing. Please set the 'Anthropic_API_KEY' environment variable. AI features are disabled.");
+}
 
 using (var scope = app.Services.CreateScope())
 {

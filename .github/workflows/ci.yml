@@ -71,8 +71,10 @@ jobs:
         run: npx nx run db-api:migrate
 
       - name: Start MCP server
-        working-directory: infra
-        run: docker compose -f docker-compose.mcp.yaml up -d
+        run: nx run mcp-server:serve -- --host
+        env:
+          MCP_HOST: localhost
+          MCP_PORT: 8023
 
       - name: Wait for MCP server to be ready
         working-directory: infra

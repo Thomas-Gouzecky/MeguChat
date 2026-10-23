@@ -7,6 +7,13 @@ if __package__ in (None, ""):
 from app.server import mcp
 from app.configs import HOST, PORT
 from app import tools
+from starlette.responses import JSONResponse
+
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request):
+    return JSONResponse({"status": "healthy"})
+
 
 if __name__ == "__main__":
     mcp.run(

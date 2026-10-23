@@ -70,6 +70,20 @@ jobs:
       - name: Apply db-api database schema
         run: npx nx run db-api:migrate
 
+      - name: Build MCP server image
+        run: npx nx run mcp-server:docker-build-image
+
+      - name: Start MCP server container
+        run: npx nx run mcp-server:docker-run-mcp
+
+      - name: Wait for MCP server to be ready
+        run: |
+          echo "Waiting for MCP server to be ready..."
+          until curl -s http://localhost:8023/health | grep -q '"status":"healthy"'; do
+            sleep 1
+          done
+          echo "MCP server is ready!"
+
       # Prepend any command with "nx record --" to record its logs to Nx Cloud
       - run: npx nx record -- npx nx format:check --base="remotes/origin/main"
       - run: npx nx run-many -t lint test build typecheck e2e --parallel=1
@@ -81,3 +95,7 @@ jobs:
         working-directory: infra/postgres
         if: always()
         run: docker compose -f docker-compose.yaml down -v
+
+      - name: Stop MCP server container
+        if: always()
+        run: docker stop meguchat-mcp-server || true

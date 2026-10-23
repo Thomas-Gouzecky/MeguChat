@@ -18,6 +18,14 @@ public class GlobalExceptionHandler : IExceptionHandler
     {
         var problemDetails = exception switch
         {
+            AIUnavailableException =>
+                new ProblemDetails
+                {
+                    Title = "AI is not active",
+                    Detail = exception.Message,
+                    Status = StatusCodes.Status503ServiceUnavailable
+                },
+
             UnauthenticatedAccessException =>
                 new ProblemDetails
                 {

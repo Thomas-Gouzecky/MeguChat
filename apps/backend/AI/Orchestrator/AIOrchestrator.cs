@@ -4,10 +4,10 @@ public class AIOrchestrator : IAIOrchestrator
 {
     private readonly IMCPClient _mcpClient;
     private readonly ILogger<AIOrchestrator> _logger;
-    private readonly IChatClient _chatClient;
+    private readonly IChatClient? _chatClient;
     private readonly IConfiguration _configuration;
 
-    public AIOrchestrator(IMCPClient mcpClient, ILogger<AIOrchestrator> logger, IChatClient chatClient, IConfiguration configuration)
+    public AIOrchestrator(IMCPClient mcpClient, ILogger<AIOrchestrator> logger, IChatClient? chatClient, IConfiguration configuration)
     {
         _mcpClient = mcpClient;
         _logger = logger;
@@ -17,6 +17,11 @@ public class AIOrchestrator : IAIOrchestrator
 
     public async Task<ChatResponse> ProcessMessageAsync(string message, AIUserContext currentUserContext, string sessionId, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(_configuration["Anthropic_API_KEY"]) || _chatClient is null)
+        {
+            throw new AIUnavailableException();
+        }
+
         var mcpClient = await GetMcpClientAsync();
         var tools = await mcpClient.ListToolsAsync();
 

@@ -20,6 +20,7 @@ public class MCPServerIntegrationTests
         }
 
         await using var client = CreateClient();
+        await client.ConnectAsync(Endpoint);
 
         var tools = await client.ListToolsAsync();
 
@@ -35,6 +36,7 @@ public class MCPServerIntegrationTests
         }
 
         await using var client = CreateClient();
+        await client.ConnectAsync(Endpoint);
 
         var result = await client.CallToolAsync(
             "test-tool",
@@ -88,10 +90,32 @@ public class MCPServerIntegrationTests
 
     private static bool IsIntegrationEnabled()
     {
-        return string.Equals(
-            Environment.GetEnvironmentVariable("RUN_MCP_INTEGRATION_TESTS"),
-            "true",
-            StringComparison.OrdinalIgnoreCase);
+        var environmentValue = Environment.GetEnvironmentVariable("RUN_MCP_INTEGRATION_TESTS");
+        if (environmentValue is not null)
+        {
+            return IsTrue(environmentValue);
+        }
+
+        var testEnvironmentFile = Path.Combine(
+            AppContext.BaseDirectory,
+            ".env.test");
+        if (!File.Exists(testEnvironmentFile))
+        {
+            return false;
+        }
+
+        var setting = File.ReadLines(testEnvironmentFile)
+            .Select(line => line.Trim())
+            .FirstOrDefault(line =>
+                line.StartsWith("RUN_MCP_INTEGRATION_TESTS=", StringComparison.Ordinal));
+
+        return setting is not null
+            && IsTrue(setting["RUN_MCP_INTEGRATION_TESTS=".Length..].Trim().Trim('"'));
+    }
+
+    private static bool IsTrue(string value)
+    {
+        return string.Equals(value.Trim(), "true", StringComparison.OrdinalIgnoreCase);
     }
 
     private sealed class RecordingChatClient : IChatClient

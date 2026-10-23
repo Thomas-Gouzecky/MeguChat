@@ -95,6 +95,8 @@ if (!isMigration)
 
     var apiKey = builder.Configuration["Anthropic_API_KEY"];
     builder.Services.AddSingleton<IMCPClient, MCPClient>();
+    builder.Services.AddSingleton<IAIOrchestrator, AIOrchestrator>();
+    builder.Services.AddScoped<IAIService, AIService>();
 
     if (!string.IsNullOrWhiteSpace(apiKey))
     {
@@ -110,8 +112,6 @@ if (!isMigration)
                 .UseFunctionInvocation()
                 .Build()
         );
-        builder.Services.AddSingleton<IAIOrchestrator, AIOrchestrator>();
-        builder.Services.AddScoped<IAIService, AIService>();
     }
 }
 

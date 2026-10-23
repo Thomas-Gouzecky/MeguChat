@@ -35,7 +35,10 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "dotnet test",
-        "cwd": "apps/backend-tests"
+        "cwd": "apps/backend-tests",
+        "env": {
+          "RUN_MCP_INTEGRATION_TESTS": "true"
+        }
       }
     }
   }

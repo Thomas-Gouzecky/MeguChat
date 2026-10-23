@@ -71,7 +71,7 @@ jobs:
         run: npx nx run db-api:migrate
 
       - name: Start MCP server
-        run: nx run mcp-server:serve -- --host
+        run: nx serve mcp-server
         env:
           MCP_HOST: localhost
           MCP_PORT: 8023

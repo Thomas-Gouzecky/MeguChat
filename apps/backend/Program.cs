@@ -113,6 +113,10 @@ if (!isMigration)
                 .Build()
         );
     }
+    else
+    {
+        builder.Services.AddSingleton<IChatClient, UnavailableChatClient>();
+    }
 }
 
 var app = builder.Build();

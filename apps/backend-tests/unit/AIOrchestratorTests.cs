@@ -76,6 +76,7 @@ public class AIOrchestratorTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
+                ["Anthropic_API_KEY"] = "test-api-key",
                 ["MCP_ENDPOINT"] = "http://localhost:1234/mcp"
             })
             .Build();
@@ -104,7 +105,12 @@ public class AIOrchestratorTests
         var orchestrator = CreateOrchestrator(
             mcpClient,
             chatClient,
-            new ConfigurationBuilder().Build());
+            new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Anthropic_API_KEY"] = "test-api-key"
+                })
+                .Build());
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             () => orchestrator.ProcessMessageAsync(
@@ -114,6 +120,31 @@ public class AIOrchestratorTests
                 CancellationToken.None));
 
         Assert.Equal("MCP_ENDPOINT environment variable is missing.", exception.Message);
+        chatClient.Verify(
+            client => client.GetResponseAsync(
+                It.IsAny<IEnumerable<ChatMessage>>(),
+                It.IsAny<ChatOptions>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessMessageAsync_WhenApiKeyIsMissing_ThrowsAIUnavailableException()
+    {
+        var mcpClient = new Mock<IMCPClient>();
+        var chatClient = new Mock<IChatClient>();
+        var orchestrator = CreateOrchestrator(
+            mcpClient,
+            chatClient,
+            new ConfigurationBuilder().Build());
+
+        await Assert.ThrowsAsync<AIUnavailableException>(
+            () => orchestrator.ProcessMessageAsync(
+                "Hello",
+                new AIUserContext("user-id", "Test User", "user@example.com"),
+                "session-id",
+                CancellationToken.None));
+
         chatClient.Verify(
             client => client.GetResponseAsync(
                 It.IsAny<IEnumerable<ChatMessage>>(),
@@ -145,6 +176,11 @@ public class AIOrchestratorTests
             mcpClient.Object,
             NullLogger<AIOrchestrator>.Instance,
             chatClient.Object,
-            configuration ?? new ConfigurationBuilder().Build());
+            configuration ?? new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Anthropic_API_KEY"] = "test-api-key"
+                })
+                .Build());
     }
 }

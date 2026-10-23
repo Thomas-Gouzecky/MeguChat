@@ -67,8 +67,9 @@ public class MCPServerIntegrationTests
             new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    ["MCP_ENDPOINT"] = Endpoint
-                })
+                        ["MCP_ENDPOINT"] = Endpoint,
+                        ["Anthropic_API_KEY"] = "test-api-key"
+                    })
                 .Build());
 
         await orchestrator.ProcessMessageAsync(

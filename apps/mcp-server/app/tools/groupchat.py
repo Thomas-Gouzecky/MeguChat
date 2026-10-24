@@ -41,3 +41,14 @@ async def get_groupchat_by_id(
 ) -> dict[str, Any]:
     result = await client.get_groupchat(ctx=ctx, groupchat_id=groupchat_id)
     return result
+
+
+@mcp.tool(
+    name="get-current-user-groupchats",
+    description="Get all group chats for the current user.",
+)
+async def get_current_user_groupchats(
+    ctx: Context = Field(..., description="The context of the request."),
+) -> list[dict[str, Any]]:
+    result = await client.get_current_user_groupchats(ctx=ctx)
+    return result

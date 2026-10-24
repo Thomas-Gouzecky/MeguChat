@@ -32,8 +32,8 @@ async def create_groupchat(
 
 
 @mcp.tool(
-    name="get-groupchat",
-    description="Get a group chat through the backend gateway.",
+    name="get-groupchat-by-id",
+    description="Get a group chat by its Id through the backend gateway.",
 )
 async def get_groupchat(
     ctx: Context = Field(..., description="The context of the request."),

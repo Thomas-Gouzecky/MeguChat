@@ -5,6 +5,7 @@ description = "This is a server for the MCP project. It is designed to handle re
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "httpx>=0.28.1",
     "mcp[cli]>=2.3.0",
 ]
 

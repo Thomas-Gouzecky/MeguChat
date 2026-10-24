@@ -21,9 +21,9 @@ async def test_create_groupchat_forwards_context_cookie(monkeypatch):
 
     http_client = AsyncMock()
     http_client.__aenter__.return_value = http_client
-    http_client.post.return_value = response
+    http_client.request.return_value = response
     async_client = Mock(return_value=http_client)
-    monkeypatch.setattr("app.tools.groupchat.httpx.AsyncClient", async_client)
+    monkeypatch.setattr("app.clients.gateway_client.httpx.AsyncClient", async_client)
 
     context = cast(
         Context,
@@ -37,8 +37,9 @@ async def test_create_groupchat_forwards_context_cookie(monkeypatch):
 
     assert result == gateway_response
     async_client.assert_called_once_with()
-    http_client.post.assert_awaited_once_with(
-        "http://localhost:5192/api/groupchats",
+    http_client.request.assert_awaited_once_with(
+        "POST",
+        "http://localhost:5192/api/groupchat",
         json={"name": "test-name", "users": ["user1", "user2"]},
         headers={"Cookie": "test-cookie"},
     )

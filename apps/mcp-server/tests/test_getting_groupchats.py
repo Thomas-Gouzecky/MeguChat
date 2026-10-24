@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock
 
 import app.tools
 import pytest
-from app.tools.groupchat import get_groupchat
+from app.tools.groupchat import get_groupchat_by_id
 from mcp.server.mcpserver.context import Context
 from app.clients.groupchat_client import GroupchatClient
 
@@ -49,7 +49,7 @@ async def test_get_groupchat_forwards_context_cookie(monkeypatch):
     monkeypatch.setattr("app.clients.gateway_client.httpx.AsyncClient", async_client)
 
     context = context_with_headers({"cookie": "session=abc"})
-    result = await get_groupchat(context, 7)
+    result = await get_groupchat_by_id(context, 7)
 
     assert result == gateway_response
     http_client.request.assert_awaited_once_with(
@@ -66,4 +66,4 @@ async def test_get_groupchat_rejects_missing_cookie():
     context = context_with_headers({})
 
     with pytest.raises(ValueError, match="Missing cookie in request headers."):
-        await get_groupchat(context, 7)
+        await get_groupchat_by_id(context, 7)

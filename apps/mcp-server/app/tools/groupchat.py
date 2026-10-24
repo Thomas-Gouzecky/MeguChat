@@ -35,7 +35,7 @@ async def create_groupchat(
     name="get-groupchat-by-id",
     description="Get a group chat by its Id through the backend gateway.",
 )
-async def get_groupchat(
+async def get_groupchat_by_id(
     ctx: Context = Field(..., description="The context of the request."),
     groupchat_id: int = Field(..., description="The ID of the group chat."),
 ) -> dict[str, Any]:

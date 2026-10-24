@@ -1,10 +1,15 @@
-import json
+from types import SimpleNamespace
+from typing import cast
 from unittest.mock import AsyncMock, Mock
 
 import app.tools
+import pytest
+from app.tools.groupchat import create_groupchat
+from mcp.server.mcpserver.context import Context
 
 
-async def test_call_create_groupchat_endpoint(client, monkeypatch):
+@pytest.mark.anyio
+async def test_create_groupchat_forwards_context_cookie(monkeypatch):
     gateway_response = {
         "groupchat_id": 1,
         "name": "test-name",
@@ -20,13 +25,31 @@ async def test_call_create_groupchat_endpoint(client, monkeypatch):
     async_client = Mock(return_value=http_client)
     monkeypatch.setattr("app.tools.groupchat.httpx.AsyncClient", async_client)
 
-    result = await client.call_tool(
-        "create-groupchat", {"name": "test-name", "users": ["user1", "user2"]}
+    context = cast(
+        Context,
+        SimpleNamespace(headers={"cookie": "test-cookie"}),
+    )
+    result = await create_groupchat(
+        context,
+        "test-name",
+        ["user1", "user2"],
     )
 
-    assert json.loads(result.content[0].text) == gateway_response
+    assert result == gateway_response
     async_client.assert_called_once_with()
     http_client.post.assert_awaited_once_with(
         "http://localhost:5192/api/groupchats",
         json={"name": "test-name", "users": ["user1", "user2"]},
+        headers={"Cookie": "test-cookie"},
     )
+
+
+@pytest.mark.anyio
+async def test_create_groupchat_rejects_missing_cookie():
+    context = cast(Context, SimpleNamespace(headers={}))
+    with pytest.raises(ValueError, match="Missing cookie in request headers."):
+        await create_groupchat(
+            context,
+            "test-name",
+            ["user1", "user2"],
+        )

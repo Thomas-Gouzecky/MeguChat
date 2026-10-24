@@ -23,7 +23,7 @@ class GroupchatClient(GatewayClient):
         result = await self.make_request(
             ctx=ctx,
             method="POST",
-            endpoint="/groupchat",
+            endpoint="/groupchats",
             data={"name": name, "users": users},
         )
         return result

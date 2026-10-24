@@ -39,7 +39,7 @@ async def test_create_groupchat_forwards_context_cookie(monkeypatch):
     async_client.assert_called_once_with()
     http_client.request.assert_awaited_once_with(
         "POST",
-        "http://localhost:5192/api/groupchat",
+        "http://localhost:5192/api/groupchats",
         json={"name": "test-name", "users": ["user1", "user2"]},
         headers={"Cookie": "test-cookie"},
     )

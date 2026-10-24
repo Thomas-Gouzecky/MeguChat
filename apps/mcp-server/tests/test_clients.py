@@ -67,6 +67,6 @@ async def test_groupchat_client_delegates_create_request():
     client.make_request.assert_awaited_once_with(
         ctx=context,
         method="POST",
-        endpoint="/groupchat",
+        endpoint="/groupchats",
         data={"name": "friends", "users": ["user-1", "user-2"]},
     )

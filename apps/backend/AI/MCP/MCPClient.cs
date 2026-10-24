@@ -1,16 +1,20 @@
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
+using Microsoft.AspNetCore.Http;
 
 public class MCPClient : IMCPClient, IAsyncDisposable
 {
     private McpClient? _client;
     private readonly ILogger<MCPClient> _logger;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly SemaphoreSlim _connectLock = new(1, 1);
     public bool IsConnected => _client is not null;
-    public MCPClient(ILogger<MCPClient> logger)
+    public MCPClient(
+        ILogger<MCPClient> logger,
+        IHttpContextAccessor httpContextAccessor)
     {
         _logger = logger;
-
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task ConnectAsync(string endpoint)
@@ -24,11 +28,22 @@ public class MCPClient : IMCPClient, IAsyncDisposable
                 return;
             }
 
+            var cookie = _httpContextAccessor.HttpContext?.Request.Headers.Cookie.ToString();
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "The current request does not contain an authentication cookie.");
+            }
+
             var transport = new HttpClientTransport(new()
             {
                 Name = "MCPClient",
                 Endpoint = new Uri(endpoint),
-                TransportMode = HttpTransportMode.StreamableHttp
+                TransportMode = HttpTransportMode.StreamableHttp,
+                AdditionalHeaders = new Dictionary<string, string>
+                {
+                    ["Cookie"] = cookie
+                }
             });
 
             _client = await McpClient.CreateAsync(transport);

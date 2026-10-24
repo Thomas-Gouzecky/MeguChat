@@ -9,6 +9,8 @@ from app.clients.base.client import BaseClient
 from app.clients.gateway_client import GatewayClient
 from app.clients.groupchat_client import GroupchatClient
 
+from app.DTO.create_groupchat import CreateGroupchatDTO
+
 
 def context_with_headers(headers: dict[str, str] | None) -> Context:
     return cast(Context, SimpleNamespace(headers=headers))
@@ -61,7 +63,9 @@ async def test_groupchat_client_delegates_create_request():
     client.make_request = AsyncMock(return_value={"groupchat_id": 7})
     context = context_with_headers({"cookie": "session=abc"})
 
-    result = await client.create_groupchat(context, "friends", ["user-1", "user-2"])
+    result = await client.create_groupchat(
+        context, CreateGroupchatDTO(name="friends", users=["user-1", "user-2"])
+    )
 
     assert result == {"groupchat_id": 7}
     client.make_request.assert_awaited_once_with(

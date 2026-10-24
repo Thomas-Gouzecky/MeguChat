@@ -8,6 +8,8 @@ from mcp.server.mcpserver.context import Context
 
 from app.clients.groupchat_client import GroupchatClient
 
+from app.DTO import CreateGroupchatDTO
+
 client = GroupchatClient()
 
 
@@ -23,5 +25,7 @@ async def create_groupchat(
         description="The user IDs to add to the group chat.",
     ),
 ) -> dict[str, Any]:
-    result = await client.create_groupchat(ctx=ctx, name=name, users=users)
+    result = await client.create_groupchat(
+        ctx=ctx, data=CreateGroupchatDTO(name=name, users=users)
+    )
     return result

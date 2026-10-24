@@ -13,7 +13,7 @@ class GatewayClient(BaseClient):
 
     async def make_request(
         self, ctx: Context, method: str, endpoint: str, data: dict[str, Any]
-    ) -> dict[str, Any]:
+    ) -> Any:
         """
         Make a request to the backend gateway.
 

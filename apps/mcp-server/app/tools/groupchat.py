@@ -29,3 +29,15 @@ async def create_groupchat(
         ctx=ctx, data=CreateGroupchatDTO(name=name, users=users)
     )
     return result
+
+
+@mcp.tool(
+    name="get-groupchat",
+    description="Get a group chat through the backend gateway.",
+)
+async def get_groupchat(
+    ctx: Context = Field(..., description="The context of the request."),
+    groupchat_id: int = Field(..., description="The ID of the group chat."),
+) -> dict[str, Any]:
+    result = await client.get_groupchat(ctx=ctx, groupchat_id=groupchat_id)
+    return result

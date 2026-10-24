@@ -8,7 +8,7 @@ from mcp.server.mcpserver.context import Context
 
 from app.clients.groupchat_client import GroupchatClient
 
-from app.DTO import CreateGroupchatDTO
+from app.DTO import CreateGroupchatDTO, UpdateGroupchatDTO
 
 client = GroupchatClient()
 
@@ -51,4 +51,21 @@ async def get_current_user_groupchats(
     ctx: Context = Field(..., description="The context of the request."),
 ) -> list[dict[str, Any]]:
     result = await client.get_current_user_groupchats(ctx=ctx)
+    return result
+
+
+@mcp.tool(
+    name="update-groupchat",
+    description="Update a group chat through the backend gateway.",
+)
+async def update_groupchat(
+    ctx: Context = Field(..., description="The context of the request."),
+    groupchat_id: int = Field(..., description="The ID of the group chat."),
+    name: str | None = Field(
+        default=None, description="The new name of the group chat."
+    ),
+) -> dict[str, Any]:
+    result = await client.update_groupchat(
+        ctx=ctx, groupchat_id=groupchat_id, update_data=UpdateGroupchatDTO(name=name)
+    )
     return result

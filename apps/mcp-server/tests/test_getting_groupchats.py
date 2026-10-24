@@ -12,8 +12,7 @@ from mcp.server.mcpserver.context import Context
 from app.clients.groupchat_client import GroupchatClient
 
 
-def context_with_headers(headers: dict[str, str] | None) -> Context:
-    return cast(Context, SimpleNamespace(headers=headers))
+from tests.helper import context_with_headers
 
 
 @pytest.mark.anyio

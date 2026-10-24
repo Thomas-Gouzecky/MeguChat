@@ -1,12 +1,14 @@
 from typing import Any
 
-import httpx
 from pydantic import Field
 
-from app.configs import BACKEND_GATEWAY_URL
 from app.server import mcp
 
 from mcp.server.mcpserver.context import Context
+
+from app.clients.groupchat_client import GroupchatClient
+
+client = GroupchatClient()
 
 
 @mcp.tool(
@@ -14,24 +16,12 @@ from mcp.server.mcpserver.context import Context
     description="Create a group chat through the backend gateway.",
 )
 async def create_groupchat(
-    ctx: Context,
+    ctx: Context = Field(..., description="The context of the request."),
     name: str = Field(..., description="The name of the group chat."),
     users: list[str] = Field(
         default_factory=list,
         description="The user IDs to add to the group chat.",
     ),
 ) -> dict[str, Any]:
-    incoming_headers = ctx.headers or {}
-    cookie = incoming_headers.get("cookie")
-
-    if not cookie:
-        raise ValueError("Missing cookie in request headers.")
-
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"{BACKEND_GATEWAY_URL}/api/groupchats",
-            headers={"Cookie": cookie},
-            json={"name": name, "users": users},
-        )
-        response.raise_for_status()
-        return response.json()
+    result = await client.create_groupchat(ctx=ctx, name=name, users=users)
+    return result

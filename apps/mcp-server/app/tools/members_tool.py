@@ -32,7 +32,7 @@ async def get_members_of_groupchat(
     description="Add members to a groupchat",
     annotations=ToolAnnotations(
         title="Add Members to Groupchat",
-        read_only_hint=True,
+        idempotent_hint=True,
         open_world_hint=True,
     ),
 )
@@ -55,7 +55,6 @@ async def add_members_to_groupchat(
     description="Remove a member from a groupchat",
     annotations=ToolAnnotations(
         title="Remove Member from Groupchat",
-        read_only_hint=True,
         destructive_hint=True,
         open_world_hint=True,
     ),

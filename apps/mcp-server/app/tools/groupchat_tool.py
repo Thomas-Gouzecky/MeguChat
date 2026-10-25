@@ -1,5 +1,6 @@
 from typing import Any
 
+from mcp_types import ToolAnnotations
 from pydantic import Field
 
 from app.server import mcp
@@ -16,6 +17,10 @@ client = GroupchatClient()
 @mcp.tool(
     name="create-groupchat",
     description="Create a group chat through the backend gateway.",
+    annotations=ToolAnnotations(
+        title="Create Groupchat",
+        open_world_hint=True,
+    ),
 )
 async def create_groupchat(
     ctx: Context = Field(..., description="The context of the request."),
@@ -34,6 +39,11 @@ async def create_groupchat(
 @mcp.tool(
     name="get-groupchat-by-id",
     description="Get a group chat by its Id through the backend gateway.",
+    annotations=ToolAnnotations(
+        title="Get Groupchat by Id",
+        read_only_hint=True,
+        open_world_hint=True,
+    ),
 )
 async def get_groupchat_by_id(
     ctx: Context = Field(..., description="The context of the request."),
@@ -46,6 +56,11 @@ async def get_groupchat_by_id(
 @mcp.tool(
     name="get-current-user-groupchats",
     description="Get all group chats for the current user.",
+    annotations=ToolAnnotations(
+        title="Get Current User Groupchats",
+        read_only_hint=True,
+        open_world_hint=True,
+    ),
 )
 async def get_current_user_groupchats(
     ctx: Context = Field(..., description="The context of the request."),
@@ -57,6 +72,10 @@ async def get_current_user_groupchats(
 @mcp.tool(
     name="update-groupchat",
     description="Update a group chat through the backend gateway.",
+    annotations=ToolAnnotations(
+        title="Update Groupchat",
+        open_world_hint=True,
+    ),
 )
 async def update_groupchat(
     ctx: Context = Field(..., description="The context of the request."),

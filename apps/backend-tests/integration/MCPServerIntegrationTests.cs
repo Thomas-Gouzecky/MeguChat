@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Protocol;
@@ -86,7 +87,15 @@ public class MCPServerIntegrationTests
 
     private static MCPClient CreateClient()
     {
-        return new MCPClient(NullLogger<MCPClient>.Instance);
+        var httpContextAccessor = new HttpContextAccessor
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+        httpContextAccessor.HttpContext.Request.Headers.Cookie = "session=test";
+
+        return new MCPClient(
+            NullLogger<MCPClient>.Instance,
+            httpContextAccessor);
     }
 
     private static bool IsIntegrationEnabled()

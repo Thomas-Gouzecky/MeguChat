@@ -34,7 +34,7 @@ async def test_add_member_to_groupchat_delegates_request():
     client.make_request = AsyncMock(return_value=response)
     context = context_with_headers({"cookie": "session=abc"})
 
-    result = await client.add_member_to_groupchat(
+    result = await client.add_members_to_groupchat(
         context,
         7,
         ["user-1", "user-2"],

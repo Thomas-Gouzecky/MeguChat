@@ -19,3 +19,20 @@ async def get_members_of_groupchat(
 ) -> list[dict[str, Any]]:
     result = await client.get_members_of_groupchat(ctx=ctx, groupchat_id=groupchat_id)
     return result
+
+@mcp.tool(
+    name="add-members-to-groupchat",
+    description="Add members to a groupchat",
+)
+async def add_members_to_groupchat(
+    ctx: Context = Field(..., description="The context of the request."),
+    groupchat_id: int = Field(..., description="The ID of the group chat."),
+    user_ids: list[str] = Field(
+        default_factory=list,
+        description="The user IDs to add to the group chat.",
+    ),
+) -> dict[str, Any]:
+    result = await client.add_members_to_groupchat(
+        ctx=ctx, groupchat_id=groupchat_id, user_ids=user_ids
+    )
+    return result

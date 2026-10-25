@@ -29,7 +29,7 @@ class MembersClient(GatewayClient):
         )
         return result
 
-    async def add_member_to_groupchat(
+    async def add_members_to_groupchat(
         self, ctx: Context, groupchat_id: int, user_ids: list[str]
     ) -> dict[str, Any]:
         """

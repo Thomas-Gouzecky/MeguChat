@@ -16,3 +16,4 @@ def get_required_setting(name: str) -> str:
 
 HOST = get_required_setting("MCP_HOST")
 PORT = int(get_required_setting("MCP_PORT"))
+BACKEND_GATEWAY_URL = get_required_setting("BACKEND_GATEWAY_URL")

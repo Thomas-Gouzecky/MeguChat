@@ -94,8 +94,9 @@ if (!isMigration)
     // AI Orchestrator and Chat Client Configuration
 
     var apiKey = builder.Configuration["Anthropic_API_KEY"];
-    builder.Services.AddSingleton<IMCPClient, MCPClient>();
-    builder.Services.AddSingleton<IAIOrchestrator, AIOrchestrator>();
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddScoped<IMCPClient, MCPClient>();
+    builder.Services.AddScoped<IAIOrchestrator, AIOrchestrator>();
     builder.Services.AddScoped<IAIService, AIService>();
 
     if (!string.IsNullOrWhiteSpace(apiKey))

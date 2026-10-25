@@ -16,6 +16,7 @@ async def health_check(request):
 
 
 if __name__ == "__main__":
+    mcp.remove_tool("get-groupchat-by-id")
     mcp.run(
         transport="streamable-http",
         host=HOST,

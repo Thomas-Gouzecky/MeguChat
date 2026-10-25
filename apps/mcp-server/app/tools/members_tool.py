@@ -1,5 +1,6 @@
 from typing import Any
 
+from mcp_types import ToolAnnotations
 from pydantic import Field
 from mcp.server.mcpserver.context import Context
 
@@ -12,6 +13,11 @@ client = MembersClient()
 @mcp.tool(
     name="get-members-of-groupchat",
     description="Get the members of a groupchat",
+    annotations=ToolAnnotations(
+        title="Get Members of Groupchat",
+        read_only_hint=True,
+        open_world_hint=True,
+    ),
 )
 async def get_members_of_groupchat(
     ctx: Context = Field(..., description="The context of the request."),
@@ -20,9 +26,15 @@ async def get_members_of_groupchat(
     result = await client.get_members_of_groupchat(ctx=ctx, groupchat_id=groupchat_id)
     return result
 
+
 @mcp.tool(
     name="add-members-to-groupchat",
     description="Add members to a groupchat",
+    annotations=ToolAnnotations(
+        title="Add Members to Groupchat",
+        read_only_hint=True,
+        open_world_hint=True,
+    ),
 )
 async def add_members_to_groupchat(
     ctx: Context = Field(..., description="The context of the request."),
@@ -37,9 +49,16 @@ async def add_members_to_groupchat(
     )
     return result
 
+
 @mcp.tool(
     name="remove-member-from-groupchat",
     description="Remove a member from a groupchat",
+    annotations=ToolAnnotations(
+        title="Remove Member from Groupchat",
+        read_only_hint=True,
+        destructive_hint=True,
+        open_world_hint=True,
+    ),
 )
 async def remove_member_from_groupchat(
     ctx: Context = Field(..., description="The context of the request."),

@@ -41,14 +41,14 @@
     "docker-run-image": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker run --rm --env MCP_HOST=0.0.0.0 --env MCP_PORT=8023 --name meguchat-mcp-server -p 8023:8023 -d tomcheese/meguchat-mcp-server-repo",
+        "command": "docker run --rm --env MCP_HOST=0.0.0.0 --env MCP_PORT=8023 --env BACKEND_GATEWAY_URL=http://localhost:8080 --name meguchat-mcp-server -p 8023:8023 -d tomcheese/meguchat-mcp-server-repo",
         "cwd": "apps/mcp-server"
       }
     },
     "docker-run-mcp": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker run --rm --env MCP_HOST=0.0.0.0 --env MCP_PORT=8023 --name meguchat-mcp-server -p 8023:8023 -d tomcheese/meguchat-mcp-server-repo",
+        "command": "docker run --rm --env MCP_HOST=0.0.0.0 --env MCP_PORT=8023 --env BACKEND_GATEWAY_URL=http://localhost:8080 --name meguchat-mcp-server -p 8023:8023 -d tomcheese/meguchat-mcp-server-repo",
         "cwd": "apps/mcp-server"
       }
     },

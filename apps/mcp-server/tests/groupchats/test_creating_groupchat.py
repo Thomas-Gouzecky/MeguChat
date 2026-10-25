@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, Mock
 
 import app.tools
 import pytest
-from app.tools.groupchat import create_groupchat
+from app.tools import create_groupchat
 
 from tests.helper import context_with_headers
 

@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, Mock
 
 import app.tools
 import pytest
-from app.tools.groupchat import (
+from app.tools import (
     get_current_user_groupchats,
     get_groupchat_by_id,
 )

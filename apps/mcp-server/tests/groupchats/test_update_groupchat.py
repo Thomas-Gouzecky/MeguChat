@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from app.DTO import UpdateGroupchatDTO
 from app.clients.groupchat_client import GroupchatClient
-from app.tools.groupchat import update_groupchat
+from app.tools import update_groupchat
 
 from tests.helper import context_with_headers
 

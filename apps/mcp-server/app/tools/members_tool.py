@@ -36,3 +36,17 @@ async def add_members_to_groupchat(
         ctx=ctx, groupchat_id=groupchat_id, user_ids=user_ids
     )
     return result
+
+@mcp.tool(
+    name="remove-member-from-groupchat",
+    description="Remove a member from a groupchat",
+)
+async def remove_member_from_groupchat(
+    ctx: Context = Field(..., description="The context of the request."),
+    groupchat_id: int = Field(..., description="The ID of the group chat."),
+    user_id: str = Field(..., description="The ID of the user to remove."),
+) -> dict[str, Any]:
+    result = await client.remove_member_from_groupchat(
+        ctx=ctx, groupchat_id=groupchat_id, user_id=user_id
+    )
+    return result
